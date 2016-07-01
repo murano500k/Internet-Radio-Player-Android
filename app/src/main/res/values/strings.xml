@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Online Radio</string>
+    <string name="description">mEDIA CONTROL</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="stations">
+        <item>http://pub2.diforfree.org:8000/di_drumandbass_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_liquiddnb_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_darkdnb_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_dub_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_bigbeat_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_jungle_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_dubtechno_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_deeptech_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_breaks_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_vocaltrance_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_chillhop_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_bassline_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_deephouse_hi</item>
+        <item>http://pub2.diforfree.org:8000/di_undergroundtechno_hi</item>
+    </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
