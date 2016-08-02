@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="130dp"
                 android:background="#3c3c3c"
                 tools:ignore="ContentDescription">
 
@@ -10,9 +10,10 @@
     android:id="@+id/widget_image"
     android:layout_width="@dimen/notification_expanded_height"
     android:layout_height="@dimen/notification_expanded_height"
-    android:layout_alignParentBottom="true"
+    android:layout_alignParentBottom="false"
     android:layout_alignParentLeft="true"
-    android:scaleType="fitXY"/>
+    android:scaleType="fitXY"
+      android:layout_margin="5dp" />
 
   <LinearLayout
     android:id="@+id/notification_expanded_buttons"
@@ -75,7 +76,8 @@
     android:layout_toRightOf="@+id/widget_image"
     android:orientation="vertical"
     android:paddingLeft="@dimen/notification_info_container_padding_left"
-    android:paddingTop="@dimen/notification_expanded_content_padding_top">
+    android:paddingTop="@dimen/notification_expanded_content_padding_top"
+      android:layout_above="@+id/notification_expanded_buttons">
 
     <TextView
         android:layout_width="wrap_content"

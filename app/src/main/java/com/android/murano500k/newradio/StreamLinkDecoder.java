@@ -1,4 +1,4 @@
-package com.android.murano500k.onlineradioplayer;
+package com.android.murano500k.newradio;
 
 import android.os.AsyncTask;
 

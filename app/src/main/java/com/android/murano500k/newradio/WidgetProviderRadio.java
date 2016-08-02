@@ -1,8 +1,8 @@
-package com.android.murano500k.onlineradioplayer;
+/*
+package com.android.murano500k.newradio;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
-import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,12 +10,17 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.android.murano500k.onlineradioplayer.R;
+import com.android.murano500k.onlineradioplayer.RadioPlayerService;
+
+*/
 /**
- * Created by artem on 6/27/16.
- */
-public class SimpleWidgetProvider extends AppWidgetProvider {
-    private static final String TAG = "SimpleWidgetProvider";
-    private Bitmap artImage;
+ * Created by artem on 7/22/16.
+ *//*
+
+public class WidgetProviderRadio {//TODO UPDATE WIDGET CODE
+    private static final String TAG = "WidgetProviderRadio";
+    private Bitmap artImageId=null;
     public static final String SELECTED_STATION_TITLE= "SELECTED_STATION_TITLE";
     public static final String IS_PLAYING= "IS_PLAYING";
     String title;
@@ -24,7 +29,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
     int[] widgetIds;
     private RemoteViews remoteViews;
 
-    public SimpleWidgetProvider() {
+    public WidgetProviderRadio() {
 
 
     }
@@ -35,7 +40,6 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
         if(action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)){
             title = intent.getStringExtra(SELECTED_STATION_TITLE);
             isPlaying = intent.getBooleanExtra(IS_PLAYING, false);
-            //this.onUpdate(context, widgetManager, widgetIds);
         }
         super.onReceive(context, intent);
 
@@ -59,12 +63,14 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
             //Intent intentPrev = new Intent(RadioPlayerService.WIDGET_INTENT_PREV);
             //Intent intentNext = new Intent(RadioPlayerService.WIDGET_INTENT_NEXT);
             Intent intentOpenPlayer = new Intent(RadioPlayerService.NOTIFICATION_INTENT_OPEN_PLAYER);
-            /*intentNext.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
+            */
+/*intentNext.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
                     Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intentPrev.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
                     Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intentPlayPause.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
-                    Intent.FLAG_ACTIVITY_SINGLE_TOP);*/
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP);*//*
+
             intentOpenPlayer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|
                     Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
@@ -82,8 +88,14 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
             remoteViews = new RemoteViews(context.getPackageName(),
                     R.layout.simple_widget);
 
-            if (artImage == null)
-                artImage = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_checked);
+            if (artImageId == null){
+                if(title!=null){
+                    int art = RadioPlayerService.getArt(title, context);
+                    if(art!=0)artImageId = BitmapFactory.decodeResource(context.getResources(), art);
+                }
+                else  artImageId=BitmapFactory.decodeResource(context.getResources(),R.drawable.default_art);
+
+            }
             Log.d(TAG, "title: "+title+" isPlaying: "+ isPlaying+" ");
             if(title==null) title="";
 
@@ -92,7 +104,7 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
             remoteViews.setImageViewResource(R.id.btn_widget_next, R.drawable.ic_next);
 
             remoteViews.setImageViewResource(R.id.btn_widget_play, isPlaying ? R.drawable.btn_playback_pause : R.drawable.btn_playback_play);
-            remoteViews.setImageViewBitmap(R.id.widget_image, artImage);
+            remoteViews.setImageViewBitmap(R.id.widget_image, artImageId);
 
             remoteViews.setOnClickPendingIntent(R.id.btn_widget_prev, prevPending);
             remoteViews.setOnClickPendingIntent(R.id.btn_widget_next, nextPending);
@@ -103,5 +115,5 @@ public class SimpleWidgetProvider extends AppWidgetProvider {
 
         }
     }
-
 }
+*/
