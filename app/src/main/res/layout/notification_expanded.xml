@@ -27,33 +27,28 @@
 
     <ImageView
         android:id="@+id/notification_expanded_prev"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/notification_expanded_button_height"
-        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="?android:selectableItemBackground"
-        android:padding="@dimen/notification_expanded_button_padding"
         android:src="@drawable/ic_prev"
-        android:scaleType="fitCenter" />
+        android:scaleType="centerCrop" />
 
     <ImageView
-      android:id="@+id/notification_expanded_play"
-      android:layout_width="0dp"
-      android:layout_height="@dimen/notification_expanded_button_height"
-      android:layout_weight="1"
-      android:background="?android:selectableItemBackground"
-      android:padding="@dimen/notification_expanded_button_padding"
-      android:src="@drawable/btn_playback_pause"
-      android:scaleType="fitCenter"/>
+        android:id="@+id/notification_expanded_play"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/ic_play"
+        android:scaleType="centerCrop"
+        android:padding="5dp"/>
 
     <ImageView
         android:id="@+id/notification_expanded_next"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/notification_expanded_button_height"
-        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="?android:selectableItemBackground"
-        android:padding="@dimen/notification_expanded_button_padding"
         android:src="@drawable/ic_next"
-        android:scaleType="fitCenter" />
+        android:scaleType="matrix" />
 
   </LinearLayout>
 
@@ -67,39 +62,37 @@
     android:padding="@dimen/notification_expanded_collapse_padding"
     android:src="@drawable/btn_notification_collapse"/>
 
-  <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_alignParentTop="true"
-    android:layout_gravity="center_vertical"
-    android:layout_toLeftOf="@+id/notification_collapse"
-    android:layout_toRightOf="@+id/widget_image"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/notification_info_container_padding_left"
-    android:paddingTop="@dimen/notification_expanded_content_padding_top"
-      android:layout_above="@+id/notification_expanded_buttons">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="station"
-        android:id="@+id/notification_station_name"
-        style="@style/NotificationText"
-        android:textAppearance="@android:style/TextAppearance.StatusBar.EventContent.Title"
-        android:textColor="@color/colorTextAccent"
-        android:textStyle="bold" />
-
-    <TextView
-      android:id="@+id/notification_line_one"
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="station"
+      android:id="@+id/notification_station_name"
       style="@style/NotificationText"
       android:textAppearance="@android:style/TextAppearance.StatusBar.EventContent.Title"
-        android:textStyle="italic" />
+      android:textColor="@color/colorTextAccent"
+      android:layout_toRightOf="@+id/widget_image"
+      android:layout_alignParentTop="true"/>
 
-    <TextView
-      android:id="@+id/notification_line_two"
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/notification_artist"
       style="@style/NotificationText"
-      android:textAppearance="@android:style/TextAppearance.StatusBar.EventContent" />
+      android:textColor="@color/colorText"
+      android:layout_toRightOf="@+id/widget_image"
+      android:layout_below="@+id/notification_station_name"
+      android:layout_marginRight="15dp"
+      android:layout_toLeftOf="@+id/notification_station_name"/>
 
-  </LinearLayout>
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/notification_song"
+      style="@style/NotificationText"
+      android:textColor="@color/colorText"
+      android:layout_toRightOf="@+id/notification_artist"
+      android:layout_below="@+id/notification_station_name"
+      android:textStyle="italic"
+      android:layout_toLeftOf="@+id/notification_collapse"/>
 
 </RelativeLayout>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+    
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >  
+        
+        <TextView
+            android:id="@+id/dBTextView"
+            android:layout_width="107dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:gravity="right"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="80dp"
+            android:typeface="monospace" />
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="26dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="."
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="80dp"
+            android:typeface="monospace" />
+
+        <TextView
+            android:id="@+id/dBFractionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="80dp"
+            android:typeface="monospace" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:text="dB"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="80dp"
+            android:typeface="monospace" />
+
+    </LinearLayout>
+
+    <ToggleButton
+        android:id="@+id/on_off_toggle_button"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="On" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="287dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/adjust_sensitivity_instructions" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp" >
+
+        <Button
+            android:id="@+id/minus_5_db_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.10"
+            android:text="@string/minus_5_db" />
+
+        <Button
+            android:id="@+id/minus_1_db_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.10"
+            android:text="@string/minus_1_db" />
+
+        <Button
+            android:id="@+id/plus_1_db_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.10"
+            android:text="@string/plus_1_db" />
+
+        <Button
+            android:id="@+id/plus_5_db_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.10"
+            android:text="@string/plus_5_db" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/gain_error_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/gain_error_text" />
+
+        <TextView
+            android:id="@+id/gain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="0.40"
+            android:text="@string/gain" />
+    </LinearLayout>
+    
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Settings" />
+        
+    <view class="com.google.speech.levelmeter.BarLevelDrawable"
+        android:id="@+id/bar_level_drawable_view"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp" ></view> 
+    
+</LinearLayout>

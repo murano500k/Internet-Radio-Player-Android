@@ -1,7 +1,5 @@
 package com.android.murano500k.newradio;
 
-import java.util.ArrayList;
-
 /**
  * Created by mertsimsek on 01/07/15.
  */
@@ -9,6 +7,9 @@ public interface ListenerRadio {
 
 
 	void onLoadingStarted(String url);
+
+	void onProgressUpdate(int p, int pMax, String s);
+
 
 	void onRadioConnected();
 
@@ -20,7 +21,7 @@ public interface ListenerRadio {
 
 	void onPlaybackError();
 
-	void onListChanged(ArrayList<Station> newlist);
+	void onListChanged();
 
 	void onStationSelected(String url);
 

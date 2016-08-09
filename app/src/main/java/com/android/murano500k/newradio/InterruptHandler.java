@@ -1,3 +1,4 @@
+/*
 package com.android.murano500k.newradio;
 
 import android.app.NotificationManager;
@@ -23,9 +24,11 @@ import rx.Subscription;
 
 import static android.telephony.PhoneStateListener.LISTEN_NONE;
 
+*/
 /**
  * Created by artem on 7/25/16.
- */
+ *//*
+
 public class InterruptHandler implements ListenerRadio{
 	private static final String TAG = "InterruptHandler";
 	private AudioManager audioManager;
@@ -65,10 +68,12 @@ public class InterruptHandler implements ListenerRadio{
 				if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
 					if (serviceRadio.isPlaying()) {
 						isInterrupted = true;
-                        /*if(networkChangeReceiver!=null && networkChangeReceiver.isListening){
+                        */
+/*if(networkChangeReceiver!=null && networkChangeReceiver.isListening){
                             context.unregisterReceiver(networkChangeReceiver);
                             networkChangeReceiver.isListening=false;
-                        }*/
+                        }*//*
+
 						serviceAction(Constants.INTENT_PAUSE_PLAYBACK);
 					}
 				} else if (state == TelephonyManager.CALL_STATE_IDLE) {
@@ -233,7 +238,7 @@ public class InterruptHandler implements ListenerRadio{
 
 	@Override
 	public void onPlaybackError() {
-		if(connectedSubscription.isUnsubscribed()) registerConnectivityListener();
+		if(connectedSubscription!=null && connectedSubscription.isUnsubscribed()) registerConnectivityListener();
 		if (mTelephonyManager != null && phoneStateListener!=null)
 			mTelephonyManager.listen(phoneStateListener, LISTEN_NONE);
 		if(audioFocusChangeListener!=null)audioManager.abandonAudioFocus(audioFocusChangeListener);
@@ -258,6 +263,7 @@ public class InterruptHandler implements ListenerRadio{
 				mTelephonyManager.listen(phoneStateListener, LISTEN_NONE);
 		}
 	}
+*/
 /*
     public void listenConnectivity() {
         if(networkChangeReceiver==null) networkChangeReceiver= new NetworkChangeReceiver();
@@ -272,8 +278,10 @@ public class InterruptHandler implements ListenerRadio{
             context.unregisterReceiver(networkChangeReceiver);
             networkChangeReceiver.isListening=false;
         }
-    }*/
-    /*public void initRxMediaSession() {
+    }*//*
+
+    */
+/*public void initRxMediaSession() {
         IntentFilter filter = new IntentFilter(AudioManager.ACTION_MEDIA_BUTTON);
         filter.setPriority(  IntentFilter.SYSTEM_HIGH_PRIORITY-1);
 
@@ -282,9 +290,11 @@ public class InterruptHandler implements ListenerRadio{
                 .subscribe(this::onVolumeButtonEvent);
 
 
-    }*/
+    }*//*
 
-    /*public void initMediaSession(){
+
+    */
+/*public void initMediaSession(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             String TAG="MyMediaSession";
             mediaSession = new MediaSession(context, TAG);
@@ -375,10 +385,12 @@ registerConnectivityListener();
 
         }
 
-    }*/
+    }*//*
 
 
 
+
+*/
 /*
     public boolean onVolumeButtonEvent(@NonNull Intent mediaButtonIntent) {
         Log.d(TAG, "onVolumeButtonEvent "+ mediaButtonIntent.getDataString());
@@ -413,12 +425,14 @@ registerConnectivityListener();
         Log.d(TAG, "onMediaButtonEvent called: " + mediaButtonIntent);
         return true;
     }
-*/
+*//*
 
 
 
 
-   /* public class NetworkChangeReceiver extends BroadcastReceiver {
+
+   */
+/* public class NetworkChangeReceiver extends BroadcastReceiver {
         private static final String TAG = "NetworkChangeReceiver";
         ConnectivityManager cm;
         public boolean isConnected;
@@ -451,7 +465,9 @@ registerConnectivityListener();
                 return false;
             }
         }
-    }*/
+    }*//*
+
 }
 
 
+*/

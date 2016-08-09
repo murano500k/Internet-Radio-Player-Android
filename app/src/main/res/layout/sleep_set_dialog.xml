@@ -37,7 +37,7 @@
                 android:id="@+id/min30"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
+                android:checked="false"
                 android:text="30 minutes"
                 android:layout_margin="5dp" />
 

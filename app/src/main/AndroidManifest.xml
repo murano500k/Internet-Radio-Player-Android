@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
@@ -103,8 +105,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TEMPActivity"
+            android:name="com.google.speech.levelmeter.LevelMeterActivity"
             android:label="@string/title_activity_temp"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity
+            android:name="com.google.speech.levelmeter.Settings"
+            android:label="Settings"
             android:theme="@style/AppTheme">
         </activity>
     </application>

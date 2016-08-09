@@ -22,4 +22,20 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_temp">TEMPActivity</string>
+
+        <string name="toast_message">On or Off</string>
+        <string name="settings_ok">ok</string>
+        <string name="adjust_sensitivity">Calibrate sensitivity</string>
+        <string name="adjust_sensitivity_instructions">To calibrate sensitivity you will need a steady sound source and a calibrated SPL meter. Turn on the sound source and the reference meter. Adjust the sensitivity until the two dB readings match.</string>
+        <string name="minus_5_db">-5\ndB</string>
+        <string name="minus_1_db">-1\ndB</string>
+        <string name="plus_1_db">+1\ndB</string>
+        <string name="plus_5_db">+5\ndB</string>
+        <string name="gain_error_text">Sensitivity correction:</string>
+        <string name="gain">0.0</string>
+        <string name="sample_rate">Sample Rate</string>
+        <string-array name="sample_rate_array">
+            <item>8000</item>
+            <item>16000</item>
+        </string-array>
 </resources>

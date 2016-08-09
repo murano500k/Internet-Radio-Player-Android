@@ -1,36 +1,37 @@
 package com.android.murano500k.newradio;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
+import android.content.IntentFilter;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.session.MediaSession;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.Toast;
 
+import com.cantrowitz.rxbroadcast.RxBroadcast;
 import com.spoledge.aacdecoder.MultiPlayer;
 import com.spoledge.aacdecoder.PlayerCallback;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
-import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
-import static com.android.murano500k.newradio.StationContent.initStations;
+import static android.telephony.PhoneStateListener.LISTEN_NONE;
 
 /**
  * The type Service radio.
@@ -38,13 +39,10 @@ import static com.android.murano500k.newradio.StationContent.initStations;
 public class ServiceRadio extends Service implements PlayerCallback{
 //TODO: Widget, notification, sleeptimer, design (theme, colors)
 	//TODO:Interruptions: connectivity, phone, headphones plug, audiofocus
-	private String stationName = "";
-	private String singerName = "";
-	private String songName = "";
-	private int smallImage = R.drawable.default_art;
-	private Bitmap artImage=null;
 
-	private final int AUDIO_BUFFER_CAPACITY_MS = 800;
+
+	//private final int AUDIO_BUFFER_CAPACITY_MS = 800;
+	private final int AUDIO_BUFFER_CAPACITY_MS = 1600;
 	private final int AUDIO_DECODE_CAPACITY_MS = 400;
 	private final String SUFFIX_PLS = ".pls";
 	private final String SUFFIX_RAM = ".ram";
@@ -55,54 +53,32 @@ public class ServiceRadio extends Service implements PlayerCallback{
 	private boolean isSwitching;
 	private boolean isClosedFromNotification = false;
 	private boolean mLock;
+	private boolean wasDisconnectedWhenPlaying;
 	/**
 	 * The M local binder.
 	 */
 	public final IBinder mLocalBinder = new LocalBinder();
-	private InterruptHandler interruptHandler;
 	private boolean isPlaying;
 	private MediaSession mediaSession;
 	private Subscription stationsSubscription;
+	private SleepTimerTask sleepTimerTask;
+	private int audioDeviceState;
+	private AudioManager audioManager;
+	private Initiator initiator;
+	private ConnectivityManager cm;
+	private int positionNotificationPeriod =17640/4;
+	private NotificationProvider notificationProvider;
+	private PlaylistManager playlistManager;
 
-	/**
-	 * The enum State.
-	 */
 	public enum State {
-		/**
-		 * Idle state.
-		 */
 		IDLE,
-		/**
-		 * Playing state.
-		 */
 		PLAYING,
-		/**
-		 * Stopped state.
-		 */
-		STOPPED,
+		 STOPPED,
 	}
 	private State mRadioState;
 
-	/**
-	 * The Notifier.
-	 */
 	public NotifierRadio notifier;
-	private Station currentStation;
-	private NotificationManager mNotificationManager;
 
-	private static ArrayList<Station> stations;
-	private static ArrayList<Station> stationsFav;
-
-
-
-	private boolean favOnly;
-
-
-	/**
-	 * Gets player.
-	 *
-	 * @return the player
-	 */
 	public MultiPlayer getPlayer() {
 		try {
 			java.net.URL.setURLStreamHandlerFactory(new java.net.URLStreamHandlerFactory() {
@@ -123,6 +99,7 @@ public class ServiceRadio extends Service implements PlayerCallback{
 			mRadioPlayer.setResponseCodeCheckEnabled(false);
 			mRadioPlayer.setPlayerCallback(this);
 		}
+
 		return mRadioPlayer;
 	}
 	@Override
@@ -150,54 +127,55 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		mRadioState = State.PLAYING;
 		mLock = false;
 		isClosedFromNotification = false;
-		notifier.notifyStationSelected(currentStation.url);
-
-		notifier.notifyPlaybackStarted(currentStation.url);
+		notifier.notifyStationSelected(playlistManager.getSelectedUrl());
+		notifier.notifyPlaybackStarted(playlistManager.getSelectedUrl());
+		initiator.startConnectivityListener();
 	}
 
 	@Override
 	public void playerPCMFeedBuffer(boolean b, int i, int i1) {
-
+		//Log.d(TAG, "progressplayerPCMFeedBuffer b="+ b+ " i="+ i+" i1="+ i1);
+		notifier.notifyProgressUpdated(i, i1, "b="+ b+ " i="+ i+" i1="+ i1);
 	}
 
 	@Override
 	public void playerStopped(int i) {
 		mRadioState = State.IDLE;
-		Log.d(TAG, "playerStopped(int i)= " +i);
+		//Log.d(TAG, "playerStopped(int i)= " +i);
 
-		if (!isClosedFromNotification) {
+		if (isClosedFromNotification) {
 			//buildNotification();
 			notifier.notifyPlaybackStopped(true);
+			isClosedFromNotification = false;
 		} else{
 			notifier.notifyPlaybackStopped(false);
-			isClosedFromNotification = false;
 		}
 		mLock = false;
 		Log.d(TAG, "Player stopped. State : " + mRadioState);
 		if (isSwitching)
-			play(currentStation.url);
+			play(playlistManager.getSelectedUrl());
+
 	}
 
 	@Override
 	public void playerException(Throwable throwable) {
 		mRadioState = State.STOPPED;
 		mLock = false;
-
 		Log.d(TAG, "playerException: " + throwable.getMessage());
-		interruptHandler.setInterrupted(true);
 		notifier.notifyPlaybackErrorOccured();
-
-
 	}
 
 	@Override
 	public void playerMetadata(String s, String s1) {
 		notifier.notifyMetaDataChanged(s,s1);
+		//Log.d(TAG, "progressMetadata s="+ s+ " s1="+ s1);
+
+
 	}
 
 	@Override
 	public void playerAudioTrackCreated(AudioTrack audioTrack) {
-
+			audioTrack.setPositionNotificationPeriod(positionNotificationPeriod);
 	}
 
 
@@ -205,28 +183,21 @@ public class ServiceRadio extends Service implements PlayerCallback{
 	 * Instantiates a new Service radio.
 	 */
 	public ServiceRadio() {
-
-
-
 	}
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		playlistManager =new PlaylistManager(getApplicationContext());
 		mRadioState = State.IDLE;
 		notifier=new NotifierRadio();
-		interruptHandler = new InterruptHandler(getApplicationContext(), this);
-		notifier.registerListener(interruptHandler);
+		notificationProvider=new NotificationProvider(getApplicationContext(), this);
+		notifier.registerListener(notificationProvider);
+		initiator=new Initiator();
 		isSwitching = false;
 		mLock = false;
 		notifier.notifyRadioConnected();
-
-		if(stations==null) stations = initStations();
-		getPrefsFromStorage();
-
 		getPlayer();
 		initMediaSession();
-		//notifier.notifyListChanged(getStations());
-
 	}
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -276,18 +247,18 @@ public class ServiceRadio extends Service implements PlayerCallback{
 			int secs = intent.getIntExtra(Constants.DATA_SLEEP_TIMER_LEFT_SECONDS, -254);
 			if(secs==-254)             Log.d(TAG, "secs ERROR");
 			Log.d(TAG, "secs" + secs);
-			//setSleepTimer(secs);
+			setSleepTimer(secs);
 		}else if (action.equals(Constants.INTENT_SLEEP_TIMER_CANCEL)) {
 			Log.d(TAG, "serv INTENT_SLEEP_TIMER_CANCEL");
-			//cancelSleepTimer(); //TODO uncomment sleep
+			cancelSleepTimer(); //TODO uncomment sleep
 		} else if (action.equals(Constants.INTENT_CLOSE_NOTIFICATION)) {
 			Log.d(TAG,"serv INTENT_CLOSE_NOTIFICATION");
 			isClosedFromNotification=true;
-			if(isPlaying())stop();
-
-			if(mNotificationManager != null) {
+			/*if(mNotificationManager != null) {
 				mNotificationManager.cancel(Constants.NOTIFICATION_ID);
-			}
+			}//TODO isClosedFromNotification*/
+			if(isPlaying())stop();
+			stopSelf();
 		} else if (action.equals(Constants.INTENT_PLAY_PAUSE)) {
 			intentActionPlayPause(intent);
 		} else if (action.equals(Constants.INTENT_PLAY_NEXT)) {
@@ -311,7 +282,7 @@ public class ServiceRadio extends Service implements PlayerCallback{
 			if (mRadioState==State.STOPPED){
 				intentActionPlay(intent);
 			}
-		} else if (action.contains(Constants.INTENT_UPDATE_FAVORITE_STATION)) {
+		} /*else if (action.contains(Constants.INTENT_UPDATE_FAVORITE_STATION)) {
 			int indexToUpdate;
 			boolean favToUpdate;
 			indexToUpdate= intent.getIntExtra(Constants.DATA_STATION_INDEX, -1);
@@ -329,21 +300,23 @@ public class ServiceRadio extends Service implements PlayerCallback{
 					.subscribeOn(Schedulers.newThread())
 					.observeOn(AndroidSchedulers.mainThread())
 					.doOnCompleted(() -> {
-						stop();
-						currentStation=getStations().get(0);
+						//stop();
+						if(currentStation==null) currentStation=getStations().get(0);
+						else currentStation=getStationByUrl(currentStation.url);
 						notifier.notifyListChanged(getStations());
-						savePrefsToStorage();
+						notifier.notifyStationSelected(currentStation.url);
+						savePrefsToStorage(false);
 					})
 					.subscribe(stations1 -> {
 						if(isFavOnly()) stationsFav=stations1;
 						else stations=stations1;
 						return;
 					});
-		}
+		}*/
 		return START_NOT_STICKY;
 	}
 
-	public rx.Observable<ArrayList<Station>> stationsObservable() {
+	/*public rx.Observable<ArrayList<Station>> stationsObservable() {
 		return Observable.create(new Observable.OnSubscribe<ArrayList<Station>>() {
 			@Override
 			public void call(Subscriber<? super ArrayList<Station>> subscriber) {
@@ -364,7 +337,7 @@ public class ServiceRadio extends Service implements PlayerCallback{
 
 			}
 		});
-	}
+	}*/
 
 	private void intentActionPause(Intent intent) {
 		Log.d(TAG, "INTENT_PAUSE_PLAYBACK");
@@ -377,11 +350,11 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		String stationUrl;
 		if(intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL)!=null) {
 			stationUrl = intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL);
-			currentStation=getStationByUrl(stationUrl);
 			play(stationUrl);
 		}
-		else if (currentStation!=null) play(currentStation.url);
-		else Toast.makeText(getApplicationContext(), "No station selected", Toast.LENGTH_SHORT).show();
+		else play(playlistManager.getSelectedUrl());
+		//else Toast.makeText(getApplicationContext(), "No station selected", Toast.LENGTH_SHORT).show();
+
 	}
 
 	private void intentActionPlayPause(Intent intent) {
@@ -392,28 +365,35 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		else {
 			if(intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL)!=null) {
 				stationUrl = intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL);
-				currentStation=getStationByUrl(stationUrl);
+				//currentStation=getStationByUrl(stationUrl);
 				play(stationUrl);
 			}
-			else if (currentStation!=null) play(currentStation.url);
-			else Toast.makeText(getApplicationContext(), "No station selected", Toast.LENGTH_SHORT).show();
+			else play(playlistManager.getSelectedUrl());
 		}
 
 	}
 	private void playNext() {
-		if(currentStation==null || currentStation.id>=getStations().size()-1) currentStation=getStations().get(0);
-		currentStation=getStations().get(currentStation.id+1);
-		if(currentStation!=null) play(currentStation.url);
+		int selectedIndex= playlistManager.getStations().indexOf(playlistManager.getSelectedUrl());
+		if(selectedIndex>=playlistManager.getStations().size()-1) {
+			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex));
+		}else{
+			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex+1));
+		}
+		play(playlistManager.getSelectedUrl());
 	}
 	private void playPrev() {
-		if(currentStation==null || currentStation.id<=1) currentStation=getStations().get(1);
-		currentStation=getStations().get(currentStation.id-1);
-		if(currentStation!=null) play(currentStation.url);
+		int selectedIndex= playlistManager.getStations().indexOf(playlistManager.getSelectedUrl());
+		if(selectedIndex==0) {
+			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex));
+		}else{
+			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex-1));
+		}
+		play(playlistManager.getSelectedUrl());
 	}
 	private void playRandom() {
-		int currentIndex= new Random().nextInt(getStations().size()-1);
-		currentStation = getStations().get(currentIndex);
-		if(currentStation!=null) play(currentStation.url);
+		int currentIndex= new Random().nextInt(playlistManager.getStations().size()-1);
+		playlistManager.setSelectedUrl(playlistManager.getStations().get(currentIndex));
+		play(playlistManager.getSelectedUrl());
 	}
 
 	/**
@@ -432,59 +412,54 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		}
 	}
 
-	/**
-	 * Play.
-	 *
-	 * @param mRadioUrl the m radio url
-	 */
 	public void play(String mRadioUrl) {
-		if(interruptHandler.requestFocus()) {
-			if (mRadioUrl == null) mRadioUrl = currentStation.url;
+		Log.d(TAG, "play() mLock= "+ mLock+ " mRadioState=" + mRadioState + " isSwitching=" +
+				isSwitching);
+
+		if (isPlaying()) {
+			Log.d(TAG, "Switching Radio");
+			isSwitching = true;
+			stop();
+		}else if(requestFocus()) {
 			sendBroadcast(new Intent(Constants.ACTION_MEDIAPLAYER_STOP));
 			notifier.notifyLoadingStarted(mRadioUrl);
 			if (checkSuffix(mRadioUrl))
 				decodeStremLink(mRadioUrl);
 			else {
-				currentStation.url = mRadioUrl;
 				isSwitching = false;
-
-				if (isPlaying()) {
-					Log.d(TAG, "Switching Radio");
-					isSwitching = true;
-					stop();
-				} else if (!mLock) {
+				if (!mLock) {
 					Log.d(TAG,"Play requested.");
 					mLock = true;
 					getPlayer().playAsync(mRadioUrl);
 				}
 			}
+		} else {
+			Log.d(TAG, "focus not granted");
 		}
+	}
+
+	@Override
+	public boolean onUnbind(Intent intent) {
+		//savePrefsToStorage(true);
+		return super.onUnbind(intent);
 	}
 
 	/**
 	 * Stop.
 	 */
 	public void stop() {
+		Log.d(TAG, "stop() mLock= "+ mLock+ " mRadioState=" + mRadioState + " isSwitching=" +
+				isSwitching);
+
 		if (!mLock && mRadioState == State.PLAYING) {
 			Log.d(TAG, "Stop requested.");
 			mLock = true;
 			mRadioState=State.IDLE;
+			wasDisconnectedWhenPlaying=false;
 			getPlayer().stop();
 		}
 	}
 
-/*
-    private void stop() {
-        Log.d(TAG, "Stop requested.");
-        if(isPlaying()) {
-            getPlayer().stop();
-        }
-        if(isSwitching) isSwitching=false;
-        if(!isClosedFromNotification()) {
-            notifier.notifyPlaybackStopped(true);
-        }
-        mLock=false;
-    }*/
 
 	/**
 	 * Is playing boolean.
@@ -500,168 +475,306 @@ public class ServiceRadio extends Service implements PlayerCallback{
 
 	@Override
 	public void onDestroy() {
-		if(isPlaying()) stop();
-		if(notifier!=null) notifier.unregisterAll();
-		savePrefsToStorage();
-
 		super.onDestroy();
-
+		if(notifier!=null) notifier.unregisterAll();
 	}
 
 
+	private void setSleepTimer(int seconds){
+		if(sleepTimerTask!=null) sleepTimerTask.cancel(true);
+		sleepTimerTask=null;
+		sleepTimerTask=new SleepTimerTask();
+		sleepTimerTask.execute(seconds);
+		notifier.notifySleepTimerStatusUpdated(Constants.ACTION_SLEEP_UPDATE, seconds);
+		Log.d(TAG, "sleep timer created");
+	}
+	private void cancelSleepTimer(){
+		if(sleepTimerTask!=null) sleepTimerTask.cancel(true);
+		notifier.notifySleepTimerStatusUpdated(Constants.ACTION_SLEEP_CANCEL, -1);
+		Log.d(TAG, "sleep timer cancelled");
+	}
+	private class SleepTimerTask extends AsyncTask<Integer, Integer, Void> {
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			int secondsLeft = values[0];
+			Log.d(TAG, "onProgressUpdate sleep timer left "+ secondsLeft +" seconds");
+			notifier.notifySleepTimerStatusUpdated(Constants.ACTION_SLEEP_UPDATE, secondsLeft);
+		}
+
+		@Override
+		protected void onPostExecute(Void aVoid) {
+			Log.d(TAG, "sleep timer finished");
+			notifier.notifySleepTimerStatusUpdated(Constants.ACTION_SLEEP_FINISH, -1);
+			if(isPlaying()) stop();
+		}
+
+		@Override
+		protected void onCancelled(Void aVoid) {
+			notifier.notifySleepTimerStatusUpdated(Constants.INTENT_SLEEP_TIMER_CANCEL, -1);
+			Log.d(TAG, "sleep timer cancelled");
+		}
+
+		@Override
+		protected Void doInBackground(Integer... params) {
+			int secondsLeft = params[0];
+			while(secondsLeft>=0) {
+				if(secondsLeft%30==0)publishProgress(secondsLeft);
+				SystemClock.sleep(1000);
+				secondsLeft--;
+			}
+			return null;
+		}
+	}
+
+
+
+	public boolean isSleepTimerRunning(){
+		return(sleepTimerTask!=null && !sleepTimerTask.isCancelled());
+	}
+	private void debugIntent(Intent intent, String tag) {
+		Log.v(tag, "action: " + intent.getAction());
+		Log.v(tag, "component: " + intent.getComponent());
+		Bundle extras = intent.getExtras();
+		if (extras != null) {
+			for (String key: extras.keySet()) {
+				Log.v(tag, "key [" + key + "]: " +
+						extras.get(key));
+			}
+		}
+		else {
+			Log.v(tag, "no extras");
+		}
+	}
+
+	void handleConnectivityChange(final Intent intent) {
+
+		//debugIntent(intent, "handleConnectivityChange");
+		Bundle extras = intent.getExtras();
+		if (extras != null) {
+			for (String key: extras.keySet()) {
+				Object val=extras.get(key);
+				//Log.v(TAG, "key [" + key + "]: " + val);
+				if(key.contains("networkInfo")){
+					NetworkInfo info=(NetworkInfo)val;
+					assert info != null;
+					String msg = "network state:" + info.getState()+" reason: "+info
+							.getReason()+", wasDisconnectedWhenPlaying="+wasDisconnectedWhenPlaying;
+					Log.d(TAG, msg);
+					//Toast.makeText(getApplicationContext(),msg, Toast.LENGTH_SHORT).show();
+
+					if(info.getState()==NetworkInfo.State.CONNECTED && !mLock && !isSwitching &&
+							!extras.getBoolean("noConnectivity") && !isPlaying() && wasDisconnectedWhenPlaying){
+						Log.d(TAG, "Resuming...");
+						wasDisconnectedWhenPlaying=false;
+						play(playlistManager.getSelectedUrl());
+
+					}
+					if(info.getState()==NetworkInfo.State.DISCONNECTED && extras.getBoolean
+							("noConnectivity")&& mRadioState==State.PLAYING) {
+						wasDisconnectedWhenPlaying=true;
+					}
+					break;
+				}
+			}
+		}
+		else {
+			Log.v(TAG, "no extras");
+		}
+
+	}
+	/*boolean isOnline(Context context) {
+		if (cm == null) cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if(netInfo != null && netInfo.isConnected()){
+			return true;
+		}else {
+			return false;
+		}
+	}*/
+
+	public boolean requestFocus(){
+		return true;
+		/*if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		boolean granted=false;
+		int result = audioManager.requestAudioFocus(initiator.getAudioFocusChangeListener(),
+				// Use the music stream.
+				AudioManager.STREAM_MUSIC,
+				// Request permanent focus.
+				AudioManager.AUDIOFOCUS_GAIN);
+
+		granted = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+		Log.d(TAG, "requested audio focus. result = "+ granted);
+		return granted;*/
+	}
+
+	private void activateInterruptionListeners(){
+		initiator.startConnectivityListener();
+		initiator.startPhoneStateListener();
+		initiator.startAudioDeviceCallback();
+	}
+
+	public class Initiator {
+
+		private Subscription connectedSubscription;
+		private ConnectivityManager cm;
+		private AudioManager audioManager;
+		private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener;
+		private AudioDeviceCallback audioDeviceCallback;
+		private PhoneStateListener phoneStateListener;
+		private TelephonyManager mTelephonyManager;
+
+
+		public PhoneStateListener startPhoneStateListener(){
+			if(phoneStateListener==null) phoneStateListener= new PhoneStateListener() {
+				@Override
+				public void onCallStateChanged(int state, String incomingNumber) {
+					if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
+						if (isPlaying()) {
+							boolean isInterrupted = true;
+                        /*if(networkChangeReceiver!=null && networkChangeReceiver.isListening){
+                            context.unregisterReceiver(networkChangeReceiver);
+                            networkChangeReceiver.isListening=false;
+                        }*/
+
+						}
+					} else if (state == TelephonyManager.CALL_STATE_IDLE) {
+						if (mRadioState==State.STOPPED) {
+
+						}
+					}
+					super.onCallStateChanged(state, incomingNumber);
+				}
+			};
+			return phoneStateListener;
+		}
+
+		public void resetPhoneStateListener(){
+			Log.d(TAG, "resetPhoneStateListener");
+			if(phoneStateListener!=null) {
+				if (mTelephonyManager != null && phoneStateListener != null)
+					mTelephonyManager.listen(phoneStateListener, LISTEN_NONE);
+			}
+		}
+
+
+		public AudioManager.OnAudioFocusChangeListener getAudioFocusChangeListener(){
+			if(audioManager==null) 		audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if(audioFocusChangeListener!=null) {
+					audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+						public void onAudioFocusChange(int focusChange) {
+							if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
+									focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
+							{
+								if (isPlaying()) {
+									audioManager.abandonAudioFocus(audioFocusChangeListener);
+
+
+								}
+							} else if(focusChange == AudioManager.AUDIOFOCUS_GAIN ||
+									focusChange == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+							{
+
+
+							}
+						}
+					};
+				}
+				return audioFocusChangeListener;
+			}
+			else return null;
+		}
+		public void resetAudioFocusChangeListener(){
+			Log.d(TAG, "resetAudioFocusChangeListener");
+			audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+			if(audioFocusChangeListener!=null)audioManager.abandonAudioFocus(audioFocusChangeListener);
+		}
+
+
+		public AudioDeviceCallback startAudioDeviceCallback(){
+			if(audioManager==null) 	mTelephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if(audioDeviceCallback!=null) audioDeviceCallback= new AudioDeviceCallback() {
+					@Override
+					public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+						super.onAudioDevicesAdded(addedDevices);
+					}
+					@Override
+					public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+						for (AudioDeviceInfo info :
+								removedDevices) {
+							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+								if (AudioDeviceInfo.TYPE_WIRED_HEADSET == info.getType()
+										|| AudioDeviceInfo.TYPE_WIRED_HEADPHONES == info.getType()) {
+									if(connectedSubscription != null && !connectedSubscription.isUnsubscribed()) resetConnectivityListener();
+									if (mTelephonyManager != null && phoneStateListener!=null)
+										mTelephonyManager.listen(phoneStateListener, LISTEN_NONE);
+									if(audioFocusChangeListener!=null)audioManager.abandonAudioFocus(audioFocusChangeListener);
+									super.onAudioDevicesRemoved(removedDevices);
+									return;
+								}
+							}
+						}
+						super.onAudioDevicesRemoved(removedDevices);
+					}
+				};
+				audioManager.registerAudioDeviceCallback(audioDeviceCallback, null);
+			}
+
+			return audioDeviceCallback;
+		}
+		public void resetAudioDeviceCallback(){
+			Log.d(TAG, "resetAudioDeviceCallback");
+			audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+			if(audioDeviceCallback!=null) {
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					audioManager.unregisterAudioDeviceCallback(audioDeviceCallback);
+				}
+			}
+		}
+		private Subscription startConnectivityListener(){
+			IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+			Log.d(TAG, "initConnectivityListener");
+			wasDisconnectedWhenPlaying=false;
+
+			if(connectedSubscription==null || connectedSubscription.isUnsubscribed()) RxBroadcast.fromBroadcast(getApplicationContext(), filter)
+					.subscribe(ServiceRadio.this::handleConnectivityChange);
+			return connectedSubscription;
+		}
+
+		public void resetConnectivityListener(){
+			Log.d(TAG, "resetPhoneStateListener");
+			if(connectedSubscription!=null && !connectedSubscription.isUnsubscribed())
+				connectedSubscription.unsubscribe();
+
+		}
+	}
 	/**
 	 * Save prefs to storage.
 	 */
-	public void savePrefsToStorage(){
-		Log.d(TAG, "savePrefsToStorage");
 
-		Observable.create(new Observable.OnSubscribe<String>() {
-			@Override
-			public void call(Subscriber<? super String> subscriber) {
-				/*FileOutputStream fos = null;
-				try {
-					fos = openFileOutput(Constants.SHARED_PREFS_FILENAME, Context.MODE_PRIVATE);
-					fos.flush();
-					for(Station s: stations){
-						if(s.fav) {
-							String stringToWrite = s.url + "\n";
-							Log.d(TAG, "write prefs: " + stringToWrite);
-							fos.write(stringToWrite.getBytes());
-						}
-					}
-					fos.close();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}*/
-				//Set<String> statsStrings = settings.getStringSet("statsStrings", new HashSet<String>());
-
-
-				SharedPreferences.Editor editor = getSharedPreferences(
-						Constants.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
-
-				editor.putBoolean(Constants.SHARED_PREFS_IS_FAV, isFavOnly());
-
-				Set<String> statsStrings =new HashSet<String>();
-				for(Station s: stations){
-					if(s.fav) {
-						Log.d(TAG, "write prefs: " +  s.url);
-						statsStrings.add(s.url);
-					}
-				}
-
-				editor.putStringSet(Constants.SHARED_PREFS_FAV_STATIONS_SET, statsStrings);
-				if(editor.commit()) subscriber.onCompleted();
-			}
-		}).subscribeOn(Schedulers.newThread())
-				.observeOn(Schedulers.newThread())
-				.subscribe();
-
-	}
-
-	/**
-	 * Get prefs from storage boolean.
-	 *
-	 * @return the boolean
-	 */
-	public boolean getPrefsFromStorage(){
-		boolean res=false;
-
-		SharedPreferences prefs;
-		if(getSharedPreferences(Constants.SHARED_PREFS_NAME, MODE_PRIVATE)!=null) {
-			prefs = getSharedPreferences(Constants.SHARED_PREFS_NAME, MODE_PRIVATE);
-			setFavOnly(prefs.getBoolean(Constants.SHARED_PREFS_IS_FAV, false));
-			Log.d(TAG, "Read prefs: favOnly="+isFavOnly());
-
-			Set<String> statsStrings = prefs.getStringSet(Constants.SHARED_PREFS_FAV_STATIONS_SET, new HashSet<String>());
-			stationsFav=new ArrayList<>();
-			Log.d(TAG, "Read prefs: statsStrings.size="+statsStrings.size());
-			Log.d(TAG, "stations.size()="+ stations.size());
-
-			if(statsStrings.size()!=0){
-				res=true;
-				for(String s: statsStrings){
-					Log.d(TAG, "fav station loaded "+ s);
-
-					Station station= getStationByUrl(s);
-					Log.d(TAG, "station == null -> "+ (station==null));
-
-					stationsFav.add(station);
-					stations.get(stations.indexOf(station)).fav=true;
-
-				}
-			}
-		}/*
-		FileInputStream fis = null;
-		stationsFav=new ArrayList<>();
-		try {
-			if(new File(Constants.SHARED_PREFS_FILENAME).exists()){
-				fis = openFileInput(Constants.SHARED_PREFS_FILENAME);
-
-				StringBuilder fileContent = new StringBuilder("");
-				byte[] buffer = new byte[1024];
-				int n;
-				while ((n = fis.read(buffer)) != -1)
-					fileContent.append(new String(buffer, 0, n));
-				String strResult = fileContent.toString();
-				Log.d(TAG, "strResult: \n\t"+strResult);
-
-				if(strResult.length()==0) {
-					Log.d(TAG, "no saved favorites found");
-					return false;
-				}
-					for (String s : strResult.split("\n")) {
-						Log.d(TAG, "url: " + s);
-						Station station=getStationByUrl(s);
-						if(station!=null)station.fav=true;
-						stationsFav.add(station);
-						res=true;
-					}
-			} else {
-				Log.d(TAG, "no saved favorites found");
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		getStationsListChangedNotification();
-		return res;
-	}
-
+/*
 	public void getStationsListChangedNotification(){
-		if(isFavOnly()) notifier.notifyListChanged(stationsFav);
+		if(isFavOnly()) {
+			notifier.notifyListChanged(stationsFav);
+		}
 		else notifier.notifyListChanged(stations);
-	}
 
-	/**
-	 * Set closed from notification.
-	 *
-	 * @param isClosedFromNotification the is closed from notification
-	 */
+	}*/
+
+
 	public void setClosedFromNotification(boolean isClosedFromNotification){
 		this.isClosedFromNotification=isClosedFromNotification;
 
 	}
 
-	/**
-	 * Is closed from notification boolean.
-	 *
-	 * @return the boolean
-	 */
 	public boolean isClosedFromNotification(){
 		return isClosedFromNotification;
 	}
 
 
-	/**
-	 * Check suffix boolean.
-	 *
-	 * @param streamUrl the stream url
-	 * @return the boolean
-	 */
+
 	public boolean checkSuffix(String streamUrl) {
 		if (streamUrl.contains(SUFFIX_PLS) ||
 				streamUrl.contains(SUFFIX_RAM) ||
@@ -683,70 +796,23 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 	}
 
-	/**
-	 * Gets stations.
-	 *
-	 * @return the stations
-	 */
-	public ArrayList<Station> getStations() {
-		Log.d(TAG, "getStations. favOnly: "+ favOnly);
-		if(favOnly) return stationsFav;
-		else return stations;
-	}
 
-	/**
-	 * Update stations.
-	 *
-	 * @param stationsUpdated the stations updated
-	 */
-	public void updateStations(ArrayList<Station> stationsUpdated) {
-		stations=stationsUpdated;
-	}
+	/*private void updateNotification() {
+		if(notificationProvider==null)
+		if(stationName!=null)this.stationName = stationName;
+		else this.stationName="";
 
-	/**
-	 * Update station.
-	 *
-	 * @param s   the s
-	 * @param fav the fav
-	 */
-	public void updateStation(Station s, boolean fav) {
-		int i = stations.indexOf(s);
-		stations.get(i).fav=fav;
-	}
+		if(singerName!=null)this.singerName = singerName;
+		else this.singerName="";
 
-	/**
-	 * Get station by url station.
-	 *
-	 * @param url the url
-	 * @return the station
-	 */
-	public Station getStationByUrl(String url){
-		for(Station s:stations){
-			if (s.url.contains(url)){
-				return s;
-			}
-		}
-		return null;
-	}
+		if(songName!=null)this.songName = songName;
+		else this.songName = "";
 
-
-	/**
-	 * Is fav only boolean.
-	 *
-	 * @return the boolean
-	 */
-	public boolean isFavOnly() {
-		return favOnly;
-	}
-
-	/**
-	 * Sets fav only.
-	 *
-	 * @param favOnly the fav only
-	 */
-	public void setFavOnly(boolean favOnly) {
-		this.favOnly = favOnly;
-	}
+		if(smallImage!=-1)this.smallImage = smallImage;
+		if(artImage!=-1)this.artImage = BitmapFactory.decodeResource(context.getResources(),
+				artImage);
+		if(!isClosedFromNotification) buildNotification();
+	}*/
 
 /*
 
@@ -759,162 +825,11 @@ public class ServiceRadio extends Service implements PlayerCallback{
         intent.putExtra(SimpleWidgetProvider.IS_PLAYING, radioManager.isPlaying());
         sendBroadcast(intent);
     }
-    private void buildNotification() {
-
-        Intent intentPlayPause = new Intent(NOTIFICATION_INTENT_PLAY_PAUSE);
-        Intent intentPrev = new Intent(NOTIFICATION_INTENT_PREV);
-        Intent intentNext = new Intent(NOTIFICATION_INTENT_NEXT);
-        Intent intentOpenPlayer = new Intent(NOTIFICATION_INTENT_OPEN_PLAYER);
-        intentOpenPlayer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        Intent intentCancel = new Intent(NOTIFICATION_INTENT_CANCEL);
-
-        intentPlayPause.addCategory(Intent.CATEGORY_DEFAULT);
-        intentPrev.addCategory(Intent.CATEGORY_DEFAULT);
-        intentNext.addCategory(Intent.CATEGORY_DEFAULT);
-        intentOpenPlayer.addCategory(Intent.CATEGORY_DEFAULT);
-        intentCancel.addCategory(Intent.CATEGORY_DEFAULT);
-
-        PendingIntent prevPending = PendingIntent.getService(getApplicationContext(), 0, intentPrev, 0);
-        PendingIntent nextPending = PendingIntent.getService(getApplicationContext(),  0, intentNext, 0);
-        PendingIntent playPausePending = PendingIntent.getService(getApplicationContext(), 0, intentPlayPause, 0);
-        PendingIntent openPending = PendingIntent.getActivity(getApplicationContext(), 0, intentOpenPlayer, 0);
-        PendingIntent cancelPending = PendingIntent.getService(getApplicationContext(), 0, intentCancel, 0);
-
-        RemoteViews mNotificationTemplate = new RemoteViews(this.getPackageName(), R.layout.notification);
-        Notification.Builder notificationBuilder = new Notification.Builder(this);
-
-        if (artImage == null)
-            artImage = BitmapFactory.decodeResource(getResources(), getArt(stationName, getApplicationContext()));
-        mNotificationTemplate.setTextViewText(R.id.notification_station_name, stationName);
-        mNotificationTemplate.setImageViewResource(R.id.notification_prev, R.drawable.ic_prev);
-        mNotificationTemplate.setImageViewResource(R.id.notification_next, R.drawable.ic_next);
-        mNotificationTemplate.setImageViewResource(R.id.notification_play,
-                isPlaying() ? R.drawable.btn_playback_pause : R.drawable.btn_playback_play);
-        mNotificationTemplate.setImageViewBitmap(R.id.widget_image, artImage);
-
-        mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, cancelPending);
-        mNotificationTemplate.setOnClickPendingIntent(R.id.notification_prev, prevPending);
-        mNotificationTemplate.setOnClickPendingIntent(R.id.notification_next, nextPending);
-        mNotificationTemplate.setOnClickPendingIntent(R.id.notification_play, playPausePending);
-
-        Notification notification = notificationBuilder
-                .setSmallIcon(smallImage)
-                .setContentIntent(openPending)
-                .setPriority(Notification.PRIORITY_DEFAULT)
-                .setContent(mNotificationTemplate)
-                .setUsesChronometer(true)
-                .build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            RemoteViews mExpandedView = new RemoteViews(this.getPackageName(), R.layout.notification_expanded);
-            mExpandedView.setTextViewText(R.id.notification_station_name, stationName);
-            mExpandedView.setTextViewText(R.id.notification_line_one, singerName);
-            mExpandedView.setTextViewText(R.id.notification_line_two, songName);
-            mExpandedView.setImageViewResource(R.id.notification_expanded_prev, R.drawable.ic_prev);
-            mExpandedView.setImageViewResource(R.id.notification_expanded_next, R.drawable.ic_next);
-            mExpandedView.setImageViewResource(R.id.notification_expanded_play, isPlaying() ? R.drawable.btn_playback_pause : R.drawable.btn_playback_play);
-            mExpandedView.setImageViewBitmap(R.id.widget_image, artImage);
-            mExpandedView.setOnClickPendingIntent(R.id.notification_collapse, cancelPending);
-            mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_prev, prevPending);
-            mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_next, nextPending);
-            mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, playPausePending);
-            notification.bigContentView = mExpandedView;
-        }
-
-        if (mNotificationManager != null && !isClosedFromNotification)
-            mNotificationManager.notify(NOTIFICATION_ID, notification);
-
-    }
-    private void updateNotification(String stationName, String singerName, String songName, int smallImage, int artImage) {
-        if(stationName!=null)this.stationName = stationName;
-        else this.stationName="";
-
-        if(singerName!=null)this.singerName = singerName;
-        else this.singerName="";
-
-        if(songName!=null)this.songName = songName;
-        else this.songName = "";
-
-        if(smallImage!=-1)this.smallImage = smallImage;
-        if(artImage!=-1)this.artImage = BitmapFactory.decodeResource(getResources(), artImage);
-        if(!isClosedFromNotification) buildNotification();
-    }
-    private void updateNotification(String stationName, String singerName, String songName, int smallImage, Bitmap artImage) {
-        //TODO updateNotification
-        if(stationName!=null)this.stationName = stationName;
-        else this.stationName="";
-
-        if(singerName!=null)this.singerName = singerName;
-        else this.singerName="";
-
-        if(songName!=null)this.songName = songName;
-        else this.songName = "";
-
-        if(smallImage!=-1)this.smallImage = smallImage;
-        if(artImage!=null)this.artImage = artImage;
-        if(!isClosedFromNotification) buildNotification();
-    }
+    */
 
 
 
 
-    private static int getArt(String fileName, Context c){
-        int resID = c.getResources().getIdentifier(fileName, "drawable", c.getPackageName());
-        if(resID!=0) return resID;
-        else return R.drawable.default_art;
-    }
 
 
-
-
-    private void setSleepTimer(int seconds){
-        if(sleepTimerTask!=null) sleepTimerTask.cancel(true);
-        sleepTimerTask=null;
-        sleepTimerTask=new SleepTimerTask();
-        sleepTimerTask.execute(seconds);
-        notifySleepTimerStatusUpdate(SLEEP_TIMER_START,seconds);
-        Log.d(TAG, "sleep timer created");
-    }
-    private void cancelSleepTimer(){
-        if(sleepTimerTask!=null) sleepTimerTask.cancel(true);
-        notifySleepTimerStatusUpdate(SLEEP_TIMER_CANCEL,-1);
-        Log.d(TAG, "sleep timer cancelled");
-    }
-    private class SleepTimerTask extends AsyncTask<Integer, Integer, Void> {
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            int secondsLeft = values[0];
-            Log.d(TAG, "onProgressUpdate sleep timer left "+ secondsLeft +" seconds");
-            notifySleepTimerStatusUpdate(SLEEP_TIMER_UPDATE, secondsLeft);
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Log.d(TAG, "sleep timer finished");
-            notifySleepTimerStatusUpdate(SLEEP_TIMER_FINISH, -1);
-            if(isPlaying()) stop();
-        }
-
-        @Override
-        protected void onCancelled(Void aVoid) {
-            Log.d(TAG, "sleep timer cancelled");
-            notifySleepTimerStatusUpdate(SLEEP_TIMER_CANCEL, -1);
-        }
-
-        @Override
-        protected Void doInBackground(Integer... params) {
-            int secondsLeft = params[0];
-            while(secondsLeft>=0) {
-                if(secondsLeft%30==0)publishProgress(secondsLeft);
-                SystemClock.sleep(1000);
-                secondsLeft--;
-            }
-            return null;
-        }
-    }
-
-*/
 }

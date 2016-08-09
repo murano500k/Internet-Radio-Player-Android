@@ -21,9 +21,9 @@ public class NotifierRadio {
 	}
 
 	public void unregisterAll() {
+
 		if(mListenerList!=null)
-			for (ListenerRadio listenerRadio: mListenerList)
-				mListenerList.remove(listenerRadio);
+			mListenerList=null;
 	}
 
 	public void notifyPlaybackStarted(String url) {
@@ -36,10 +36,10 @@ public class NotifierRadio {
 			listener.onRadioConnected();
 		}
 	}
-	public void notifyListChanged(ArrayList<Station> newlist) {
+	public void notifyListChanged() {
 		Log.d(TAG, "notifyListChanged "+mListenerList.toString());
 		for (ListenerRadio listener : mListenerList) {
-			listener.onListChanged(newlist);
+			listener.onListChanged();
 		}
 	}
 	public void notifyPlaybackStopped(boolean updateNotification) {
@@ -55,6 +55,12 @@ public class NotifierRadio {
 	public void notifyLoadingStarted(String url) {
 		for (ListenerRadio listener  : mListenerList) {
 			listener.onLoadingStarted(url);
+		}
+	}
+
+	public void notifyProgressUpdated(int p, int pMax, String s) {
+		for (ListenerRadio listener  : mListenerList) {
+			listener.onProgressUpdate(p, pMax, s);
 		}
 	}
 

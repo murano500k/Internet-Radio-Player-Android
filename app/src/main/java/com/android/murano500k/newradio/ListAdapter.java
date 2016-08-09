@@ -11,26 +11,21 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import es.claucookie.miniequalizerlibrary.EqualizerView;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder>  {
 
 	private static final String TAG = "ListAdapter";
 	//private final ArrayList<Station> mValues;
-	public int selectedIndex;
 	public boolean shouldPlayAnim;
 	public Context context;
 	public String artist;
 	public String song;
-	private RecyclerView recyclerView;
-	private ArrayList<Station> mValues;
+	private PlaylistManager playlistManager;
 
-	public ListAdapter(ArrayList<Station>  list, Context context) {
-		//mValues = serviceRadio.getStations();
+	public ListAdapter(Context context) {
 		this.context=context;
-		this.mValues=list;
+		playlistManager=new PlaylistManager(context);
 	}
 
 
@@ -46,31 +41,25 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder>  {
 
 	@Override
 	public void onBindViewHolder(final ViewHolder holder, int position) {
-		holder.mItem = mValues.get(position);
-		if(position==selectedIndex) {
-			setViewSelected(holder, true, artist, song, mValues.get(position).name);
+		holder.URL = playlistManager.getStations().get(position);
+		if(position==playlistManager.getIndex(playlistManager.getSelectedUrl())) {
+			setViewSelected(holder, true, artist, song, PlaylistManager.getNameFromUrl(holder.URL));
 		}
 		else setViewSelected(holder, false, null, null, null);
-		holder.mIdView.setText(String.valueOf(mValues.get(position).id));
-		holder.mStationNameView.setText(mValues.get(position).name);
+		holder.mIdView.setText(playlistManager.getIndex(holder.URL));
+		holder.mStationNameView.setText(PlaylistManager.getNameFromUrl(holder.URL));
 		holder.mView.setOnClickListener(v -> {
+			playlistManager.setSelectedUrl(holder.URL);
 			Intent intent= new Intent(context, ServiceRadio.class);
 			intent.setAction(Constants.INTENT_RESUME_PLAYBACK);
-			intent.putExtra(Constants.DATA_CURRENT_STATION_URL, holder.mItem.url);
 			context.startService(intent);
 		});
-		holder.mView.setFav(mValues.get(position).fav);
+		holder.mView.setFav(playlistManager.isStationFavorite(holder.URL));
 		holder.mFavView.setOnClickListener(v -> {
-			holder.mView.setFav(!holder.mItem.fav);
-			holder.mItem.fav=holder.mView.isFav();
-			Intent intent = new Intent(context, ServiceRadio.class);
-			intent.setAction(Constants.INTENT_UPDATE_FAVORITE_STATION);
-			//Log.d(TAG, "updating station indexToUpdate " + mValues.get(position).id + ", fav="+holder.mItem.fav);
-
-			intent.putExtra(Constants.DATA_STATION_INDEX, mValues.get(position).id);
-			intent.putExtra(Constants.DATA_STATION_FAVORITE, holder.mItem.fav);
-			context.startService(intent);
-			//serviceRadio.updateStation(holder.mItem, holder.mItem.fav);
+			playlistManager.setStationFavorite(holder.URL, !playlistManager.isStationFavorite
+					(holder.URL));
+			holder.mView.setFav(playlistManager.isStationFavorite
+					(holder.URL));
 			notifyItemChanged(position);
 		});
 		if(/*serviceRadio.isFavOnly()*/false){//TODO isFavOnly
@@ -89,7 +78,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder>  {
 			holder.mMainContentView.setBackgroundColor(context.getResources().getColor(R.color.colorSecondary));
 			if(artist!=null) holder.mArtistView.setText(artist);
 			if(song!=null) holder.mSongView.setText(song);
-			if(stationName!=null) holder.mArtView.setImageResource(StationContent.getArt(stationName, context));
+			if(stationName!=null) holder.mArtView.setImageResource(PlaylistManager.getArt(stationName,
+					context));
 			if(shouldPlayAnim) holder.playbackAnim.animateBars();
 			else holder.playbackAnim.stopBars();
 		}else {
@@ -101,28 +91,28 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder>  {
 
 		}
 	}
-	public void setSelectedIndex(int index){
+	/*public void setSelectedIndex(int index){
 		selectedIndex=index;
 		this.artist =null;
 		this.song =null;
 		notifyDataSetChanged();
-	}
+	}*/
 
 	public void setPlayingInfo(String artist, String song){
 		this.artist = artist;
 		this.song = song;
-		notifyItemChanged(selectedIndex);
+		notifyItemChanged(playlistManager.getIndex(playlistManager.getSelectedUrl()));
 	}
 
 	public void updateAnimState(boolean isPlaying){
 		this.shouldPlayAnim=isPlaying;
-		notifyItemChanged(selectedIndex);
+		notifyItemChanged(playlistManager.getIndex(playlistManager.getSelectedUrl()));
 	}
 
 
 	@Override
 	public int getItemCount() {
-		return mValues.size();
+		return playlistManager.getStations().size();
 	}
 
 
@@ -138,7 +128,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder>  {
 		public final TextView mSongView;
 		public final ImageView mArtView;
 		public final ImageView mFavView;
-		public Station mItem;
+		public String URL;
 
 
 		public ViewHolder(View view) {

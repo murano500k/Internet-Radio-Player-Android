@@ -9,7 +9,6 @@
                                                  android:layout_marginLeft="10dp"
                                                  android:layout_marginRight="10dp"
                                                  android:layout_marginTop="10dp"
-                                                 android:elevation="10dp"
                                                  android:clipToPadding="false"
                                                  android:minHeight="50dp">
     <LinearLayout
@@ -18,7 +17,7 @@
         android:orientation="vertical"
         android:id="@+id/main_layout"
         android:background="@color/accent_material_light"
-        android:elevation="10dp">
+        >
 
 
 
