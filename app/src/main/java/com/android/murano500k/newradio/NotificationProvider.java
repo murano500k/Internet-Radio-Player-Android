@@ -38,92 +38,100 @@ public class NotificationProvider implements ListenerRadio {
         this.serviceRadio=serviceRadio;
     }
 
-    private void buildNotification() {
-        if(playlistManager!=null) {
-            Intent intentPlayPause = new Intent(Constants.INTENT_PLAY_PAUSE);
-            Intent intentPrev = new Intent(Constants.INTENT_PLAY_PREV);
-            Intent intentNext = new Intent(Constants.INTENT_PLAY_NEXT);
-            Intent intentOpenPlayer = new Intent(Constants.INTENT_OPEN_APP);
-            intentOpenPlayer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            Intent intentCancel = new Intent(Constants.INTENT_CLOSE_NOTIFICATION);
+    private void buildNotification(boolean updateNotif) {
+	        Intent intentPause = new Intent(Constants.INTENT.PLAYBACK.PAUSE);
+	        Intent intentPlay = new Intent(Constants.INTENT.PLAYBACK.RESUME);
+	        Intent intentPrev = new Intent(Constants.INTENT.PLAYBACK.PLAY_PREV);
+	        Intent intentNext = new Intent(Constants.INTENT.PLAYBACK.PLAY_NEXT);
+	        Intent intentOpenPlayer = new Intent(context, ActivityRadio.class);
+	        intentOpenPlayer.setAction(Constants.INTENT.OPEN_APP);
+	        Intent intentCancel = new Intent(Constants.INTENT.CLOSE_NOTIFICATION);
 
-            PendingIntent prevPending = PendingIntent.getService(context, 0, intentPrev, 0);
-            PendingIntent nextPending = PendingIntent.getService(context, 0, intentNext, 0);
-            PendingIntent playPausePending = PendingIntent.getService(context, 0, intentPlayPause, 0);
-            PendingIntent openPending = PendingIntent.getActivity(context, 0, intentOpenPlayer, 0);
-            PendingIntent cancelPending = PendingIntent.getService(context, 0, intentCancel, 0);
+	        PendingIntent prevPending = PendingIntent.getService(context, 0, intentPrev, 0);
+	        PendingIntent nextPending = PendingIntent.getService(context, 0, intentNext, 0);
+	        PendingIntent playPending = PendingIntent.getService(context, 0, intentPlay, 0);
+	        PendingIntent pausePending = PendingIntent.getService(context, 0, intentPause, 0);
+	        PendingIntent openPending = PendingIntent.getActivity(context, 0, intentOpenPlayer, 0);
+	        PendingIntent cancelPending = PendingIntent.getService(context, 0, intentCancel, 0);
 
-            RemoteViews mNotificationTemplate = new RemoteViews(context.getPackageName(), R.layout.notification);
-            Notification.Builder notificationBuilder = new Notification.Builder(context);
+	        RemoteViews mNotificationTemplate = new RemoteViews(context.getPackageName(), R.layout.notification);
+	        Notification.Builder notificationBuilder = new Notification.Builder(context);
+	    PendingIntent playbackPending;
 
-            this.stationName = PlaylistManager.getNameFromUrl(playlistManager.getSelectedUrl());
-            artImage=PlaylistManager.getArt(stationName, context);
-            switch (status){
-                case LOADING:
-                    playStatusImage= R.drawable.ic_loading;
-                    break;
-                case PLAYING:
-                    playStatusImage= R.drawable.ic_pause;
-                    break;
-                case WAITING:
-                    playStatusImage= R.drawable.ic_play;
-                    break;
-                default:
-                    playStatusImage= R.drawable.ic_play;
-                    break;
-            }
-            if(text==null){
-                if(stationName==null) text="";
-                else text=stationName;
-            }
-            mNotificationTemplate.setTextViewText(R.id.station_name, text);
+	    int playbackResId;
+	    if(playlistManager!=null) {
+		    switch (status){
+			    case LOADING:
+				    playbackPending= pausePending;
+				    playbackResId= R.drawable.ic_loading;
+				    break;
+			    case PLAYING:
+				    playbackPending= pausePending;
+				    playbackResId= R.drawable.ic_pause;
+				    break;
+			    case WAITING:
+				    playbackPending= playPending;
+				    playbackResId= R.drawable.ic_play;
+				    break;
+			    default:
+				    playbackPending= playPending;
+				    playbackResId= R.drawable.ic_play;
+				    break;
+		    }
+		    mNotificationTemplate.setOnClickPendingIntent(R.id.notification_play, playbackPending);
+		    mNotificationTemplate.setImageViewResource(R.id.notification_play, playbackResId);
+
+	        this.stationName = PlaylistManager.getNameFromUrl(playlistManager.getSelectedUrl());
+	        artImage=PlaylistManager.getArt(stationName, context);
+            mNotificationTemplate.setTextViewText(R.id.station_name, stationName);
             mNotificationTemplate.setImageViewResource(R.id.notification_prev, R.drawable.ic_prev);
             mNotificationTemplate.setImageViewResource(R.id.notification_next, R.drawable.ic_next);
             mNotificationTemplate.setImageViewResource(R.id.widget_image, artImage);
-            mNotificationTemplate.setImageViewResource(R.id.notification_play, playStatusImage);
-            mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, cancelPending);
+		    mNotificationTemplate.setOnClickPendingIntent(R.id.widget_image, openPending);
             mNotificationTemplate.setOnClickPendingIntent(R.id.notification_prev, prevPending);
             mNotificationTemplate.setOnClickPendingIntent(R.id.notification_next, nextPending);
-            mNotificationTemplate.setOnClickPendingIntent(R.id.notification_play, playPausePending);
             Notification notification = notificationBuilder
                     .setSmallIcon(artImage)
-                    .setContentIntent(openPending)
                     .setPriority(Notification.PRIORITY_DEFAULT)
                     .setDeleteIntent(cancelPending)
                     .setContent(mNotificationTemplate)
                     .setUsesChronometer(true)
                     .build();
-            notification.flags = Notification.FLAG_ONGOING_EVENT;
+            //notification.flags = Notification.FLAG_ONGOING_EVENT;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 RemoteViews mExpandedView = new RemoteViews(context.getPackageName(), R.layout
                         .notification_expanded);
                 mExpandedView.setTextViewText(R.id.notification_station_name, stationName);
-                mExpandedView.setTextViewText(R.id.notification_artist, singerName);
-                mExpandedView.setTextViewText(R.id.notification_song, songName);
                 mExpandedView.setImageViewResource(R.id.notification_expanded_prev, R.drawable.ic_prev);
                 mExpandedView.setImageViewResource(R.id.notification_expanded_next, R.drawable.ic_next);
-                mExpandedView.setImageViewResource(R.id.notification_expanded_play, playStatusImage);
+                mExpandedView.setImageViewResource(R.id.notification_expanded_play, playbackResId);
                 mExpandedView.setImageViewResource(R.id.widget_image, artImage);
-                mExpandedView.setOnClickPendingIntent(R.id.notification_collapse, cancelPending);
+
+	            mExpandedView.setOnClickPendingIntent(R.id.widget_image, openPending);
                 mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_prev, prevPending);
                 mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_next, nextPending);
-                mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, playPausePending);
+                mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, playbackPending);
                 notification.bigContentView = mExpandedView;
+	            if (updateNotif) mNotificationManager.notify(Constants.NOTIFICATION_ID, notification);
+	            else mNotificationManager.cancel(Constants.NOTIFICATION_ID);
             }
+	    }
 
-            if (!serviceRadio.isClosedFromNotification())
-                mNotificationManager.notify(Constants.NOTIFICATION_ID, notification);
-            else mNotificationManager.cancel(Constants.NOTIFICATION_ID);
-        }
     }
-    @Override
+
+	@Override
+	public void onFinish() {
+
+	}
+
+	@Override
     public void onLoadingStarted(String url) {
         status=LOADING;
         text=null;
         singerName="";
         songName="";
-        buildNotification();
+        buildNotification(true);
     }
 
     @Override
@@ -140,7 +148,7 @@ public class NotificationProvider implements ListenerRadio {
         text=null;
         singerName="";
         songName="";
-        buildNotification();
+        buildNotification(true);
     }
 
     @Override
@@ -149,7 +157,7 @@ public class NotificationProvider implements ListenerRadio {
         text=null;
         singerName="";
         songName="";
-        if(updateNotification) buildNotification();
+        buildNotification(updateNotification);
     }
 
     @Override
@@ -161,101 +169,32 @@ public class NotificationProvider implements ListenerRadio {
             songName=PlaylistManager.getTrackFromString(s2);
         }
         status=PLAYING;
-        buildNotification();
+        buildNotification(true);
     }
 
     @Override
-    public void onPlaybackError() {
+    public void onPlaybackError(boolean updateNotification) {
+
         status=WAITING;
         text=null;
         singerName="";
         songName="";
-        buildNotification();
+	    buildNotification(updateNotification);
     }
 
-    @Override
-    public void onListChanged() {
 
-    }
 
-    @Override
+	@Override
     public void onStationSelected(String url) {
         //status=PLAYING;
         text=PlaylistManager.getNameFromUrl(playlistManager.getSelectedUrl());
-        buildNotification();
+        buildNotification(true);
     }
 
     @Override
     public void onSleepTimerStatusUpdate(String action, int seconds) {
 
     }
-    /*private void updateNotification(String singerName, String songName, int smallImage,
-                                    Bitmap artImage) {
-       if(serviceRadio!=null) {
-            Intent intentPlayPause = new Intent(Constants.INTENT_PLAY_PAUSE);
-            Intent intentPrev = new Intent(Constants.INTENT_PLAY_PREV);
-            Intent intentNext = new Intent(Constants.INTENT_PLAY_NEXT);
-            Intent intentOpenPlayer = new Intent(Constants.INTENT_OPEN_APP);
-            intentOpenPlayer.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            Intent intentCancel = new Intent(Constants.INTENT_CLOSE_NOTIFICATION);
 
 
-    PendingIntent prevPending = PendingIntent.getService(context, 0, intentPrev, 0);
-    PendingIntent nextPending = PendingIntent.getService(context, 0, intentNext, 0);
-    PendingIntent playPausePending = PendingIntent.getService(context, 0, intentPlayPause, 0);
-    PendingIntent openPending = PendingIntent.getActivity(context, 0, intentOpenPlayer, 0);
-    PendingIntent cancelPending = PendingIntent.getService(context, 0, intentCancel, 0);
-
-    RemoteViews mNotificationTemplate = new RemoteViews(context.getPackageName(), R.layout.notification);
-    Notification.Builder notificationBuilder = new Notification.Builder(context);
-
-    if (artImage == null){
-        artImage = BitmapFactory.decodeResource(context.getResources(),
-                StationContent.getArt(serviceRadio.getCurrentStationName(),context));
-    }
-    mNotificationTemplate.setTextViewText(R.id.notification_station_name, stationName);
-    mNotificationTemplate.setImageViewResource(R.id.notification_prev, R.drawable.ic_prev);
-    mNotificationTemplate.setImageViewResource(R.id.notification_next, R.drawable.ic_next);
-    mNotificationTemplate.setImageViewResource(R.id.notification_play,
-            serviceRadio.isPlaying() ? R.drawable.ic_pause : R.drawable.ic_play);
-    mNotificationTemplate.setImageViewBitmap(R.id.widget_image, artImage);
-
-    mNotificationTemplate.setOnClickPendingIntent(R.id.notification_collapse, cancelPending);
-    mNotificationTemplate.setOnClickPendingIntent(R.id.notification_prev, prevPending);
-    mNotificationTemplate.setOnClickPendingIntent(R.id.notification_next, nextPending);
-    mNotificationTemplate.setOnClickPendingIntent(R.id.notification_play, playPausePending);
-
-    Notification notification = notificationBuilder
-            .setSmallIcon(smallImage)
-            .setContentIntent(openPending)
-            .setPriority(Notification.PRIORITY_DEFAULT)
-            .setContent(mNotificationTemplate)
-            .setUsesChronometer(true)
-            .build();
-    notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-        RemoteViews mExpandedView = new RemoteViews(context.getPackageName(), R.layout
-                .notification_expanded);
-        mExpandedView.setTextViewText(R.id.notification_station_name, stationName);
-        mExpandedView.setTextViewText(R.id.notification_line_one, singerName);
-        mExpandedView.setTextViewText(R.id.notification_line_two, songName);
-        mExpandedView.setImageViewResource(R.id.notification_expanded_prev, R.drawable.ic_prev);
-        mExpandedView.setImageViewResource(R.id.notification_expanded_next, R.drawable.ic_next);
-        mExpandedView.setImageViewResource(R.id.notification_expanded_play,
-                serviceRadio.isPlaying() ? R.drawable.ic_pause
-                        : R.drawable.ic_play);
-        mExpandedView.setImageViewBitmap(R.id.widget_image, artImage);
-        mExpandedView.setOnClickPendingIntent(R.id.notification_collapse, cancelPending);
-        mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_prev, prevPending);
-        mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_next, nextPending);
-        mExpandedView.setOnClickPendingIntent(R.id.notification_expanded_play, playPausePending);
-        notification.bigContentView = mExpandedView;
-    }
-
-    if (mNotificationManager != null && !isClosedFromNotification)
-            mNotificationManager.notify(Constants.NOTIFICATION_ID, notification);
-}
-    }*/
 }

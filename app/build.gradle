@@ -12,10 +12,16 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
         jackOptions {
             enabled true
         }
+
+    }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+        dexInProcess false
+
     }
     buildTypes {
         debug {
@@ -25,6 +31,8 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        incremental false
+
     }
 }
 repositories {
@@ -63,4 +71,8 @@ dependencies {
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha5'
+    compile 'com.vk:androidsdk:1.6.5'
+
+
+
 }

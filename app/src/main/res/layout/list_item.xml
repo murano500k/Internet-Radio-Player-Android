@@ -1,86 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.android.murano500k.newradio.StationListItem xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                                                 xmlns:android="http://schemas.android.com/apk/res/android"
-                                                 android:id="@+id/list_item"
-                                                 android:layout_width="match_parent"
-                                                 android:layout_height="wrap_content"
-                                                 card_view:cardCornerRadius="5dp"
-                                                 android:layout_marginLeft="10dp"
-                                                 android:layout_marginRight="10dp"
-                                                 android:layout_marginTop="10dp"
-                                                 android:clipToPadding="false"
-                                                 android:minHeight="50dp">
+<com.android.murano500k.newradio.StationListItem
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="5dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="10dp"
+    android:clipToPadding="false"
+    android:minHeight="50dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/main_layout"
-        android:background="@color/accent_material_light"
         >
 
-
-
         <RelativeLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="false"
             android:background="@color/colorSecondary"
-            android:id="@+id/main_content">
+            android:id="@+id/layout_main">
 
-            <TextView
-                android:id="@+id/item_index"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:textSize="18dp"
-                android:paddingLeft="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="."
-                android:id="@+id/dot"
-                android:gravity="center_vertical"
-                android:textSize="18dp"
-                android:layout_alignBaseline="@+id/item_index"
-                android:layout_toRightOf="@+id/item_index"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp" />
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:id="@+id/imgFav"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="5dp"
-
-                android:src="@drawable/ic_fav_disabled"
-                android:adjustViewBounds="true"
-                android:cropToPadding="true"/>
-
-            <TextView
-                android:id="@+id/station_name"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="name"
-                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_centerVertical="false"
+                android:layout_toStartOf="@+id/imgFav"
+                android:id="@+id/layout_select"
+                android:layout_alignParentLeft="false"
+                android:layout_alignBottom="@id/imgFav"
+                android:layout_alignParentTop="false">
+
+                <TextView
+                    android:id="@+id/item_index"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18dp"
+                    android:paddingLeft="5dp"
+                    android:layout_gravity="center_vertical"
+                    android:hint="n"/>
+
+
+                <TextView
+                    android:id="@+id/station_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="name"
+                    android:gravity="center_vertical"
+                    android:layout_centerVertical="true"
+                    android:textSize="18dp"
+                    android:textAlignment="center"
+                    android:layout_gravity="center_vertical"
+                    android:padding="5dp"
+                    />
+
+
+            </LinearLayout>
+
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imgFav"
+                android:layout_alignParentEnd="false"
+                android:src="@drawable/ic_fav_disabled"
+                android:cropToPadding="false"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_alignRight="@+id/imgFav"
-                android:textSize="18dp"
-                android:textAlignment="center"/>
+                android:visibility="visible"
+                android:padding="5dp"/>
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/extras_layout">
+            android:id="@+id/layout_extras"
+            android:background="@color/accent_material_light">
 
             <FrameLayout
                 android:layout_width="wrap_content"
@@ -107,14 +106,14 @@
 
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
                 android:id="@+id/art"
                 android:src="@drawable/ic_checked"
                 android:layout_centerVertical="true"
                 android:visibility="visible"
                 android:layout_alignParentLeft="true"
-                android:layout_margin="3dp"
+                android:layout_margin="5dp"
                 android:adjustViewBounds="true"
                 android:cropToPadding="true"/>
 

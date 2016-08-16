@@ -14,25 +14,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<RelativeLayout android:id="@+id/notification_base"
+<LinearLayout android:id="@+id/notification_base"
               xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:background="#3c3c3c"
+              android:background="@color/colorSecondary"
               android:orientation="horizontal"
               tools:ignore="ContentDescription"
-              xmlns:app="http://schemas.android.com/apk/res-auto">
+    >
 
     <ImageView
         android:id="@+id/widget_image"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:gravity="center"
-        android:layout_gravity="center_horizontal"
+        android:layout_width="100dp"
+        android:layout_height="80dp"
         android:layout_margin="5dp"
         android:src="@drawable/default_art"
-        android:layout_centerVertical="true"/>
+        android:layout_gravity="center_vertical"
+        android:layout_weight="10"
+        />
 
     <ImageView
         style="@style/NotificationAction.Play"
@@ -42,12 +42,12 @@
         android:layout_height="50dp"
         android:scaleType="center"
         android:layout_gravity="center_vertical"
-        android:layout_margin="0dp"
         android:padding="5dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/notification_play"/>
+        android:layout_toLeftOf="@+id/notification_play"
+        android:layout_weight="1"
+        android:elevation="10dp"
+        />
 
     <ImageView
         style="@style/NotificationAction.Play"
@@ -62,9 +62,11 @@
         android:layout_margin="0dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_centerInParent="true"
         android:paddingEnd="20dp"
-        android:paddingStart="20dp"/>
+        android:paddingStart="20dp"
+        android:layout_weight="1"
+        android:elevation="10dp"
+        />
 
     <ImageView
         style="@style/NotificationAction.Play"
@@ -76,22 +78,9 @@
         android:layout_margin="0dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_centerVertical="true"
         android:scaleType="center"
-        android:layout_toRightOf="@+id/notification_play"/>
+        android:layout_weight="1"
+        android:elevation="10dp"
+        />
 
-    <ImageView
-        style="@style/NotificationAction.Collapse"
-        android:id="@+id/imageView4"
-        android:src="@drawable/btn_notification_collapse"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center_vertical"
-        android:layout_margin="0dp"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_centerVertical="true"/>
-
-</RelativeLayout>
+</LinearLayout>

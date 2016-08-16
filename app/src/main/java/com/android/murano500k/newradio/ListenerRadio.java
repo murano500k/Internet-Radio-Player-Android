@@ -6,6 +6,7 @@ package com.android.murano500k.newradio;
 public interface ListenerRadio {
 
 
+	void onFinish();
 	void onLoadingStarted(String url);
 
 	void onProgressUpdate(int p, int pMax, String s);
@@ -19,9 +20,9 @@ public interface ListenerRadio {
 
 	void onMetaDataReceived(String s, String s2);
 
-	void onPlaybackError();
+	void onPlaybackError(boolean updateNotification);
 
-	void onListChanged();
+	//void onListChanged(ArrayList<String>newList, String selected, boolean favOnly);
 
 	void onStationSelected(String url);
 

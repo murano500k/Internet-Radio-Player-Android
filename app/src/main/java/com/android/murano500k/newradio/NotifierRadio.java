@@ -3,6 +3,7 @@ package com.android.murano500k.newradio;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by artem on 7/22/16.
@@ -17,13 +18,29 @@ public class NotifierRadio {
 	}
 
 	public void registerListener(ListenerRadio mListener) {
+		Log.d(TAG, "registerListener. size= " +mListenerList.size());
 		mListenerList.add(mListener);
+	}
+	public void unRegisterListener(ListenerRadio mListener) {
+		if(mListenerList!=null){
+			for(Iterator<ListenerRadio> it = mListenerList.iterator(); it.hasNext();) {
+				ListenerRadio listenerRadio = it.next();
+				if(listenerRadio == mListener) {
+					it.remove();
+				}
+			}
+		}
 	}
 
 	public void unregisterAll() {
-
-		if(mListenerList!=null)
-			mListenerList=null;
+		if(mListenerList!=null){
+			for(Iterator<ListenerRadio> it = mListenerList.iterator(); it.hasNext();) {
+			ListenerRadio listenerRadio = it.next();
+			if(listenerRadio != null) {
+				it.remove();
+			}
+		}
+		}
 	}
 
 	public void notifyPlaybackStarted(String url) {
@@ -36,15 +53,25 @@ public class NotifierRadio {
 			listener.onRadioConnected();
 		}
 	}
-	public void notifyListChanged() {
+	/*public void notifyListChanged(ArrayList<String> newList) {
 		Log.d(TAG, "notifyListChanged "+mListenerList.toString());
 		for (ListenerRadio listener : mListenerList) {
-			listener.onListChanged();
+			listener.onListChanged(newList);
 		}
-	}
+	}*/
 	public void notifyPlaybackStopped(boolean updateNotification) {
-		for (ListenerRadio listener : mListenerList)
-			listener.onPlaybackStopped(updateNotification);
+		Log.d(TAG, "notifyPlaybackStopped "+ updateNotification);
+		if(mListenerList!=null){
+			ListenerRadio listenerRadio;
+			Iterator<ListenerRadio> it = mListenerList.iterator();
+			while(it.hasNext()) {
+				listenerRadio=it.next();
+				if(listenerRadio !=null) {
+					listenerRadio.onPlaybackStopped(updateNotification);
+				}
+			}
+		}
+		if(!updateNotification) mListenerList=null;
 	}
 
 	public void notifyMetaDataChanged(String s, String s2) {
@@ -58,16 +85,36 @@ public class NotifierRadio {
 		}
 	}
 
+	public void notifyFinish() {
+		if(mListenerList!=null){
+			for(Iterator<ListenerRadio> it = mListenerList.iterator(); it.hasNext();) {
+				ListenerRadio listenerRadio = it.next();
+				if(listenerRadio !=null) {
+					listenerRadio.onFinish();
+				}
+			}
+		}
+	}
+
 	public void notifyProgressUpdated(int p, int pMax, String s) {
 		for (ListenerRadio listener  : mListenerList) {
 			listener.onProgressUpdate(p, pMax, s);
 		}
 	}
 
-	public void notifyPlaybackErrorOccured(){
-		for (ListenerRadio listener : mListenerList) {
-			listener.onPlaybackError();
+	public void notifyPlaybackErrorOccured(boolean updateNotification) {
+		Log.d(TAG, "notifyPlaybackErrorOccured "+ updateNotification);
+		if(mListenerList!=null) {
+			ListenerRadio listenerRadio;
+			for (Iterator<ListenerRadio> it = mListenerList.iterator(); it.hasNext(); ) {
+				listenerRadio = it.next();
+				if (listenerRadio != null) {
+					listenerRadio.onPlaybackError(updateNotification);
+				}
+			}
 		}
+		if(!updateNotification) mListenerList=null;
+
 	}
 	public void notifyStationSelected(String url){
 		for (ListenerRadio listener : mListenerList) {

@@ -4,7 +4,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:wave="http://schemas.android.com/apk/res-auto"
                 tools:context="com.android.murano500k.newradio.ActivityRadio"
                 tools:ignore="ContentDescription">
 
@@ -13,12 +12,12 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:id="@+id/btnPrev"
-        android:src="@drawable/ic_prev"
+        android:src="@drawable/prev_selector"
         android:layout_gravity="bottom|left"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="false"
         android:layout_marginBottom="25dp"
-        android:elevation="5dp"
+        android:elevation="20dp"
         android:background="#00ffffff"
         android:layout_toLeftOf="@+id/buttonControlStart"
         android:scaleType="fitCenter" />
@@ -28,7 +27,7 @@
         android:src="@drawable/playpause_selector"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:elevation="5dp"
+        android:elevation="20dp"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="16dp"
         android:layout_alignParentBottom="true"
@@ -48,7 +47,7 @@
         android:elevation="20dp"
         android:layout_gravity="center_horizontal|bottom"
         android:visibility="gone"
-        app:indicator="BallClipRotatePulse"
+        app:indicator="Pacman"
         app:indicator_color="@color/colorAccent"
         android:layout_marginBottom="16dp"
         android:layout_centerHorizontal="true"
@@ -61,30 +60,37 @@
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:id="@+id/btnNext"
-        android:src="@drawable/ic_next"
+        android:src="@drawable/next_selector"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="false"
         android:layout_marginBottom="25dp"
-        android:elevation="5dp"
+        android:elevation="20dp"
         android:background="#00ffffff"
         android:layout_toRightOf="@+id/buttonControlStart"
         android:scaleType="fitCenter" />
 
-    <ImageButton
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/btnShuffle"
-        android:layout_centerVertical="true"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/shuffle_selector"
-        android:clickable="true"
-        android:cropToPadding="false"
-        android:focusable="true"
-        android:layout_gravity="right|center_vertical"
-        android:visibility="gone"
-        android:layout_alignParentRight="true"
-        android:elevation="9dp"
-        android:background="#00ffffff" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+
+        android:id="@+id/progressText"
+        android:hint="progress"
+        android:layout_margin="3dp"/>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/progressText"
+        />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -99,45 +105,8 @@
         tools:layout_editor_absoluteY="0dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/progressBar"/>
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"/>
-    <!--<cn.fanrunqi.waveprogress.WaveProgressView
-        android:id="@+id/waveProgressbar"
-        android:background="@drawable/shape"
-        android:layout_width="150dp"
-        android:layout_height="150dp" />-->
-        <!--<com.john.waveview.WaveView
-            android:id="@+id/waveProgressbar"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:background="@color/colorText"
-            wave:progress="80"
-            wave:above_wave_color="@color/colorAccent"
-            wave:blow_wave_color="@color/colorTextAccent"
-            wave:wave_height="little"
-            wave:wave_hz="normal"
-            wave:wave_length="middle"
-            android:alpha="0.8"/>-->
-    <!--<com.akexorcist.roundcornerprogressbar.TextRoundCornerProgressBar
-        android:id="@+id/waveProgressbar"
-        android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:layout_margin="3dp"
-        app:rcBackgroundPadding="2dp"
-        app:rcRadius="2dp"
-        app:rc
-        app:rcProgressColor="@color/colorAccent"
-        app:rcSecondaryProgressColor="@color/colorTextAccent"
-        app:rcBackgroundColor="@color/colorPrimary" />
--->
+        android:layout_below="@+id/progressBar"
+        android:paddingBottom="150dp"
+        android:clipToPadding="false"/>
 
 </RelativeLayout>

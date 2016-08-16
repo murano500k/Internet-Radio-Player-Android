@@ -4,43 +4,68 @@ package com.android.murano500k.newradio;
  * Created by artem on 7/22/16.
  */
 public class Constants {
-	public static final String INTENT_UPDATE_STATIONS = "com.android.murano500k.INTENT_UPDATE_STATIONS";
-	public static final String INTENT_UPDATE_FAVORITE_STATION = "com.android.murano500k.INTENT_UPDATE_FAVORITE_STATION";
-	public static final String INTENT_HANDLE_CONNECTIVITY = "com.android.murano500k.INTENT_HANDLE_CONNECTIVITY";
-	public static final String INTENT_PLAY_PAUSE = "com.android.murano500k.INTENT_PLAY_PAUSE";
-	public static final String INTENT_RESUME_PLAYBACK = "com.android.murano500k.INTENT_RESUME_PLAYBACK";
-	public static final String INTENT_PAUSE_PLAYBACK = "com.android.murano500k.INTENT_PAUSE_PLAYBACK";
-	public static final String INTENT_PLAY_NEXT = "com.android.murano500k.INTENT_PLAY_NEXT";
-	public static final String INTENT_PLAY_RANDOM = "com.android.murano500k.INTENT_PLAY_RANDOM";
-	public static final String INTENT_PLAY_PREV = "com.android.murano500k.INTENT_PLAY_PREV";
-	public static final String INTENT_SLEEP_TIMER_SET= "com.android.murano500k.INTENT_SLEEP_TIMER_SET";
-	public static final String INTENT_SLEEP_TIMER_CANCEL = "com.android.murano500k.INTENT_SLEEP_TIMER_CANCEL";
-	public static final String INTENT_CLOSE_NOTIFICATION = "com.android.murano500k.INTENT_CLOSE_NOTIFICATION";
-	public static final String INTENT_OPEN_APP = "com.android.murano500k.INTENT_OPEN_APP";
+
+
+	public static final String KEY_FAV_ONLY = "com.android.murano500k.KEY_FAV_ONLY";
+	public static final String KEY_IS_SHUFFLE = "com.android.murano500k.KEY_IS_SHUFFLE";
+
+	public static final String DATA_AUDIO_BUFFER_CAPACITY = "com.android.murano500k" +
+			".DATA_AUDIO_BUFFER_CAPACITY";
+	public static final String DATA_AUDIO_DECODE_CAPACITY = "com.android.murano500k" +
+			".DATA_AUDIO_DECODE_CAPACITY";
+	public static final int REQUSET_ADD_STATION = 543;
+
+	public static final class STATE_AUDIO_DEVICE {
+		public static final int PLUGGED= 1;
+		public static final int UNPLUGGED= -1;
+		public static final int UNKNOWN= 0;
+	}
+
+	final public static class UI_STATE{
+		public static final int LOADING= 0;
+		public static final int PLAYING= 1;
+		public static final int IDLE= -1;
+	}
+	public static class INTENT{
+
+		public static class PLAYBACK{
+			public static final String PLAY_PAUSE = "com.android.murano500k.PLAYBACK_PLAY_PAUSE";
+			public static final String RESUME = "com.android.murano500k.PLAYBACK_RESUME";
+			public static final String PAUSE = "com.android.murano500k.PLAYBACK_PAUSE";
+			public static final String PLAY_NEXT = "com.android.murano500k.PLAYBACK_PLAY_NEXT";
+			public static final String PLAY_PREV = "com.android.murano500k.PLAYBACK_PLAY_PREV";
+		}
+
+		public static class SLEEP{
+			public static final String SET = "com.android.murano500k.SLEEP_SET";
+			public static final String CANCEL = "com.android.murano500k.SLEEP_CANCEL";
+		}
+
+		public static final String SET_BUFFER_SIZE = "com.android.murano500k.INTENT_SET_BUFFER_SIZE";
+		public static final String UPDATE_STATIONS = "com.android.murano500k.UPDATE_STATIONS";
+		public static final String HANDLE_CONNECTIVITY = "com.android.murano500k.HANDLE_CONNECTIVITY";
+		public static final String CLOSE_NOTIFICATION = "com.android.murano500k.INTENT_CLOSE_NOTIFICATION";
+		public static final String OPEN_APP = "com.android.murano500k.INTENT_OPEN_APP";
+	}
+
 	public static final String ACTION_MEDIAPLAYER_STOP = "co.mobiwise.library.ACTION_STOP_MEDIAPLAYER";
 
-	public static final String INTENT_MEDIA_BUTTON = "com.android.murano500k.INTENT_MEDIA_BUTTON";
 	public static final String ACTION_SLEEP_UPDATE = "com.android.murano500k.ACTION_SLEEP_UPDATE";
 	public static final String ACTION_SLEEP_CANCEL = "com.android.murano500k.ACTION_SLEEP_CANCEL";
 	public static final String ACTION_SLEEP_FINISH = "com.android.murano500k.ACTION_SLEEP_FINISH";
 
 	public static final String DATA_SLEEP_TIMER_LEFT_SECONDS = "com.android.murano500k.DATA_SLEEP_TIMER_LEFT_SECONDS";
 	public static final String DATA_CURRENT_STATION_URL = "com.android.murano500k.DATA_CURRENT_STATION_URL";
-	public static final String DATA_STATION_INDEX = "com.android.murano500k.DATA_STATION_INDEX";
-	public static final String DATA_STATION_FAVORITE = "com.android.murano500k.DATA_STATION_FAVORITE";
-
 	public static final String DATA_FAV_ONLY = "com.android.murano500k.DATA_FAV_ONLY";
 
 
 
-	final public static String KEY_SELECTED_INDEX= "com.android.murano500k.KEY_SELECTED_INDEX";
+	final public static String KEY_SELECTED_URL= "com.android.murano500k.KEY_SELECTED_URL";
+	final public static String KEY_LIST_URLS= "com.android.murano500k.KEY_LIST_URLS";
+	final public static String DATA_LIST_URLS= "com.android.murano500k.DATA_LIST_URLS";
 
-	final public static String UI_STATE_LOADING= "com.android.murano500k.UI_STATE_LOADING";
-	final public static String UI_STATE_PLAYING= "com.android.murano500k.UI_STATE_PLAYING";
-	final public static String UI_STATE_IDLE= "com.android.murano500k.UI_STATE_IDLE";
 
-	final public static int AUDIO_DEVICE_STATE_PLUGGED= 1;
-	final public static int AUDIO_DEVICE_STATE_UN_PLUGGED= 0;
+
 
 	public static final int NOTIFICATION_ID = 1441;
 
@@ -57,9 +82,6 @@ public class Constants {
 			"http://pub1.diforfree.org:8000/di_chillhop_hi",
 			"http://pub1.diforfree.org:8000/di_chillout_hi",
 			"http://pub1.diforfree.org:8000/di_chilloutdreams_hi",
-			"http://pub1.diforfree.org:8000/di_chiptunes_hi",
-			"http://pub1.diforfree.org:8000/di_classiceurodance_hi",
-			"http://pub1.diforfree.org:8000/di_classiceurodisco_hi",
 			"http://pub1.diforfree.org:8000/di_classictrance_hi",
 			"http://pub1.diforfree.org:8000/di_classicvocaltrance_hi",
 			"http://pub1.diforfree.org:8000/di_clubdubstep_hi",

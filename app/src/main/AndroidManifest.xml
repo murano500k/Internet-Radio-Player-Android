@@ -20,63 +20,17 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <!--
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTop"
-            android:multiprocess="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:name="com.vk.sdk.VKServiceActivity"
+            android:label="ServiceActivity"
+            android:theme="@style/VK.Transparent"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <action android:name="Radio.INTENT_OPENPLAYER" />
-                <action android:name="Radio.WIDGET_INTENT_PREV" />
-                <action android:name="Radio.WIDGET_INTENT_PLAYPAUSE" />
-                <action android:name="Radio.WIDGET_INTENT_NEXT" />
-                <action android:name="Radio.CONNECT_INTENT_CONNECTED" />
-                <action android:name="Radio.CONNECT_INTENT_DISCONNECTED" />
-            </intent-filter>
-        </activity>
-
-        <service android:name=".RadioPlayerService">
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <action android:name="Radio.INTENT_PLAYPAUSE" />
-                <action android:name="Radio.INTENT_PREV" />
-                <action android:name="Radio.INTENT_NEXT" />
-                <action android:name="Radio.INTENT_CANCEL" />
-                <action android:name="Radio.SLEEP_INTENT_SET_TIMER" />
-                <action android:name="Radio.SLEEP_INTENT_CANCEL_TIMER" />
-            </intent-filter>
-        </service>
-
-        <receiver android:name=".RemoteControlReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.HEADSET_PLUG" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".SimpleWidgetProvider">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/simple_widget_info" />
-        </receiver>
-        -->
         <service
             android:name=".ServiceRadio"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
+                <action android:name="com.android.murano500k.INTENT_SET_BUFFER_SIZE"/>
                 <action android:name="com.android.murano500k.INTENT_PLAY_PAUSE"/>
                 <action android:name="com.android.murano500k.INTENT_RESUME_PLAYBACK"/>
                 <action android:name="com.android.murano500k.INTENT_PAUSE_PLAYBACK"/>
@@ -94,25 +48,41 @@
         <activity
             android:name=".ActivityRadio"
             android:launchMode="singleTop"
-            android:multiprocess="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="com.android.murano500k.INTENT_OPEN_APP"/>
+                <action android:name="com.android.murano500k.INTENT_CLOSE_NOTIFICATION"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity
-            android:name="com.google.speech.levelmeter.LevelMeterActivity"
-            android:label="@string/title_activity_temp"
-            android:theme="@style/AppTheme">
-        </activity>
-        <activity
-            android:name="com.google.speech.levelmeter.Settings"
-            android:label="Settings"
-            android:theme="@style/AppTheme">
+            android:name=".ActivityTemp"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+
+        <receiver
+            android:name=".MediaButtonsReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
+                <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".ServiceRadio$Initiator$HeadsetPlugReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.HEADSET_PLUG"/>
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".ActivityCreateStation">
+
         </activity>
     </application>
 

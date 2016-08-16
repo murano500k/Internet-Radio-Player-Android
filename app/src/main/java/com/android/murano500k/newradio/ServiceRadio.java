@@ -1,12 +1,11 @@
 package com.android.murano500k.newradio;
 
-import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioDeviceCallback;
-import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.session.MediaSession;
@@ -22,28 +21,34 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.cantrowitz.rxbroadcast.RxBroadcast;
 import com.spoledge.aacdecoder.MultiPlayer;
 import com.spoledge.aacdecoder.PlayerCallback;
 
+import java.util.Iterator;
 import java.util.Random;
 
+import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
+import static android.telephony.PhoneStateListener.LISTEN_CALL_STATE;
 import static android.telephony.PhoneStateListener.LISTEN_NONE;
 
 /**
  * The type Service radio.
  */
-public class ServiceRadio extends Service implements PlayerCallback{
-//TODO: Widget, notification, sleeptimer, design (theme, colors)
-	//TODO:Interruptions: connectivity, phone, headphones plug, audiofocus
+public class ServiceRadio extends Service implements PlayerCallback  {
 
+
+	private ConnectivityManager connectivityManager;
 
 	//private final int AUDIO_BUFFER_CAPACITY_MS = 800;
-	private final int AUDIO_BUFFER_CAPACITY_MS = 1600;
-	private final int AUDIO_DECODE_CAPACITY_MS = 400;
+	private int AUDIO_BUFFER_CAPACITY_MS = 800;
+	private int AUDIO_DECODE_CAPACITY_MS = 400;
 	private final String SUFFIX_PLS = ".pls";
 	private final String SUFFIX_RAM = ".ram";
 	private final String SUFFIX_WAX = ".wax";
@@ -53,22 +58,21 @@ public class ServiceRadio extends Service implements PlayerCallback{
 	private boolean isSwitching;
 	private boolean isClosedFromNotification = false;
 	private boolean mLock;
-	private boolean wasDisconnectedWhenPlaying;
+	private boolean userStopped;
 	/**
 	 * The M local binder.
 	 */
 	public final IBinder mLocalBinder = new LocalBinder();
-	private boolean isPlaying;
+	private boolean audioFocusIntrerrupted;
 	private MediaSession mediaSession;
-	private Subscription stationsSubscription;
 	private SleepTimerTask sleepTimerTask;
-	private int audioDeviceState;
 	private AudioManager audioManager;
 	private Initiator initiator;
-	private ConnectivityManager cm;
-	private int positionNotificationPeriod =17640/4;
+	private int positionNotificationPeriod;
+	private boolean positionSaved=false;
 	private NotificationProvider notificationProvider;
 	private PlaylistManager playlistManager;
+
 
 	public enum State {
 		IDLE,
@@ -122,61 +126,6 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		}
 	}
 
-	@Override
-	public void playerStarted() {
-		mRadioState = State.PLAYING;
-		mLock = false;
-		isClosedFromNotification = false;
-		notifier.notifyStationSelected(playlistManager.getSelectedUrl());
-		notifier.notifyPlaybackStarted(playlistManager.getSelectedUrl());
-		initiator.startConnectivityListener();
-	}
-
-	@Override
-	public void playerPCMFeedBuffer(boolean b, int i, int i1) {
-		//Log.d(TAG, "progressplayerPCMFeedBuffer b="+ b+ " i="+ i+" i1="+ i1);
-		notifier.notifyProgressUpdated(i, i1, "b="+ b+ " i="+ i+" i1="+ i1);
-	}
-
-	@Override
-	public void playerStopped(int i) {
-		mRadioState = State.IDLE;
-		//Log.d(TAG, "playerStopped(int i)= " +i);
-
-		if (isClosedFromNotification) {
-			//buildNotification();
-			notifier.notifyPlaybackStopped(true);
-			isClosedFromNotification = false;
-		} else{
-			notifier.notifyPlaybackStopped(false);
-		}
-		mLock = false;
-		Log.d(TAG, "Player stopped. State : " + mRadioState);
-		if (isSwitching)
-			play(playlistManager.getSelectedUrl());
-
-	}
-
-	@Override
-	public void playerException(Throwable throwable) {
-		mRadioState = State.STOPPED;
-		mLock = false;
-		Log.d(TAG, "playerException: " + throwable.getMessage());
-		notifier.notifyPlaybackErrorOccured();
-	}
-
-	@Override
-	public void playerMetadata(String s, String s1) {
-		notifier.notifyMetaDataChanged(s,s1);
-		//Log.d(TAG, "progressMetadata s="+ s+ " s1="+ s1);
-
-
-	}
-
-	@Override
-	public void playerAudioTrackCreated(AudioTrack audioTrack) {
-			audioTrack.setPositionNotificationPeriod(positionNotificationPeriod);
-	}
 
 
 	/**
@@ -195,290 +144,297 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		initiator=new Initiator();
 		isSwitching = false;
 		mLock = false;
+		isClosedFromNotification=false;
+		userStopped=true;
 		notifier.notifyRadioConnected();
+		AUDIO_BUFFER_CAPACITY_MS=playlistManager.getBufferSize();
+		AUDIO_DECODE_CAPACITY_MS=playlistManager.getDecodeSize();
 		getPlayer();
-		initMediaSession();
+		//initiator.initMediaSession();
+		initiator.registerHeadsetPlugReceiver();
+		initiator.startPhoneStateListener();
+		initiator.registerMediaButtonsReciever();
+
+
 	}
+	@Override
+	public boolean onUnbind(Intent intent) {
+		if(initiator!=null){
+			initiator.resetPhoneStateListener();
+			initiator.resetConnectivityListener();
+			initiator.resetAudioFocusChangeListener();
+			initiator.unRegisterHeadsetPlugReceiver();
+			initiator.unRegisterMediaButtonsReciever();
+			//initiator.resetMediaSession();
+
+		}
+		if(isPlaying())stop();
+		//if(notifier!=null && notificationProvider!=null) notifier.unRegisterListener(notificationProvider);
+
+		stopSelf();
+		return super.onUnbind(intent);
+	}
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		String action = intent.getAction();
 		Log.d(TAG,"onStartCommand " + action);
 		Log.d(TAG, "INTENT " + action);
-		if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
-			KeyEvent event= intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-			int keycode = event.getKeyCode();
-			int keyAction = event.getAction();
-			switch (keycode) {
-				case KeyEvent.KEYCODE_MEDIA_NEXT:
-					if (keyAction == KeyEvent.ACTION_DOWN) {
-						Log.d(TAG, "KEYCODE_MEDIA_NEXT");
-						isClosedFromNotification=false;
-						playNext();
-					}
-					break;
-				case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-					if (keyAction == KeyEvent.ACTION_DOWN) {
-						Log.d(TAG, "KEYCODE_MEDIA_PREVIOUS");
-						isClosedFromNotification=false;
-						playPrev();
-					}
-					break;
-				case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-					if (keyAction == KeyEvent.ACTION_DOWN) {
-						Log.d(TAG, "Trigered KEYCODE_MEDIA_PLAY_PAUSE");
-						intentActionPlayPause(intent);
-					}
-				case KeyEvent.KEYCODE_MEDIA_PAUSE:
-					if (keyAction == KeyEvent.ACTION_DOWN) {
-						Log.d(TAG, "Trigered KEYCODE_MEDIA_PAUSE ");
-						intentActionPause(intent);
-					}
-				case KeyEvent.KEYCODE_MEDIA_PLAY:
-					if (keyAction == KeyEvent.ACTION_DOWN) {
-						Log.d(TAG, "Trigered KEYCODE_MEDIA_PLAY");
-						intentActionPlay(intent);
-					}
-					break;
-				default:
-					break;
-			}
-		} else if (action.equals(Constants.INTENT_SLEEP_TIMER_SET)) {
-			Log.d(TAG, "serv INTENT_SLEEP_TIMER_SET");
+		if (action.equals(Constants.INTENT.PLAYBACK.PLAY_PAUSE)) {
+			Log.d(TAG, "PLAY_NEXT shuffle: " +playlistManager.isShuffle());
+			if(isPlaying()) intentActionPause(false);
+			else	intentActionPlay(null);
+
+		}else if (action.equals(Constants.INTENT.PLAYBACK.PLAY_NEXT)) {
+			Log.d(TAG, "PLAY_NEXT shuffle: " +playlistManager.isShuffle());
+			if(playlistManager.isShuffle()) playRandom();
+			else	playNext();
+
+		} else if (action.equals(Constants.INTENT.PLAYBACK.PLAY_PREV)) {
+			Log.d(TAG, "PLAY_PREV");
+			playPrev();
+
+		} else if (action.equals(Constants.INTENT.PLAYBACK.PAUSE) || action.equals(Constants.INTENT.UPDATE_STATIONS)) {
+			Log.d(TAG, "PAUSE");
+			intentActionPause(false);
+
+		} else if (action.contains(Constants.INTENT.PLAYBACK.RESUME) || action.equals(Constants.INTENT.HANDLE_CONNECTIVITY)) {
+			intentActionPlay(intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL));
+
+		} else if (action.contains(Constants.INTENT.SET_BUFFER_SIZE)) {
+			Log.d(TAG, "INTENT_SET_BUFFER_SIZE");
+			AUDIO_BUFFER_CAPACITY_MS = intent.getIntExtra(Constants.DATA_AUDIO_BUFFER_CAPACITY, 800);
+			AUDIO_DECODE_CAPACITY_MS = intent.getIntExtra(Constants.DATA_AUDIO_DECODE_CAPACITY, 400);
+			playlistManager.saveBufferSize(AUDIO_BUFFER_CAPACITY_MS);
+			playlistManager.saveDecodeSize(AUDIO_DECODE_CAPACITY_MS);
+			Toast.makeText(getApplicationContext(), "Audio buffer updated. AUDIO_BUFFER_CAPACITY " +
+					"= "+
+					AUDIO_BUFFER_CAPACITY_MS+ " ms, AUDIO_DECODE_CAPACITY = "+AUDIO_DECODE_CAPACITY_MS+ " ms",
+					Toast.LENGTH_SHORT).show();
+			Log.d(TAG, "AUDIO_BUFFER_CAPACITY_MS="+ AUDIO_BUFFER_CAPACITY_MS);
+			Log.d(TAG, "AUDIO_DECODE_CAPACITY_MS="+ AUDIO_DECODE_CAPACITY_MS);
+			getPlayer().setAudioBufferCapacityMs(AUDIO_BUFFER_CAPACITY_MS);
+			getPlayer().setDecodeBufferCapacityMs(AUDIO_DECODE_CAPACITY_MS);
+
+		} else if (action.equals(Constants.INTENT.SLEEP.SET)) {
+			Log.d(TAG, "serv SET");
 			int secs = intent.getIntExtra(Constants.DATA_SLEEP_TIMER_LEFT_SECONDS, -254);
 			if(secs==-254)             Log.d(TAG, "secs ERROR");
 			Log.d(TAG, "secs" + secs);
 			setSleepTimer(secs);
-		}else if (action.equals(Constants.INTENT_SLEEP_TIMER_CANCEL)) {
-			Log.d(TAG, "serv INTENT_SLEEP_TIMER_CANCEL");
-			cancelSleepTimer(); //TODO uncomment sleep
-		} else if (action.equals(Constants.INTENT_CLOSE_NOTIFICATION)) {
+		}else if (action.equals(Constants.INTENT.SLEEP.CANCEL)) {
+			Log.d(TAG, "serv CANCEL");
+			cancelSleepTimer();
+		} else if (action.equals(Constants.INTENT.CLOSE_NOTIFICATION)) {
 			Log.d(TAG,"serv INTENT_CLOSE_NOTIFICATION");
-			isClosedFromNotification=true;
-			/*if(mNotificationManager != null) {
-				mNotificationManager.cancel(Constants.NOTIFICATION_ID);
-			}//TODO isClosedFromNotification*/
-			if(isPlaying())stop();
-			stopSelf();
-		} else if (action.equals(Constants.INTENT_PLAY_PAUSE)) {
-			intentActionPlayPause(intent);
-		} else if (action.equals(Constants.INTENT_PLAY_NEXT)) {
-			Log.d(TAG, "INTENT_PLAY_NEXT");
-			isClosedFromNotification=false;
-			playNext();
-		} else if (action.equals(Constants.INTENT_PLAY_RANDOM)) {
-			Log.d(TAG, "INTENT_PLAY_RANDOM");
-			isClosedFromNotification=false;
-			playRandom();
-		} else if (action.equals(Constants.INTENT_PLAY_PREV)) {
-			Log.d(TAG, "INTENT_PLAY_PREV");
-			isClosedFromNotification=false;
-			playPrev();
-		} else if (action.equals(Constants.INTENT_PAUSE_PLAYBACK)) {
-			Log.d(TAG, "INTENT_PAUSE_PLAYBACK");
-			intentActionPause(intent);
-		} else if (action.contains(Constants.INTENT_RESUME_PLAYBACK)) {
-			intentActionPlay(intent);
-		} else if (action.contains(Constants.INTENT_HANDLE_CONNECTIVITY)) {
-			if (mRadioState==State.STOPPED){
-				intentActionPlay(intent);
-			}
-		} /*else if (action.contains(Constants.INTENT_UPDATE_FAVORITE_STATION)) {
-			int indexToUpdate;
-			boolean favToUpdate;
-			indexToUpdate= intent.getIntExtra(Constants.DATA_STATION_INDEX, -1);
-			favToUpdate = intent.getBooleanExtra(Constants.DATA_STATION_FAVORITE, false);
-			Log.d(TAG, "updating station indexToUpdate " + indexToUpdate + ", fav="+favToUpdate);
-
-			if(indexToUpdate!=-1) for(Station station: stations) if(station.id==indexToUpdate) {
-				station.fav=favToUpdate;
-				Log.d(TAG, "station " + station.url + " was set fav="+favToUpdate);
-			}
-
-		} else if (action.contains(Constants.INTENT_UPDATE_STATIONS)) {
-			favOnly = intent.getBooleanExtra(Constants.DATA_FAV_ONLY, isFavOnly());
-			stationsSubscription = stationsObservable()
-					.subscribeOn(Schedulers.newThread())
-					.observeOn(AndroidSchedulers.mainThread())
-					.doOnCompleted(() -> {
-						//stop();
-						if(currentStation==null) currentStation=getStations().get(0);
-						else currentStation=getStationByUrl(currentStation.url);
-						notifier.notifyListChanged(getStations());
-						notifier.notifyStationSelected(currentStation.url);
-						savePrefsToStorage(false);
-					})
-					.subscribe(stations1 -> {
-						if(isFavOnly()) stationsFav=stations1;
-						else stations=stations1;
-						return;
-					});
-		}*/
+			intentActionPause(true);
+		}
 		return START_NOT_STICKY;
 	}
 
-	/*public rx.Observable<ArrayList<Station>> stationsObservable() {
-		return Observable.create(new Observable.OnSubscribe<ArrayList<Station>>() {
-			@Override
-			public void call(Subscriber<? super ArrayList<Station>> subscriber) {
-				if(!isFavOnly()) subscriber.onNext(stations);
-				else{
-					ArrayList<Station> favStations = new ArrayList<Station>();
-					for(Station station: stations){
-						if(station.fav) favStations.add(station);
-					}
-					if(favStations.size()==0){
-						Log.d(TAG,"No favorite stations. All stations selected");
-						//Toast.makeText(getApplicationContext(), "No favorite stations. All stations selected", Toast.LENGTH_SHORT).show();
-						subscriber.onNext(stations);
-					}
-					else subscriber.onNext(favStations);
-				}
-				subscriber.onCompleted();
-
-			}
-		});
-	}*/
-
-	private void intentActionPause(Intent intent) {
-		Log.d(TAG, "INTENT_PAUSE_PLAYBACK");
-		isClosedFromNotification=false;
-		if(isPlaying())stop();
-	}
-	private void intentActionPlay(Intent intent) {
-		Log.d(TAG, "INTENT_RESUME_PLAYBACK");
-		isClosedFromNotification=false;
-		String stationUrl;
-		if(intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL)!=null) {
-			stationUrl = intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL);
-			play(stationUrl);
-		}
-		else play(playlistManager.getSelectedUrl());
-		//else Toast.makeText(getApplicationContext(), "No station selected", Toast.LENGTH_SHORT).show();
-
-	}
-
-	private void intentActionPlayPause(Intent intent) {
-		Log.d(TAG, "INTENT_PLAY_PAUSE");
-		String stationUrl;
-		isClosedFromNotification=false;
-		if(isPlaying())stop();
-		else {
-			if(intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL)!=null) {
-				stationUrl = intent.getStringExtra(Constants.DATA_CURRENT_STATION_URL);
-				//currentStation=getStationByUrl(stationUrl);
-				play(stationUrl);
-			}
-			else play(playlistManager.getSelectedUrl());
-		}
-
-	}
 	private void playNext() {
-		int selectedIndex= playlistManager.getStations().indexOf(playlistManager.getSelectedUrl());
-		if(selectedIndex>=playlistManager.getStations().size()-1) {
-			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex));
-		}else{
-			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex+1));
+		Iterator<String> iterator=playlistManager.getStations().iterator();
+		String wasSelected=playlistManager.getSelectedUrl();
+		while (iterator.hasNext()){
+			if(wasSelected.contains(iterator.next()) && iterator.hasNext()) {
+				intentActionPlay(iterator.next());
+				break;
+			}
 		}
-		play(playlistManager.getSelectedUrl());
+		String url=playlistManager.getSelectedUrl();
+		notifier.notifyStationSelected(url);
+		intentActionPlay(url);
 	}
 	private void playPrev() {
-		int selectedIndex= playlistManager.getStations().indexOf(playlistManager.getSelectedUrl());
-		if(selectedIndex==0) {
-			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex));
-		}else{
-			playlistManager.setSelectedUrl(playlistManager.getStations().get(selectedIndex-1));
+		Iterator<String> iterator=playlistManager.getStations().iterator();
+		String wasSelected=playlistManager.getSelectedUrl();
+		String prev=null;
+		String next;
+		while (iterator.hasNext()){
+			next=iterator.next();
+			if(wasSelected.contains(next) && prev!=null){
+				playlistManager.setSelectedUrl(prev);
+				intentActionPlay(prev);
+				break;
+			}
+			prev=next;
 		}
-		play(playlistManager.getSelectedUrl());
+
 	}
 	private void playRandom() {
 		int currentIndex= new Random().nextInt(playlistManager.getStations().size()-1);
-		playlistManager.setSelectedUrl(playlistManager.getStations().get(currentIndex));
-		play(playlistManager.getSelectedUrl());
+		intentActionPlay((String)playlistManager.getStations().toArray()[currentIndex]);
 	}
 
-	/**
-	 * Init media session.
-	 */
-	public void initMediaSession() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			String TAG = "MyMediaSession";
-			mediaSession = new MediaSession(getApplicationContext(), TAG);
-			mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
-			mediaSession.setActive(true);
-			Intent intentMediaButton = new Intent(getApplicationContext(), ServiceRadio.class);
-			intentMediaButton.setAction(Constants.INTENT_MEDIA_BUTTON);
-			PendingIntent pendingIntent=PendingIntent.getService(getApplicationContext(), 0, intentMediaButton, 0);
-			mediaSession.setMediaButtonReceiver(pendingIntent);
-		}
-	}
 
+	private void intentActionPlay(String url) {
+		Log.d(TAG, "RESUME");
+		if(url!=null) {
+			playlistManager.setSelectedUrl(url);
+		} else url = playlistManager.getSelectedUrl();
+		notifier.notifyStationSelected(url);
+		isClosedFromNotification=false;
+		userStopped=false;
+		play(url);
+	}
 	public void play(String mRadioUrl) {
 		Log.d(TAG, "play() mLock= "+ mLock+ " mRadioState=" + mRadioState + " isSwitching=" +
 				isSwitching);
-
 		if (isPlaying()) {
 			Log.d(TAG, "Switching Radio");
 			isSwitching = true;
 			stop();
 		}else if(requestFocus()) {
 			sendBroadcast(new Intent(Constants.ACTION_MEDIAPLAYER_STOP));
-			notifier.notifyLoadingStarted(mRadioUrl);
 			if (checkSuffix(mRadioUrl))
 				decodeStremLink(mRadioUrl);
 			else {
 				isSwitching = false;
 				if (!mLock) {
-					Log.d(TAG,"Play requested.");
+					Log.d(TAG,"Play requested .getAudioBufferCapacityMs=" + getPlayer()
+							.getAudioBufferCapacityMs()+ " getDecodeBufferCapacityMs="
+							+getPlayer().getDecodeBufferCapacityMs());
 					mLock = true;
+					notifier.notifyLoadingStarted(mRadioUrl);
 					getPlayer().playAsync(mRadioUrl);
 				}
 			}
 		} else {
-			Log.d(TAG, "focus not granted");
+			Toast.makeText(getApplicationContext(), "focus not granted", Toast.LENGTH_SHORT).show();
+			notifier.notifyPlaybackErrorOccured(true);
 		}
 	}
-
 	@Override
-	public boolean onUnbind(Intent intent) {
-		//savePrefsToStorage(true);
-		return super.onUnbind(intent);
+	public void playerStarted() {
+		PlaylistManager.addToLog("playerStarted");
+		mRadioState = State.PLAYING;
+		userStopped=false;
+		mLock = false;
+		isClosedFromNotification = false;
+		notifier.notifyPlaybackStarted(playlistManager.getSelectedUrl());
+
 	}
 
-	/**
-	 * Stop.
-	 */
+
+	private void intentActionPause(boolean isClosedFromNotification) {
+		Log.d(TAG, "PAUSE");
+		userStopped=true;
+		this.isClosedFromNotification=isClosedFromNotification;
+		initiator.resetConnectivityListener();
+		if(isPlaying())stop();
+	}
 	public void stop() {
 		Log.d(TAG, "stop() mLock= "+ mLock+ " mRadioState=" + mRadioState + " isSwitching=" +
 				isSwitching);
-
 		if (!mLock && mRadioState == State.PLAYING) {
 			Log.d(TAG, "Stop requested.");
 			mLock = true;
 			mRadioState=State.IDLE;
-			wasDisconnectedWhenPlaying=false;
 			getPlayer().stop();
+		}
+	}
+	@Override
+	public void playerStopped(int i) {
+		PlaylistManager.addToLog("Player stopped. perf = " + i+"%");
+
+		mRadioState = State.IDLE;
+		notifier.notifyMetaDataChanged(null,null);
+		mLock = false;
+		Log.d(TAG, "Player stopped. perf = " + i+"%");
+		if (isSwitching)
+			play(playlistManager.getSelectedUrl());
+		else if (isClosedFromNotification) {
+			notifier.notifyPlaybackStopped(false);
+			return;
+		} else  notifier.notifyPlaybackStopped(true);
+		if(!userStopped) {
+
+			Observable.just(i).observeOn(Schedulers.newThread())
+					.observeOn(AndroidSchedulers.mainThread())
+					.subscribe(integer -> {
+						Toast.makeText(getApplicationContext(),"Player stopped. perf = " + integer+"%",Toast.LENGTH_SHORT ).show();
+					});
+			initiator.startConnectivityListener();
+		}
+	}
+
+	@Override
+	public void playerException(Throwable throwable) {
+		PlaylistManager.addToLog("playerException: " + throwable.toString());
+
+		mRadioState = State.STOPPED;
+		mLock = false;
+		Log.d(TAG, "playerException: " + throwable.getMessage()+ "\n\t"+ throwable.getStackTrace());
+		String s=throwable.getMessage();
+		if (isClosedFromNotification) {
+			notifier.notifyPlaybackErrorOccured(false);
+			return;
+		}
+		else  	notifier.notifyPlaybackErrorOccured(true);
+
+		if(!userStopped) {
+			Observable.just(s).observeOn(Schedulers.newThread())
+					.observeOn(AndroidSchedulers.mainThread())
+					.subscribe(s1 -> {
+						Toast.makeText(getApplicationContext(),"playerException: " + s1,Toast.LENGTH_LONG).show();
+					});
+			initiator.startConnectivityListener();
+		}
+	}
+
+	@Override
+	public void playerMetadata(String s, String s1) {
+		notifier.notifyMetaDataChanged(s,s1);
+		//Log.d(TAG, "progressMetadata s="+ s+ " s1="+ s1);
+	}
+
+	@Override
+	public void playerAudioTrackCreated(AudioTrack audioTrack) {
+
+		//audioTrack.getNotificationMarkerPosition();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if(!positionSaved) {
+				positionNotificationPeriod=audioTrack.getPositionNotificationPeriod();
+				audioTrack.setPositionNotificationPeriod(positionNotificationPeriod/3);
+				positionSaved=true;
+			}
+			else {
+				audioTrack.setPositionNotificationPeriod(positionNotificationPeriod/3);
+			}
 		}
 	}
 
 
 	/**
-	 * Is playing boolean.
+	 * This method is called periodically by PCMFeed.
 	 *
-	 * @return the boolean
+	 * @param isPlaying false means that the PCM data are being buffered,
+	 *          but the audio is not playing yet
+	 *
+	 * @param audioBufferSizeMs the buffered audio data expressed in milliseconds of playing
+	 * @param audioBufferCapacityMs the total capacity of audio buffer expressed in milliseconds of playing
+	public void playerPCMFeedBuffer( boolean isPlaying, int audioBufferSizeMs, int audioBufferCapacityMs );
+
 	 */
-	public boolean isPlaying(){
-		if (State.PLAYING == mRadioState)
-			return true;
-		return false;
+	@Override
+	public void playerPCMFeedBuffer(boolean isPlaying, int audioBufferSizeMs, int audioBufferCapacityMs) {
+		//Log.d(TAG, "progress audioBufferSizeMs="+ audioBufferSizeMs+" audioBufferCapacityMs="+ audioBufferCapacityMs);
+		notifier.notifyProgressUpdated(audioBufferSizeMs, audioBufferCapacityMs, "");
 	}
 
+
+
+
+
+
+	public boolean isPlaying(){
+		return State.PLAYING == mRadioState;
+	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if(notifier!=null) notifier.unregisterAll();
 	}
-
 
 	private void setSleepTimer(int seconds){
 		if(sleepTimerTask!=null) sleepTimerTask.cancel(true);
@@ -510,7 +466,7 @@ public class ServiceRadio extends Service implements PlayerCallback{
 
 		@Override
 		protected void onCancelled(Void aVoid) {
-			notifier.notifySleepTimerStatusUpdated(Constants.INTENT_SLEEP_TIMER_CANCEL, -1);
+			notifier.notifySleepTimerStatusUpdated(Constants.INTENT.SLEEP.CANCEL, -1);
 			Log.d(TAG, "sleep timer cancelled");
 		}
 
@@ -553,235 +509,371 @@ public class ServiceRadio extends Service implements PlayerCallback{
 		if (extras != null) {
 			for (String key: extras.keySet()) {
 				Object val=extras.get(key);
-				//Log.v(TAG, "key [" + key + "]: " + val);
+				Log.d(TAG, "key [" + key + "]: " + val);
 				if(key.contains("networkInfo")){
 					NetworkInfo info=(NetworkInfo)val;
 					assert info != null;
 					String msg = "network state:" + info.getState()+" reason: "+info
-							.getReason()+", wasDisconnectedWhenPlaying="+wasDisconnectedWhenPlaying;
+							.getReason()+", userStopped="+userStopped + ", isPlaying()="+isPlaying();
 					Log.d(TAG, msg);
+					PlaylistManager.addToLog("handleConnectivityChange. "+msg);
+
 					//Toast.makeText(getApplicationContext(),msg, Toast.LENGTH_SHORT).show();
 
-					if(info.getState()==NetworkInfo.State.CONNECTED && !mLock && !isSwitching &&
-							!extras.getBoolean("noConnectivity") && !isPlaying() && wasDisconnectedWhenPlaying){
+					if(info.getState()==NetworkInfo.State.CONNECTED && !userStopped){
+						PlaylistManager.addToLog("\thandleConnectivityChange. intentActionPlay");
+
 						Log.d(TAG, "Resuming...");
-						wasDisconnectedWhenPlaying=false;
-						play(playlistManager.getSelectedUrl());
+						intentActionPlay(null);
 
 					}
-					if(info.getState()==NetworkInfo.State.DISCONNECTED && extras.getBoolean
-							("noConnectivity")&& mRadioState==State.PLAYING) {
-						wasDisconnectedWhenPlaying=true;
+
+					if(info.getState()==NetworkInfo.State.DISCONNECTED || info.getState()==NetworkInfo.State.DISCONNECTING){
+						//if(/*extras.getBoolean("noConnectivity")&& */isPlaying())
+
+						if(isPlaying())userStopped=false;
 					}
 					break;
 				}
 			}
 		}
 		else {
-			Log.v(TAG, "no extras");
+			Log.d(TAG, "no extras");
 		}
 
 	}
-	/*boolean isOnline(Context context) {
-		if (cm == null) cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo netInfo = cm.getActiveNetworkInfo();
-		if(netInfo != null && netInfo.isConnected()){
-			return true;
-		}else {
+	public boolean isOnline(){
+		if(connectivityManager==null){
+			connectivityManager=(ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+		}
+		NetworkInfo netInfo=connectivityManager.getActiveNetworkInfo();
+		return (netInfo!=null && netInfo.isConnected());
+	}
+	public boolean requestFocus(){
+
+		if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		if (connectivityManager == null) connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+		int result;
+		if(audioManager.getMode()==AudioManager.MODE_IN_CALL) {
+			Toast.makeText(getApplicationContext(),"AudioManager.MODE_IN_CALL. Radio will not start",Toast.LENGTH_SHORT).show();
 			return false;
 		}
-	}*/
 
-	public boolean requestFocus(){
-		return true;
-		/*if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-		boolean granted=false;
-		int result = audioManager.requestAudioFocus(initiator.getAudioFocusChangeListener(),
-				// Use the music stream.
+		if(!isOnline()) {
+			Toast.makeText(getApplicationContext(),"No connection. Radio will not start",Toast.LENGTH_SHORT).show();
+			if(initiator.stateAudioDevice==Constants.STATE_AUDIO_DEVICE.PLUGGED){
+				userStopped=false;
+				if(initiator.connectedSubscription==null || initiator.connectedSubscription.isUnsubscribed()) initiator.startConnectivityListener();
+			}
+			return false;
+		}
+		result = audioManager.requestAudioFocus(initiator.getAudioFocusChangeListener(),
 				AudioManager.STREAM_MUSIC,
-				// Request permanent focus.
 				AudioManager.AUDIOFOCUS_GAIN);
 
-		granted = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
-		Log.d(TAG, "requested audio focus. result = "+ granted);
-		return granted;*/
+		if(result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+
+
+		} else audioManager.abandonAudioFocus(initiator.getAudioFocusChangeListener());
+		Log.d(TAG, "requested audio focus. result = "+ result);
+		PlaylistManager.addToLog("requested audio focus. result = "+ result);
+		return (result==AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
 	}
 
-	private void activateInterruptionListeners(){
-		initiator.startConnectivityListener();
-		initiator.startPhoneStateListener();
-		initiator.startAudioDeviceCallback();
-	}
 
 	public class Initiator {
 
-		private Subscription connectedSubscription;
-		private ConnectivityManager cm;
-		private AudioManager audioManager;
-		private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener;
-		private AudioDeviceCallback audioDeviceCallback;
-		private PhoneStateListener phoneStateListener;
-		private TelephonyManager mTelephonyManager;
+		private Subscription connectedSubscription=null;
+		private AudioManager audioManager=null;
+		private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener=null;
+		private PhoneStateListener phoneStateListener=null;
+		private TelephonyManager mTelephonyManager=null;
+		private ComponentName mMediaButtonReceiverComponent;
+		private int stateAudioDevice;
+		private int lastStateAudioDevice;
+		private HeadsetPlugReceiver headsetPlugReceiver;
+		private Intent headsetPlugIntent;
 
+
+
+		public Initiator() {
+			connectedSubscription=null;
+			audioFocusChangeListener=null;
+			phoneStateListener=null;
+			stateAudioDevice= Constants.STATE_AUDIO_DEVICE.UNKNOWN;
+			lastStateAudioDevice= Constants.STATE_AUDIO_DEVICE.UNKNOWN;
+		}
+
+
+		private Subscription startConnectivityListener(){
+			IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+			Log.d(TAG, "initConnectivityListener");
+			PlaylistManager.addToLog("initConnectivityListener");
+			if(connectedSubscription==null || connectedSubscription.isUnsubscribed()) {
+				connectedSubscription=RxBroadcast.fromBroadcast(getApplicationContext(), filter)
+						.subscribe(ServiceRadio.this::handleConnectivityChange);
+			}
+			return connectedSubscription;
+		}
+
+		public void resetConnectivityListener(){
+			Log.d(TAG, "resetConnectivityListener");
+			PlaylistManager.addToLog("resetConnectivityListener");
+			if(connectedSubscription!=null && !connectedSubscription.isUnsubscribed())
+				connectedSubscription.unsubscribe();
+			connectedSubscription=null;
+		}
+		public void registerMediaButtonsReciever(){
+			Log.d(TAG, "registerMediaButtonsReciever");
+			PlaylistManager.addToLog("registerMediaButtonsReciever");
+			if(audioManager==null) 		audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+			mMediaButtonReceiverComponent = new ComponentName(getApplicationContext().getPackageName(), MediaButtonsReceiver.class.getName());
+			audioManager.registerMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+		}
+		public void unRegisterMediaButtonsReciever(){
+			Log.d(TAG, "unRegisterMediaButtonsReciever");
+			PlaylistManager.addToLog("unRegisterMediaButtonsReciever");
+			if(audioManager==null) 		audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+			if(mMediaButtonReceiverComponent!=null) audioManager.unregisterMediaButtonEventReceiver(mMediaButtonReceiverComponent);
+		}
 
 		public PhoneStateListener startPhoneStateListener(){
+			if(mTelephonyManager== null)mTelephonyManager=(TelephonyManager)getSystemService(TELEPHONY_SERVICE);
 			if(phoneStateListener==null) phoneStateListener= new PhoneStateListener() {
 				@Override
 				public void onCallStateChanged(int state, String incomingNumber) {
 					if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
+						Log.d(TAG, "onCallStateChanged CALL_STATE_RINGING");
 						if (isPlaying()) {
-							boolean isInterrupted = true;
-                        /*if(networkChangeReceiver!=null && networkChangeReceiver.isListening){
-                            context.unregisterReceiver(networkChangeReceiver);
-                            networkChangeReceiver.isListening=false;
-                        }*/
-
+							if(isPlaying()) {
+								Log.d(TAG, "onCallStateChanged will stop");
+								audioFocusIntrerrupted = true;
+								userStopped=false;
+								lastStateAudioDevice=stateAudioDevice;
+								audioManager.abandonAudioFocus(audioFocusChangeListener);
+								intentActionPause(false);
+							}
 						}
 					} else if (state == TelephonyManager.CALL_STATE_IDLE) {
-						if (mRadioState==State.STOPPED) {
+						Log.d(TAG, "CALL_STATE_IDLE last="+lastStateAudioDevice+ " now="+stateAudioDevice+", interrupted="+audioFocusIntrerrupted);
 
+						if(stateAudioDevice!=lastStateAudioDevice && stateAudioDevice==Constants.STATE_AUDIO_DEVICE.UNPLUGGED){
+							Toast.makeText(getApplicationContext(),"call finished. Headset was unplugged during call, will not resume", Toast.LENGTH_SHORT).show();
+							PlaylistManager.addToLog("call finished. Headset was unplugged during call, will not resume");
+						}else if(audioFocusIntrerrupted && !isPlaying()){
+							audioFocusIntrerrupted=false;
+							userStopped=false;
+							Log.d(TAG, "onCallStateChanged will play");
+							PlaylistManager.addToLog("onCallStateChanged will play");
+							intentActionPlay(null);
 						}
 					}
 					super.onCallStateChanged(state, incomingNumber);
 				}
 			};
+			Log.d(TAG, "startPhoneStateListener");
+			PlaylistManager.addToLog("startPhoneStateListener");
+			mTelephonyManager.listen(phoneStateListener, LISTEN_CALL_STATE);
 			return phoneStateListener;
 		}
 
 		public void resetPhoneStateListener(){
 			Log.d(TAG, "resetPhoneStateListener");
+			PlaylistManager.addToLog("resetPhoneStateListener");
 			if(phoneStateListener!=null) {
-				if (mTelephonyManager != null && phoneStateListener != null)
+				if (mTelephonyManager != null)
 					mTelephonyManager.listen(phoneStateListener, LISTEN_NONE);
+				phoneStateListener=null;
 			}
 		}
 
 
 		public AudioManager.OnAudioFocusChangeListener getAudioFocusChangeListener(){
 			if(audioManager==null) 		audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if(audioFocusChangeListener!=null) {
+				if(audioFocusChangeListener==null) {
 					audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
 						public void onAudioFocusChange(int focusChange) {
-							if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
-									focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
-							{
+							if        (focusChange == AudioManager.AUDIOFOCUS_LOSS
+									|| focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+									|| focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+								Log.d(TAG, "focusChange == AudioManager.AUDIOFOCUS_LOSS)");
+								PlaylistManager.addToLog("AudioManager.AUDIOFOCUS_LOSS");
+
 								if (isPlaying()) {
-									audioManager.abandonAudioFocus(audioFocusChangeListener);
-
-
+									Log.d(TAG, "focusChange will stop");
+									audioFocusIntrerrupted = true;
+									PlaylistManager.addToLog("\tAUDIOFOCUS intentActionPause");
+									userStopped=false;
+									intentActionPause(false);
 								}
-							} else if(focusChange == AudioManager.AUDIOFOCUS_GAIN ||
-									focusChange == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-							{
+							} else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+								Log.d(TAG, "focusChange AUDIOFOCUS_GAIN");
+								PlaylistManager.addToLog("AudioManager.AUDIOFOCUS_GAIN");
 
+								if (audioFocusIntrerrupted) {
+									audioFocusIntrerrupted = false;
+									Log.d(TAG, "focusChange will play");
+									PlaylistManager.addToLog("\tAUDIOFOCUS intentActionPlay");
 
+									if (!isPlaying()) intentActionPlay(null);
+								}
 							}
+
 						}
 					};
 				}
 				return audioFocusChangeListener;
-			}
-			else return null;
 		}
 		public void resetAudioFocusChangeListener(){
-			Log.d(TAG, "resetAudioFocusChangeListener");
-			audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+			Log.d(TAG, "reset AudioFocusChangeListener");
+			PlaylistManager.addToLog("reset AudioFocusChangeListener");
+
+			if(audioManager==null) 		audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 			if(audioFocusChangeListener!=null)audioManager.abandonAudioFocus(audioFocusChangeListener);
+			audioFocusChangeListener=null;
 		}
 
 
-		public AudioDeviceCallback startAudioDeviceCallback(){
-			if(audioManager==null) 	mTelephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				if(audioDeviceCallback!=null) audioDeviceCallback= new AudioDeviceCallback() {
-					@Override
-					public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
-						super.onAudioDevicesAdded(addedDevices);
-					}
-					@Override
-					public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
-						for (AudioDeviceInfo info :
-								removedDevices) {
-							if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-								if (AudioDeviceInfo.TYPE_WIRED_HEADSET == info.getType()
-										|| AudioDeviceInfo.TYPE_WIRED_HEADPHONES == info.getType()) {
-									if(connectedSubscription != null && !connectedSubscription.isUnsubscribed()) resetConnectivityListener();
-									if (mTelephonyManager != null && phoneStateListener!=null)
-										mTelephonyManager.listen(phoneStateListener, LISTEN_NONE);
-									if(audioFocusChangeListener!=null)audioManager.abandonAudioFocus(audioFocusChangeListener);
-									super.onAudioDevicesRemoved(removedDevices);
-									return;
-								}
+		public void registerHeadsetPlugReceiver(){
+			Log.d(TAG, "register HeadsetPlugReceiver");
+			PlaylistManager.addToLog("register HeadsetPlugReceiver");
+
+			if(headsetPlugReceiver==null) 		headsetPlugReceiver = new HeadsetPlugReceiver();
+			headsetPlugIntent=getApplicationContext().registerReceiver(headsetPlugReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+		}
+		public void unRegisterHeadsetPlugReceiver(){
+			Log.d(TAG, "UNregister HeadsetPlugReceiver");
+			PlaylistManager.addToLog("UNregister HeadsetPlugReceiver");
+
+			if(headsetPlugIntent!=null && headsetPlugReceiver!=null) getApplicationContext().unregisterReceiver(headsetPlugReceiver);
+			headsetPlugReceiver=null;
+		}
+
+		public class HeadsetPlugReceiver extends BroadcastReceiver{
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+					int state = intent.getIntExtra("state", -1);
+					switch (state) {
+						case 0:
+							// headset unplugged
+							Log.d(TAG, "headset unplugged");
+							stateAudioDevice= Constants.STATE_AUDIO_DEVICE.UNPLUGGED;
+							if(isPlaying()){
+								Log.d(TAG, "will pause");
+								intentActionPause(false);
 							}
-						}
-						super.onAudioDevicesRemoved(removedDevices);
+							break;
+						case 1:
+							// headset plugged
+							stateAudioDevice= Constants.STATE_AUDIO_DEVICE.PLUGGED;
+							Log.d(TAG, "headset plugged");
+							if(!isPlaying()){
+								Log.d(TAG, "will play");
+								intentActionPlay(null);
+							}
+							break;
+						default:
+							// headset plugged
+							stateAudioDevice= Constants.STATE_AUDIO_DEVICE.UNKNOWN;
+							Log.d(TAG, "headset UNKNOWN");
+							break;
 					}
-				};
-				audioManager.registerAudioDeviceCallback(audioDeviceCallback, null);
-			}
-
-			return audioDeviceCallback;
-		}
-		public void resetAudioDeviceCallback(){
-			Log.d(TAG, "resetAudioDeviceCallback");
-			audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-			if(audioDeviceCallback!=null) {
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-					audioManager.unregisterAudioDeviceCallback(audioDeviceCallback);
 				}
 			}
 		}
-		private Subscription startConnectivityListener(){
-			IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-			Log.d(TAG, "initConnectivityListener");
-			wasDisconnectedWhenPlaying=false;
 
-			if(connectedSubscription==null || connectedSubscription.isUnsubscribed()) RxBroadcast.fromBroadcast(getApplicationContext(), filter)
-					.subscribe(ServiceRadio.this::handleConnectivityChange);
-			return connectedSubscription;
+		public void initMediaSession(){
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				String TAG="MyMediaSession";
+				mediaSession = new MediaSession(getApplicationContext(), TAG);
+				mediaSession.setActive(true);
+				mediaSession.setCallback(new MediaSession.Callback() {
+					String TAG="MyMediaSession";
+					@Override
+					public void onSkipToNext() {
+						super.onSkipToNext();
+					}
+					@Override
+					public void onSkipToPrevious() {
+						super.onSkipToPrevious();
+					}
+					public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+						Log.d(TAG, "onMediaButtonEvent");
+						if (Intent.ACTION_MEDIA_BUTTON.equals(mediaButtonIntent.getAction())) {
+							KeyEvent event = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+							int keycode = event.getKeyCode();
+							int action = event.getAction();
+							long eventtime = event.getEventTime();
+							switch (keycode) {
+								case KeyEvent.KEYCODE_MEDIA_NEXT:
+									if (action == KeyEvent.ACTION_DOWN) {
+										Log.d(TAG, "Trigered KEYCODE_VOLUME_UP KEYCODE_MEDIA_NEXT");
+										playNext();
+									}
+									break;
+								case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+									if (action == KeyEvent.ACTION_DOWN) {
+										Log.d(TAG, "Trigered KEYCODE_VOLUME_DOWN KEYCODE_MEDIA_PREVIOUS");
+										playPrev();
+									}
+									break;
+								case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+									if (action == KeyEvent.ACTION_DOWN) {
+										Log.d(TAG, "Trigered PLAY_PAUSE KEYCODE_HEADSETHOOK");
+										if(isPlaying()) intentActionPause(false);
+										else intentActionPlay(null);
+									}
+								case KeyEvent.KEYCODE_MEDIA_PAUSE:
+									if (action == KeyEvent.ACTION_DOWN) {
+										Log.d(TAG, "Trigered PAUSE ");
+										if(isPlaying()) intentActionPause(false);
+									}
+								case KeyEvent.KEYCODE_MEDIA_PLAY:
+									if (action == KeyEvent.ACTION_DOWN) {
+										Log.d(TAG, "Trigered PLAY");
+										intentActionPlay(null);
+									}
+									break;
+								default:
+									break;
+							}
+						}
+						Log.d(TAG, "onMediaButtonEvent called: " + mediaButtonIntent);
+						return super.onMediaButtonEvent(mediaButtonIntent);
+					}
+
+					public void onPause() {
+						Log.d(TAG, "onPause called (media button pressed)");
+						super.onPause();
+					}
+
+					public void onPlay() {
+						Log.d(TAG, "onPlay called (media button pressed)");
+						super.onPlay();
+					}
+
+					public void onStop() {
+						Log.d(TAG, "onStop called (media button pressed)");
+						super.onStop();
+					}
+				});
+				mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+			}
 		}
 
-		public void resetConnectivityListener(){
-			Log.d(TAG, "resetPhoneStateListener");
-			if(connectedSubscription!=null && !connectedSubscription.isUnsubscribed())
-				connectedSubscription.unsubscribe();
-
+		public void resetMediaSession(){
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				if (mediaSession != null) mediaSession.release();
+			}
 		}
-	}
-	/**
-	 * Save prefs to storage.
-	 */
-
-/*
-	public void getStationsListChangedNotification(){
-		if(isFavOnly()) {
-			notifier.notifyListChanged(stationsFav);
 		}
-		else notifier.notifyListChanged(stations);
-
-	}*/
-
-
-	public void setClosedFromNotification(boolean isClosedFromNotification){
-		this.isClosedFromNotification=isClosedFromNotification;
-
-	}
-
-	public boolean isClosedFromNotification(){
-		return isClosedFromNotification;
-	}
-
 
 
 	public boolean checkSuffix(String streamUrl) {
-		if (streamUrl.contains(SUFFIX_PLS) ||
+		return streamUrl.contains(SUFFIX_PLS) ||
 				streamUrl.contains(SUFFIX_RAM) ||
-				streamUrl.contains(SUFFIX_WAX))
-			return true;
-		else
-			return false;
+				streamUrl.contains(SUFFIX_WAX);
 	}
 
 
