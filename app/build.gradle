@@ -9,8 +9,8 @@ android {
         applicationId "com.android.murano500k.newradio"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "2.0"
         multiDexEnabled true
         jackOptions {
             enabled true
