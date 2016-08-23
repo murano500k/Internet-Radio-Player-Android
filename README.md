@@ -1,4 +1,3 @@
-# InternetRadioPlayer 
 <h3>
 Android application for playing online audio streams. 
 <a href="https://app.box.com/s/rrcmy20eez4pgrwkvqj9m50vocddg9kv"> Download apk</a>
