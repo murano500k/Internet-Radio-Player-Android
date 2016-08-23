@@ -21,7 +21,7 @@ import rx.schedulers.Schedulers;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> implements ListenerRadio {
 
-	private static final String TAG = "ListAdapter";
+	public static final String TAG = "ListAdapter";
 	private ArrayList<String> mValues;
 	public boolean shouldPlayAnim;
 	public boolean isFavOnly;
@@ -210,10 +210,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> im
 	}
 
 	@Override
-	public void onLoadingStarted(String url) {
+	public void onLoadingStarted() {
 		Log.d(TAG, "onLoadingStarted");
 		setPlayingInfo(null,null);
-		updateUrlSelected(url);
 		updateAnimState(false);
 	}
 

@@ -21,66 +21,83 @@
               android:layout_height="wrap_content"
               android:background="@color/colorSecondary"
               android:orientation="horizontal"
-              tools:ignore="ContentDescription"
-    >
+
+              tools:ignore="ContentDescription">
 
     <ImageView
-        android:id="@+id/widget_image"
+        android:id="@+id/notification_artimage"
         android:layout_width="100dp"
         android:layout_height="80dp"
         android:layout_margin="5dp"
         android:src="@drawable/default_art"
-        android:layout_gravity="center_vertical"
         android:layout_weight="10"
-        />
+        android:layout_gravity="center_vertical"/>
 
-    <ImageView
-        style="@style/NotificationAction.Play"
-        android:id="@+id/notification_prev"
-        android:src="@drawable/ic_prev"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:scaleType="center"
-        android:layout_gravity="center_vertical"
-        android:padding="5dp"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/notification_play"
-        android:layout_weight="1"
-        android:elevation="10dp"
-        />
-
-    <ImageView
-        style="@style/NotificationAction.Play"
-        android:id="@+id/notification_play"
-        android:src="@drawable/ic_play"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerCrop"
-        android:visibility="visible"
-        android:padding="3dp"
-        android:layout_width="wrap_content"
+    <ImageButton
+        android:layout_width="70dp"
         android:layout_height="70dp"
-        android:layout_margin="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingEnd="20dp"
-        android:paddingStart="20dp"
-        android:layout_weight="1"
-        android:elevation="10dp"
-        />
+        android:id="@+id/notification_prev"
+        android:src="@drawable/prev_selector"
 
-    <ImageView
+        android:elevation="20dp"
+        android:background="#00ffffff"
         style="@style/NotificationAction.Play"
-        android:id="@+id/notification_next"
-        android:src="@drawable/ic_next"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
+
+        android:scaleType="fitCenter"
+        android:layout_gravity="center_vertical"/>
+
+    <ImageButton
+        android:id="@+id/notification_play"
+        style="@style/NotificationAction.Play"
+        android:src="@drawable/playpause_selector"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:elevation="20dp"
+
+        android:adjustViewBounds="false"
+        android:cropToPadding="true"
+        android:saveEnabled="false"
+        android:background="#00ffffff"
+        android:scaleType="fitXY"
+        android:layout_gravity="center_vertical"/>
+    <ImageView
+        android:id="@+id/notification_spinner"
+        style="@style/NotificationAction.Play"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:elevation="20dp"
+        android:visibility="gone"
+        android:cropToPadding="true"
+        android:background="#00ffffff"
+        android:scaleType="fitXY"
         android:layout_gravity="center_vertical"
-        android:layout_margin="0dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:scaleType="center"
-        android:layout_weight="1"
-        android:elevation="10dp"
-        />
+        android:src="@drawable/ic_loading"/>
+<!--
+    <com.wang.avi.AVLoadingIndicatorView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/notification_spinner"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:elevation="20dp"
+        android:visibility="gone"
+        app:indicator="Pacman"
+        app:indicator_color="@color/colorAccent"
+
+        android:padding="10dp"
+        android:background="#00ffffff"
+        android:layout_gravity="center_vertical"/>-->
+
+    <ImageButton
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:id="@+id/notification_next"
+        android:src="@drawable/next_selector"
+        style="@style/NotificationAction.Play"
+
+        android:elevation="20dp"
+        android:background="#00ffffff"
+
+        android:scaleType="fitCenter"
+        android:layout_gravity="center_vertical"/>
 
 </LinearLayout>

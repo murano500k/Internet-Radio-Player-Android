@@ -27,6 +27,7 @@ import com.cantrowitz.rxbroadcast.RxBroadcast;
 import com.spoledge.aacdecoder.MultiPlayer;
 import com.spoledge.aacdecoder.PlayerCallback;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -34,6 +35,7 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import static android.telephony.PhoneStateListener.LISTEN_CALL_STATE;
 import static android.telephony.PhoneStateListener.LISTEN_NONE;
@@ -59,6 +61,7 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 	private boolean isClosedFromNotification = false;
 	private boolean mLock;
 	private boolean userStopped;
+
 	/**
 	 * The M local binder.
 	 */
@@ -74,10 +77,12 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 	private PlaylistManager playlistManager;
 
 
+
 	public enum State {
 		IDLE,
 		PLAYING,
 		 STOPPED,
+		LOADING
 	}
 	private State mRadioState;
 
@@ -97,6 +102,8 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 		} catch (Throwable t) {
 			Log.w("LOG", "Cannot set the ICY URLStreamHandler - maybe already set ? - " + t);
 		}
+		int a=0;
+
 
 		if (mRadioPlayer == null) {
 			mRadioPlayer = new MultiPlayer(this, AUDIO_BUFFER_CAPACITY_MS, AUDIO_DECODE_CAPACITY_MS);
@@ -138,7 +145,7 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 		super.onCreate();
 		playlistManager =new PlaylistManager(getApplicationContext());
 		mRadioState = State.IDLE;
-		notifier=new NotifierRadio();
+		notifier=new NotifierRadio(getApplicationContext());
 		notificationProvider=new NotificationProvider(getApplicationContext(), this);
 		notifier.registerListener(notificationProvider);
 		initiator=new Initiator();
@@ -182,6 +189,7 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 		Log.d(TAG, "INTENT " + action);
 		if (action.equals(Constants.INTENT.PLAYBACK.PLAY_PAUSE)) {
 			Log.d(TAG, "PLAY_NEXT shuffle: " +playlistManager.isShuffle());
+
 			if(isPlaying()) intentActionPause(false);
 			else	intentActionPlay(null);
 
@@ -231,6 +239,31 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 		}
 		return START_NOT_STICKY;
 	}
+	/*public atjhsjsj() {
+		super("MyIntentService");
+		MyIntentService.API api = new MyIntentService.API();
+		api.getPlayerStateObservable().subscribe(event -> handlePlayerState(event));
+		api.getUserActionObservable().subscribe(event -> doOtherStuffWithEvent(event));
+	}*/
+	public class API {
+		private PublishSubject<Intent> subjectPlayerState = PublishSubject.create();
+		private PublishSubject<Intent> subjectNetworkState = PublishSubject.create();
+		private PublishSubject<Intent> subjectUserAction = PublishSubject.create();
+
+		public void sendEvent(Intent intent) {
+			subjectPlayerState.onNext(intent);
+
+		}
+		public Observable<Intent> getUserActionObservable() {
+			return subjectPlayerState.asObservable();
+		}
+		public Observable<Intent> getNetworkChangeObservable() {
+			return subjectPlayerState.asObservable();
+		}
+		public Observable<Intent> getPlayerStateObservable() {
+			return subjectPlayerState.asObservable();
+		}
+	}
 
 	private void playNext() {
 		Iterator<String> iterator=playlistManager.getStations().iterator();
@@ -261,7 +294,9 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 		}
 
 	}
+
 	private void playRandom() {
+
 		int currentIndex= new Random().nextInt(playlistManager.getStations().size()-1);
 		intentActionPlay((String)playlistManager.getStations().toArray()[currentIndex]);
 	}
@@ -295,7 +330,7 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 							.getAudioBufferCapacityMs()+ " getDecodeBufferCapacityMs="
 							+getPlayer().getDecodeBufferCapacityMs());
 					mLock = true;
-					notifier.notifyLoadingStarted(mRadioUrl);
+					notifier.notifyLoadingStarted();
 					getPlayer().playAsync(mRadioUrl);
 				}
 			}
@@ -364,7 +399,7 @@ public class ServiceRadio extends Service implements PlayerCallback  {
 
 		mRadioState = State.STOPPED;
 		mLock = false;
-		Log.d(TAG, "playerException: " + throwable.getMessage()+ "\n\t"+ throwable.getStackTrace());
+		Log.d(TAG, "playerException: " + throwable.getMessage()+ "\n\t"+ Arrays.toString(throwable.getStackTrace()));
 		String s=throwable.getMessage();
 		if (isClosedFromNotification) {
 			notifier.notifyPlaybackErrorOccured(false);

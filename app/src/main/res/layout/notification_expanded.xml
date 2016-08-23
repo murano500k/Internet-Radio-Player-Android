@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="130dp"
+
                 android:background="@color/colorSecondary"
     >
 
@@ -10,39 +11,68 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_toEndOf="@+id/widget_image"
+        android:layout_toEndOf="@+id/notification_expanded_artimage"
         android:gravity="center_vertical"
         android:layout_alignParentBottom="true"
         android:layout_below="@+id/notification_station_name">
 
-        <ImageView
-            android:id="@+id/notification_expanded_prev"
+
+
+        <ImageButton
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/ic_prev"
-            android:scaleType="center"
-            android:layout_weight="1"
-            android:elevation="10dp"
-            />
+            android:id="@+id/notification_expanded_prev"
+            android:src="@drawable/prev_selector"
 
+            android:elevation="20dp"
+            android:background="#00ffffff"
+            style="@style/NotificationAction.Play"
+
+            android:scaleType="fitCenter"
+            android:layout_gravity="center_vertical"/>
+
+        <ImageButton
+            style="@style/NotificationAction.Play"
+
+            android:id="@+id/notification_expanded_play"
+            android:src="@drawable/playpause_selector"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:elevation="20dp"
+
+            android:adjustViewBounds="false"
+            android:cropToPadding="true"
+            android:saveEnabled="false"
+            android:background="#00ffffff"
+            android:scaleType="fitXY"
+            android:layout_gravity="center_vertical"
+            android:visibility="visible"/>
         <ImageView
-        android:id="@+id/notification_expanded_play"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@drawable/ic_play"
-        android:scaleType="fitCenter"
-        android:layout_weight="1"
-        android:elevation="10dp"/>
+            android:id="@+id/notification_expanded_spinner"
+            style="@style/NotificationAction.Play"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:elevation="20dp"
+            android:cropToPadding="true"
+            android:background="#00ffffff"
+            android:scaleType="fitXY"
+            android:layout_gravity="center_vertical"
+            android:visibility="gone"
+            android:src="@drawable/ic_loading"/>
 
-    <ImageView
-        android:id="@+id/notification_expanded_next"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:background="?android:selectableItemBackground"
-        android:src="@drawable/ic_next"
-        android:scaleType="center"
-        android:layout_weight="1"
-        android:elevation="10dp"/>
+
+        <ImageButton
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/notification_expanded_next"
+            android:src="@drawable/next_selector"
+            style="@style/NotificationAction.Play"
+
+            android:elevation="20dp"
+            android:background="#00ffffff"
+
+            android:scaleType="fitCenter"
+            android:layout_gravity="center_vertical"/>
 
   </LinearLayout>
 
@@ -50,19 +80,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="station"
-        android:id="@+id/notification_station_name"
+        android:id="@+id/notification_expanded_station_name"
         style="@style/NotificationText"
         android:textAppearance="@android:style/TextAppearance.StatusBar.EventContent.Title"
         android:textColor="@color/colorTextAccent"
-        android:layout_toRightOf="@+id/widget_image"
+        android:layout_toRightOf="@id/notification_expanded_artimage"
         android:layout_alignParentTop="true"
         android:textSize="18sp"/>
 
     <ImageView
-        android:id="@+id/widget_image"
+        android:id="@+id/notification_expanded_artimage"
         android:layout_width="@dimen/notification_expanded_height"
         android:layout_height="@dimen/notification_expanded_height"
         android:scaleType="fitCenter"
-        android:layout_margin="10dp"/>
+        android:layout_margin="5dp"/>
 
 </RelativeLayout>

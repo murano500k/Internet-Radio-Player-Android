@@ -7,7 +7,7 @@ public interface ListenerRadio {
 
 
 	void onFinish();
-	void onLoadingStarted(String url);
+	void onLoadingStarted();
 
 	void onProgressUpdate(int p, int pMax, String s);
 

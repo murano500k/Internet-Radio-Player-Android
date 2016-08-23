@@ -1,5 +1,6 @@
 package com.android.murano500k.newradio;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -9,12 +10,14 @@ import java.util.Iterator;
  * Created by artem on 7/22/16.
  */
 public class NotifierRadio {
-	private final String TAG= "NotifierRadio";
+	public static final String TAG= "NotifierRadio";
 
 	private ArrayList<ListenerRadio> mListenerList;
+	private PlaylistManager playlistManager;
 
-	public NotifierRadio() {
+	public NotifierRadio(Context context) {
 		mListenerList=new ArrayList<ListenerRadio>() ;
+		playlistManager=new PlaylistManager(context);
 	}
 
 	public void registerListener(ListenerRadio mListener) {
@@ -79,9 +82,9 @@ public class NotifierRadio {
 			listener.onMetaDataReceived(s, s2);
 	}
 
-	public void notifyLoadingStarted(String url) {
+	public void notifyLoadingStarted() {
 		for (ListenerRadio listener  : mListenerList) {
-			listener.onLoadingStarted(url);
+			listener.onLoadingStarted();
 		}
 	}
 
@@ -117,6 +120,7 @@ public class NotifierRadio {
 
 	}
 	public void notifyStationSelected(String url){
+		playlistManager.setSelectedUrl(url);
 		for (ListenerRadio listener : mListenerList) {
 			listener.onStationSelected(url);
 		}

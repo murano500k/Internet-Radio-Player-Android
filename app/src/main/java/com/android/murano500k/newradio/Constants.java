@@ -6,6 +6,7 @@ package com.android.murano500k.newradio;
 public class Constants {
 
 
+
 	public static final String KEY_FAV_ONLY = "com.android.murano500k.KEY_FAV_ONLY";
 	public static final String KEY_IS_SHUFFLE = "com.android.murano500k.KEY_IS_SHUFFLE";
 
@@ -40,14 +41,17 @@ public class Constants {
 			public static final String SET = "com.android.murano500k.SLEEP_SET";
 			public static final String CANCEL = "com.android.murano500k.SLEEP_CANCEL";
 		}
-
 		public static final String SET_BUFFER_SIZE = "com.android.murano500k.INTENT_SET_BUFFER_SIZE";
 		public static final String UPDATE_STATIONS = "com.android.murano500k.UPDATE_STATIONS";
 		public static final String HANDLE_CONNECTIVITY = "com.android.murano500k.HANDLE_CONNECTIVITY";
 		public static final String CLOSE_NOTIFICATION = "com.android.murano500k.INTENT_CLOSE_NOTIFICATION";
 		public static final String OPEN_APP = "com.android.murano500k.INTENT_OPEN_APP";
 	}
+	public static class EXTRAS{
+		public static final String CALLED_BY = "com.android.murano500k.CALLED_BY";
+	}
 
+	public static final String NO_DATA = "co.mobiwise.library.NO_DATA";
 	public static final String ACTION_MEDIAPLAYER_STOP = "co.mobiwise.library.ACTION_STOP_MEDIAPLAYER";
 
 	public static final String ACTION_SLEEP_UPDATE = "com.android.murano500k.ACTION_SLEEP_UPDATE";
@@ -67,7 +71,7 @@ public class Constants {
 
 
 
-	public static final int NOTIFICATION_ID = 1441;
+	public static final int NOTIFICATION_ID = 1431;
 
 
 	public static final String NO_URL= "com.android.murano500k.NO_URL";

@@ -8,7 +8,7 @@ import android.view.KeyEvent;
 
 public class MediaButtonsReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "MediaButtonsReceiver";
+	public static final String TAG = "MediaButtonsReceiver";
 
 	public MediaButtonsReceiver() {
 		super();

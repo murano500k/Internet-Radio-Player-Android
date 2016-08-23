@@ -14,7 +14,8 @@ import static junit.framework.Assert.assertTrue;
  * Created by artem on 8/9/16.
  */
 public class PlaylistManager {
-	private static final String TAG = "PlaylistManager";
+	public static final String TAG = "PlaylistManager";
+
 	public static final String SHARED_PREFS_NAME = "com.android.murano500k.RadioPrefsFile";
 	public static final String SHARED_PREFS_PLS_TYPE = "com.android.murano500k.SHARED_PREFS_PLS_TYPE";
 	public static final String SHARED_PREFS_SHUFFLE = "com.android.murano500k.SHARED_PREFS_PLS_TYPE";

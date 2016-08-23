@@ -100,7 +100,6 @@
                     custom:paddingEnd="5dp"
                     custom:paddingStart="5dp"
                     android:layout_margin="10dp"
-
                     />
             </FrameLayout>
 

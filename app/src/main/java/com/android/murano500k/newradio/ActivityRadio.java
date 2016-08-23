@@ -1,16 +1,12 @@
 package com.android.murano500k.newradio;
 
-import android.app.Dialog;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,11 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wang.avi.AVLoadingIndicatorView;
@@ -32,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
-	private static final String TAG = "ActivityRadio";
+	public static final String TAG = "ActivityRadio";
 
 	RecyclerView recyclerView;
 	ListAdapter adapter;
@@ -43,15 +36,12 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 	boolean isServiceConnected = false;
 	boolean isListInitiated = false;
 	boolean isFavOnly;
-	private boolean isLoading;
-	private MenuItem sleepTimerMenuItem;
+	private DialogShower dialogShower;
 	private ProgressBar progressBar;
-	private TextView progressText;
 	private PlaylistManager playlistManager;
-	private Dialog dialogSetBufferSize;
 	private int uiPlaybackState;
 	private boolean buttonsLocked;
-	private int sizeBuffer, sizeDecode;
+	private boolean isLoading;
 	private AudioManager audioManager;
 
 
@@ -102,6 +92,8 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_radio);
+		//EventBus.getDefault().register(this);
+
 		if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
 
@@ -197,15 +189,15 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 				break;
 			case R.id.action_sleeptimer:
 				Log.d(TAG, "action_sleeptimer. was checked: " + item.isChecked());
-				if (item.isChecked()) showCancelTimerDialog(item);
-				else showSetTimerDialog(item);
+				if (item.isChecked()) dialogShower.showCancelTimerDialog(item);
+				else dialogShower.showSetTimerDialog(item);
 				break;
 			case R.id.action_buffer:
 				Log.d(TAG, "action_buffer");
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						showDialogSetBufferSize();
+						dialogShower.showDialogSetBufferSize(getLayoutInflater());
 					}
 				});
 				break;
@@ -251,6 +243,7 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 
 
 	public void initUI() {
+		dialogShower =new DialogShower(getApplicationContext(), playlistManager);
 
 		this.btnNext = (ImageButton) findViewById(R.id.btnNext);
 		this.btnPrev = (ImageButton) findViewById(R.id.btnPrev);
@@ -265,6 +258,7 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 						updatePlaybackViews(Constants.UI_STATE.IDLE);
 
 						Intent intent = new Intent(getApplicationContext(), ServiceRadio.class);
+						intent.putExtra(Constants.EXTRAS.CALLED_BY, TAG);
 						intent.setAction(Constants.INTENT.PLAYBACK.PAUSE);
 						startService(intent);
 					} else {
@@ -362,7 +356,8 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 	}
 
 	@Override
-	public void onLoadingStarted(String url) {
+	public void onLoadingStarted() {
+		isLoading=true;
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -389,6 +384,8 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 
 	@Override
 	public void onPlaybackStarted(final String url) {
+		isLoading=false;
+
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -400,6 +397,8 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 
 	@Override
 	public void onPlaybackStopped(boolean updateNotification) {
+		isLoading=false;
+
 		Log.d(TAG, "onPlaybackStopped "+ updateNotification);
 		if(!updateNotification) {
 			finish();
@@ -424,6 +423,8 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 
 	@Override
 	public void onPlaybackError(boolean updateNotification) {
+		isLoading=false;
+
 		Log.d(TAG, "onPlaybackStopped "+ updateNotification);
 		if(!updateNotification) {
 			finish();
@@ -489,9 +490,7 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 		if (progressBar == null) {
 			progressBar = (ProgressBar) findViewById(R.id.progressBar);
 		}
-		if (progressText == null) {
-			progressText = (TextView) findViewById(R.id.progressText);
-		}
+
 		progressBar.setIndeterminate(intermediate);
 
 		String s="";
@@ -505,7 +504,6 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 			progressBar.setProgress( audioBufferSizeMs * progressBar.getMax() / audioBufferCapacityMs );
 			s= audioBufferSizeMs * progressBar.getMax() / audioBufferCapacityMs+"%";
 		}
-		progressText.setText(s);
 	}
 
 	public void updateTitle(String text, boolean sleepActive, int seconds) {
@@ -526,165 +524,34 @@ public class ActivityRadio extends AppCompatActivity implements ListenerRadio {
 		Log.d(TAG, "onSleepTimerStatusUpdate " + action + " " + seconds);
 		if (action.contains(Constants.ACTION_SLEEP_CANCEL)) {
 			Toast.makeText(getApplicationContext(), "Sleep time cancelled", Toast.LENGTH_SHORT).show();
-			if(sleepTimerMenuItem!=null){
-				sleepTimerMenuItem.setChecked(false);
-				sleepTimerMenuItem.setIcon(R.drawable.ic_sleep);
-				sleepTimerMenuItem.setTitle("Set sleep timer");
-				sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+			if(dialogShower.sleepTimerMenuItem!=null){
+				dialogShower.sleepTimerMenuItem.setChecked(false);
+				dialogShower.sleepTimerMenuItem.setIcon(R.drawable.ic_sleep);
+				dialogShower.sleepTimerMenuItem.setTitle("Set sleep timer");
+				dialogShower.sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 			}
 			updateTitle(null, false, -1);
 		} else if (action.contains(Constants.ACTION_SLEEP_UPDATE)) {
 			if (seconds > 1) {
 				updateTitle(null, true, seconds);
-				if(sleepTimerMenuItem!=null) {
-					sleepTimerMenuItem.setChecked(true);
-					sleepTimerMenuItem.setIcon(R.drawable.ic_cancel_sleep);
-					sleepTimerMenuItem.setTitle("Cancel sleep timer");
-					sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				if(dialogShower.sleepTimerMenuItem!=null) {
+					dialogShower.sleepTimerMenuItem.setChecked(true);
+					dialogShower.sleepTimerMenuItem.setIcon(R.drawable.ic_cancel_sleep);
+					dialogShower.sleepTimerMenuItem.setTitle("Cancel sleep timer");
+					dialogShower.sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 				}
 			}
 		} else if (action.contains(Constants.ACTION_SLEEP_FINISH)) {
 			Toast.makeText(getApplicationContext(), "Sleep time finished", Toast.LENGTH_SHORT).show();
-			if(sleepTimerMenuItem!=null) {
-				sleepTimerMenuItem.setChecked(false);
-				sleepTimerMenuItem.setIcon(R.drawable.ic_sleep);
-				sleepTimerMenuItem.setTitle("Set sleep timer");
-				sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+			if(dialogShower.sleepTimerMenuItem!=null) {
+				dialogShower.sleepTimerMenuItem.setChecked(false);
+				dialogShower.sleepTimerMenuItem.setIcon(R.drawable.ic_sleep);
+				dialogShower.sleepTimerMenuItem.setTitle("Set sleep timer");
+				dialogShower.sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
 			}
 		}
 	}
 
-	private void showDialogSetBufferSize() {
-		if (!isServiceConnected) {
-			Log.d(TAG, "isServiceConnected=false");
-		} else {
 
-			View dialogView=getLayoutInflater().inflate(R.layout.dialog_buffer, null);
-				Button b1 = (Button) dialogView.findViewById(R.id.buttonOk);
-				Button b2 = (Button) dialogView.findViewById(R.id.buttonCancel);
-				EditText editBuffer = (EditText) dialogView.findViewById(R.id.editTextBuffer);
-				EditText editDecode = (EditText) dialogView.findViewById(R.id.editTextDecode);
-
-				editBuffer.setText(String.valueOf(playlistManager.getBufferSize()));
-				editDecode.setText(String.valueOf(playlistManager.getDecodeSize()));
-				b1.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						sizeBuffer = Integer.parseInt(editBuffer.getText().toString());
-						sizeDecode = Integer.parseInt(editDecode.getText().toString());
-						Log.d(TAG, "onBufferOptionClick sizeBuffer=" + sizeBuffer + " sizeDecode=" + sizeDecode);
-						Intent intent = new Intent(getApplicationContext(), ServiceRadio.class);
-						intent.setAction(Constants.INTENT.SET_BUFFER_SIZE);
-						intent.putExtra(Constants.DATA_AUDIO_BUFFER_CAPACITY, sizeBuffer);
-						intent.putExtra(Constants.DATA_AUDIO_DECODE_CAPACITY, sizeDecode);
-						startService(intent);
-						if (dialogSetBufferSize != null && dialogSetBufferSize.isShowing())
-							dialogSetBufferSize.dismiss();
-					}
-				});
-
-				b2.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						if (dialogSetBufferSize != null && dialogSetBufferSize.isShowing()) {
-							Toast.makeText(getApplicationContext(), "Set buffer size cancelled", Toast.LENGTH_SHORT).show();
-							dialogSetBufferSize.dismiss();
-						}
-					}
-				});
-			dialogSetBufferSize = new AlertDialog.Builder(this)
-					.setTitle("Set buffer size in ms")
-					.setView(dialogView)
-					.setCancelable(true)
-					.create();
-			dialogSetBufferSize.show();
-
-
-		}
-	}
-
-	private void showCancelTimerDialog(MenuItem menuItem) {
-		sleepTimerMenuItem=menuItem;
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		AlertDialog dialog = builder.setTitle("Cancel current timer?")
-				.setPositiveButton("OK",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-							                    int whichButton) {
-								Log.d(TAG, "try to cancel timer");
-
-								if (isServiceConnected) {
-									Intent intent = new Intent();
-									intent.setAction(Constants.INTENT.SLEEP.CANCEL);
-									PendingIntent pending = PendingIntent.getService(getApplicationContext(), 0, intent, 0);
-									menuItem.setChecked(false);
-									try {
-										pending.send();
-									} catch (PendingIntent.CanceledException e) {
-										Log.d(TAG, "PendingIntent.CanceledException e: " + e.getMessage());
-										e.printStackTrace();
-										menuItem.setChecked(true);
-									}
-
-								}
-							}
-						}).setNegativeButton("Cancel",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-							                    int whichButton) {
-								Log.d(TAG, "cancelled");
-							}
-						}).create();
-		dialog.show();
-
-	}
-
-	public int selected;
-
-	private void showSetTimerDialog(MenuItem menuItem) {
-		sleepTimerMenuItem=menuItem;
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		final CharSequence[] array = {"1", "15", "30", "60", "90", "120", "240"};
-		AlertDialog dialog = builder.setTitle("Set sleep timer in minutes")
-				.setSingleChoiceItems(array, 0, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						selected = which;
-
-					}
-				})
-				.setPositiveButton("OK",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-							                    int whichButton) {
-								Log.d(TAG, "try to set timer " + array[selected] + " minutes");
-
-								int mins = Integer.parseInt(array[selected].toString());
-								int secondsBeforeSleep = mins * 60;
-								if (isServiceConnected) {
-									Intent intent = new Intent(getApplicationContext(), ServiceRadio.class);
-									intent.setAction(Constants.INTENT.SLEEP.SET);
-									Log.d(TAG, "secondsBeforeSleep putExtra : " + secondsBeforeSleep);
-									intent.putExtra(Constants.DATA_SLEEP_TIMER_LEFT_SECONDS, secondsBeforeSleep);
-									PendingIntent pending = PendingIntent.getService(getApplicationContext(), 0, intent, 0);
-									sleepTimerMenuItem.setChecked(true);
-									try {
-										pending.send();
-									} catch (PendingIntent.CanceledException e) {
-										Log.d(TAG, "PendingIntent.CanceledException e: " + e.getMessage());
-										e.printStackTrace();
-										sleepTimerMenuItem.setChecked(false);
-									}
-								}
-							}
-						}).setNegativeButton("Cancel",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog,
-							                    int whichButton) {
-								Log.d(TAG, "cancelled");
-							}
-						}).create();
-		dialog.show();
-	}
 
 }

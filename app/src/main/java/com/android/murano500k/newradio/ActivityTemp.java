@@ -6,6 +6,8 @@ import android.widget.TextView;
 
 public class ActivityTemp extends Activity {
 TextView textView;
+	public static final String TAG = "ActivityTemp";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
