@@ -2,7 +2,7 @@
 Android application for playing online audio streams. 
 <a href="https://app.box.com/s/r1cnzwyx55krz797gbwakqqpekv2hip4"> Download apk</a>
 </h3>
-<h5>version 2.0</h5>
+<h5>version 2.1</h5>
 
 <img src="radio2.png" alt="app_screenshot" height="960" width="540">
 
