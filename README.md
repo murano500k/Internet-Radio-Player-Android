@@ -1,6 +1,6 @@
 <h3>
 Android application for playing online audio streams. 
-<a href="https://app.box.com/s/rrcmy20eez4pgrwkvqj9m50vocddg9kv"> Download apk</a>
+<a href="https://app.box.com/s/r1cnzwyx55krz797gbwakqqpekv2hip4"> Download apk</a>
 </h3>
 <h5>version 2.0</h5>
 
