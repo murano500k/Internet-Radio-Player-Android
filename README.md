@@ -1,12 +1,12 @@
 <h4>
 Android application for playing online audio streams. 
 </h4>
-<h2>
-<a href="https://app.box.com/s/z32stlza8ub4ek2180z68f98172duqhx"> Download apk version 2.2</a>
-</h2>
 <h3>
-Download free high-quality streams m3u playlist:
+<a href="https://app.box.com/s/z32stlza8ub4ek2180z68f98172duqhx"> Download apk version 2.2</a>
 </h3>
+<h4>
+Download free high-quality streams m3u playlist:
+</h4>
 
 <h3><ul>
   <li><a href="http://diforfree.org/pls/di_hi.m3u">Digitally Imported</a></li>
