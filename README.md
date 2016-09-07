@@ -1,10 +1,22 @@
-<h3>
+<h4>
 Android application for playing online audio streams. 
-<a href="https://app.box.com/s/r1cnzwyx55krz797gbwakqqpekv2hip4"> Download apk</a>
+</h4>
+<h2>
+<a href="https://app.box.com/s/z32stlza8ub4ek2180z68f98172duqhx"> Download apk version 2.2</a>
+</h2>
+<h3>
+Download free high-quality streams m3u playlist:
 </h3>
-<h5>version 2.1</h5>
 
-<img src="radio2.png" alt="app_screenshot" height="960" width="540">
+<h3><ul>
+  <li><a href="http://diforfree.org/pls/di_hi.m3u">Digitally Imported</a></li>
+  <li><a href="http://diforfree.org/pls/radiotunes_hi.m3u">Radio Tunes</a></li>
+  <li><a href="http://diforfree.org/pls/jazzradio_hi.m3u">Jazz Radio</a></li>
+  <li><a href="http://diforfree.org/pls/rockradio_hi.m3u">Rock Radio</a></li>
+</ul></h3>
+
+
+<img src="Screenshot.png" alt="app_screenshot" height="480" width="270">
 
 
 <h1>Features:</h1>
@@ -28,7 +40,5 @@ Android application for playing online audio streams.
   <li><a href="https://github.com/greenrobot/EventBus">EventBus</a></li>
   <li><a href="https://github.com/pwittchen/ReactiveNetwork">ReactiveNetwork</a></li>
   <li><a href="https://github.com/cantrowitz/RxBroadcast">RxBroadcast</a></li>
-  <li><a href="https://github.com/trello/RxLifecycle">RxLifecycle</a></li>
-  <li><a href="https://github.com/JakeWharton/RxBinding">RxBinding</a></li>
 </ul>
 <p><b>P.S. </b> Feel free to suggest features and report bugs. </p>
