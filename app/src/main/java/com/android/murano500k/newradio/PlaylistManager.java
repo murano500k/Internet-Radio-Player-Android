@@ -1,10 +1,18 @@
 package com.android.murano500k.newradio;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.Log;
 
+import com.odesanmi.m3ufileparser.M3U_Parser;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,28 +24,25 @@ import static junit.framework.Assert.assertTrue;
 public class PlaylistManager {
 	public static final String TAG = "PlaylistManager";
 
-	public static final String SHARED_PREFS_NAME = "com.android.murano500k.RadioPrefsFile";
-	public static final String SHARED_PREFS_PLS_TYPE = "com.android.murano500k.SHARED_PREFS_PLS_TYPE";
-	public static final String SHARED_PREFS_SHUFFLE = "com.android.murano500k.SHARED_PREFS_PLS_TYPE";
-	public static final String SHARED_PREFS_URLS_ALL = "com.android.murano500k.SHARED_PREFS_URLS_ALL";
-	public static final String SHARED_PREFS_URLS_FAV = "com.android.murano500k.SHARED_PREFS_URLS_FAV";
+	public static final String SHARED_PREFS_NAME = "com.android.murano500k.SHARED_PREFS_NAME";
+	public static final String SHARED_PREFS_SHUFFLE = "com.android.murano500k.SHARED_PREFS_SHUFFLE";
+	public static final String SHARED_PREFS_URLS = "com.android.murano500k.SHARED_PREFS_URLS";
+	public static final String SHARED_PREFS_NAMES = "com.android.murano500k.SHARED_PREFS_NAMES";
 	public static final String SHARED_PREFS_SELECTED_URL = "com.android.murano500k.SHARED_PREFS_SELECTED_URL";
+	//public static final String SHARED_PREFS_M3U_FILE = "com.android.murano500k.SHARED_PREFS_M3U_FILE";
 
 	private SharedPreferences preferences;
-	private static Set<String> stationsAll;
-	private static Set<String> stationsFav;
 
-	private static String urlSelected;
+	private static ArrayList<String> stationUrls=null;
+
 	Context context;
 
-	private static String logString = "";
 
 	public PlaylistManager(Context context) {
 		this.context=context;
 		this.preferences = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
-		stationsAll = null;
-		stationsFav = null;
-		urlSelected = getSelectedUrl();
+		getStations();
+		getSelectedUrl();
 	}
 
 	public boolean isShuffle() {
@@ -55,104 +60,101 @@ public class PlaylistManager {
 		}
 	}
 
-	public boolean isOnlyFavorites() {
-		boolean res = preferences.getBoolean(SHARED_PREFS_PLS_TYPE, false);
-		//Log.d(TAG, "isOnlyFavorites " + res);
-		return res;
+
+	private ArrayList<String> loadUrls() {
+		Set<String> arr = preferences.getStringSet(SHARED_PREFS_URLS, null);
+		if(arr==null)return null;
+		else return new ArrayList<>(arr);
 	}
 
-	public void setOnlyFavorites(boolean onlyFav) {
-		boolean was = isOnlyFavorites();
-		if (was != onlyFav) {
-			Log.d(TAG, "setOnlyFavorites " + onlyFav + " saved");
-			preferences.edit().putBoolean(SHARED_PREFS_PLS_TYPE, onlyFav).apply();
-			preferences.edit().apply();
-		}
-	}
 
-	public Set<String> loadUrls(String type) {
 
-		Set<String> arr = preferences.getStringSet(type, new HashSet<String>());
-		if (arr.size() < 1 && type.contains(SHARED_PREFS_URLS_ALL)) {
-			arr = new HashSet<String>();
-			for (String url : Constants.contentArr) {
-				arr.add(url);
+	public ArrayList<String> getStations() {
+		if(stationUrls==null) {
+			Log.w(TAG, "getStations() local list is empty, try loadUrls");
+			stationUrls = loadUrls();
+			if (stationUrls == null || stationUrls.size() == 0) {
+				Log.e(TAG, "loadUrls failed");
+				return new ArrayList<>();
 			}
-			preferences.edit().putStringSet(type, arr).apply();
-			Log.d(TAG, "stations saved to prefs size " + arr.size());
 		}
-		Log.d(TAG, "stations loaded size " + arr.size() + " " + type);
-		return arr;
-	}
-	public void addStation(String url, boolean fav) {
-		Log.d(TAG, "addStation " + url);
-		if (fav) {
-			if(stationsFav==null) stationsFav=loadUrls(SHARED_PREFS_URLS_FAV);
-			stationsFav.add(url);
-			preferences.edit().putStringSet(SHARED_PREFS_URLS_FAV, stationsFav).apply();
-		} else {
-			if(stationsAll==null || stationsAll.size()<1) stationsAll=loadUrls(SHARED_PREFS_URLS_ALL);
-			stationsAll.add(url);
-			preferences.edit().putStringSet(SHARED_PREFS_URLS_ALL, stationsAll).apply();
-		}
-		stationsAll=null;
-		stationsFav=null;
-		getStations();
-
-		Intent intent=new Intent(context, ServiceRadio.class);
-		intent.setAction(Constants.INTENT.UPDATE_STATIONS);
-		context.startService(intent);
+		return stationUrls;
 	}
 
-	public HashSet<String> getStations() {
-		HashSet<String> stationsResult = new HashSet<>();
-		if (stationsAll == null || stationsAll.size() < 1) {
-			stationsAll = loadUrls(SHARED_PREFS_URLS_ALL);
-			assertTrue(stationsAll.size() > 0);
-		}
-		if (stationsFav == null) stationsFav = loadUrls(SHARED_PREFS_URLS_FAV);
-		stationsResult.addAll(stationsFav);
+	public String selectPls(Uri uri) {
+		String res="";
+		if(uri == null) return "empty";
+		try {
+			InputStream inputStream =context.getContentResolver().openInputStream(uri);
+			if(inputStream==null) return "null";
+			BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				res+=line;
+			}
+			br.close();
+			Log.w(TAG, "res: "+res);
 
-		if (!isOnlyFavorites()) stationsResult.addAll(stationsAll);
-		Log.d(TAG, "getStations() isOnlyFavorites=" + isOnlyFavorites() + " size=" + stationsResult.size());
-		return stationsResult;
+		} catch (FileNotFoundException e) {
+			return e.getMessage();
+		} catch (IOException e) {
+			return e.getMessage();
+		}
+		M3U_Parser.M3UHolder holder;
+
+		try {
+			M3U_Parser parser=new M3U_Parser();
+			holder = parser.parseString(res);
+		} catch (Exception e) {
+			return e.getMessage();
+		}
+		if(holder==null) return "empty";
+		else {
+			assertTrue(saveStations(holder.getUrls(),holder.getNames()));
+		}
+		return null;
 	}
 
-	public void setStationFavorite(String url, boolean isFav) {
-		Log.d(TAG, "setStationFavorite " + url + " isFav " + isFav);
-		getStations();
-		if (stationsAll == null || stationsAll.size() < 1) getStations();
-		if (isFav) {
-			if (stationsAll.remove(url)) stationsFav.add(url);
-		} else {
-			if (stationsFav.remove(url)) stationsAll.add(url);
+	private boolean saveStations(ArrayList<String> urls,ArrayList<String> names) {
+		HashSet<String> arr = new HashSet<String>();
+		for (String url : urls) arr.add(url);
+		if(arr.size()>0) {
+			preferences.edit().putStringSet(SHARED_PREFS_URLS, arr).apply();
+			Log.d(TAG, "urls saved to prefs size " + arr.size());
+			stationUrls=new ArrayList<>(arr);
+		}else {
+			Log.e(TAG, "urls NOT saved. size=" + arr.size());
+			stationUrls=null;
+			return false;
 		}
-		preferences.edit().putStringSet(SHARED_PREFS_URLS_ALL, stationsAll).apply();
-		preferences.edit().putStringSet(SHARED_PREFS_URLS_FAV, stationsFav).apply();
 
-
-	}
-
-	public boolean isStationFavorite(String url) {
-		return (stationsFav != null && stationsFav.contains(url));
+			for (int i=0;i<names.size(); i++){
+				String url = urls.get(i);
+				String name = names.get(i);
+				preferences.edit().putString(url, name).apply();
+			}
+		if(names.size()>0) {
+			Log.d(TAG, "names saved to prefs size " + arr.size());
+		}else {
+			Log.e(TAG, "names NOT saved. size=" + arr.size());
+			stationUrls=null;
+			return false;
+		}
+		setSelectedUrl(stationUrls.get(0));
+		return getSelectedUrl()!=null;
 	}
 
 	public String getSelectedUrl() {
-		if (urlSelected == null) {
-			urlSelected = preferences.getString(SHARED_PREFS_SELECTED_URL,
-					"ERROR");
-			if (urlSelected.contains("ERROR")) {
-				setSelectedUrl(getStations().iterator().next());
-			}
+		String urlSelected = preferences.getString(SHARED_PREFS_SELECTED_URL, null);
+		if (urlSelected==null) {
+			if(getStations()==null || getStations().size()==0) return null;
+			else setSelectedUrl(getStations().get(0));
 		}
 		return urlSelected;
 	}
 
 	public void setSelectedUrl(String url) {
 		preferences.edit().putString(SHARED_PREFS_SELECTED_URL, url).apply();
-		if (urlSelected == null || !urlSelected.contains(url)) {
-			urlSelected = url;
-		}
 	}
 
 	public int getBufferSize() {
@@ -172,15 +174,8 @@ public class PlaylistManager {
 	}
 
 
-	public static String getNameFromUrl(String url) {
-		String name;
-		if (url.contains("http") && url.contains("di_")) {
-			name = url.substring(url.lastIndexOf("di_") + 3, url.lastIndexOf("_hi"));
-		} else if(url.contains("http://") || url.contains("https://") ){
-			name = url.substring(url.lastIndexOf("://") + 3);
-		}else name = url;
-		//Log.d(TAG, "getNameFromUrl: " + name);
-		return name;
+	public String getNameFromUrl(String requestUrl) {
+		return preferences.getString(requestUrl, "station");
 	}
 
 	public static String getArtistFromString(String data) {
@@ -206,23 +201,39 @@ public class PlaylistManager {
 		return trackName;
 	}
 
-	public static int getArt(String fileName, Context c) {
-		int resID = c.getResources().getIdentifier(fileName, "drawable", c.getPackageName());
+	public int getArt(String url, Context c) {
+		int resID = c.getResources().getIdentifier(getNameFromUrl(url), "drawable", c.getPackageName());
 		if (resID != 0) return resID;
 		else return R.drawable.default_art;
 	}
 
 
-	public static String getLog() {
-		return logString;
 
+
+	/*public void addStation(String url, boolean fav) {
+			Log.d(TAG, "addStation " + url);
+			if(stationUrls==null || stationUrls.size()<1) stationUrls=loadUrls(SHARED_PREFS_URLS_ALL);
+			stationUrls.add(url);
+			preferences.edit().putStringSet(SHARED_PREFS_URLS_ALL, stationUrls).apply();
+			if (fav) {
+				setStationFavorite(url, true);
+			}
+			stationUrls=null;
+			getStations();
+			Intent intent=new Intent(context, ServiceRadioRx.class);
+			intent.setAction(ActivityRxTest.INTENT_UPDATE_STATIONS);
+			context.startActivity(intent);
+		}*/
+	public void setStationFavorite(String url, boolean isFav) {
+		/*Log.d(TAG, "setStationFavorite " + url + " isFav " + isFav);
+		if (stationUrls == null || stationUrls.size() < 1) getStations();
+		Set<String> stationsFav=loadUrls(SHARED_PREFS_URLS_FAV);
+		if (isFav && !stationsFav.contains(url)) stationsFav.add(url);
+		else if(!isFav && stationsFav.contains(url))  stationsFav.remove(url);
+		preferences.edit().putStringSet(SHARED_PREFS_URLS_FAV, stationsFav).apply();
+		stationsFav=null;
+		getStations();*/
 	}
-
-
-	public static void addToLog(String logString1) {
-		logString += "\n>"+logString1;
-	}
-
 /*
 public void savePrefsToStorage(boolean exitOnCompleted){
         Log.d(TAG, "savePrefsToStorage");
@@ -305,6 +316,19 @@ editor.putBoolean(Constants.SHARED_PREFS_IS_FAV, isFavOnly());
 
     */
 
+	public boolean isOnlyFavorites() {
+		//Log.d(TAG, "isOnlyFavorites " + res);
+		//return preferences.getBoolean(SHARED_PREFS_PLS_TYPE, false);
+		return false;
+	}
+
+	public void setOnlyFavorites(boolean onlyFav) {
+		/*Log.d(TAG, "setOnlyFavorites " + onlyFav + " saved");
+		preferences.edit().putBoolean(SHARED_PREFS_PLS_TYPE, onlyFav).apply();
+		preferences.edit().apply();
+		stationUrls =null;
+		getStations();*/
+	}
 }
 
 

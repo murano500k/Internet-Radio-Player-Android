@@ -5,6 +5,7 @@ package com.android.murano500k.newradio;
  */
 public class Constants {
 
+	final public static boolean USE_RX= true;
 
 
 	public static final String KEY_FAV_ONLY = "com.android.murano500k.KEY_FAV_ONLY";
@@ -29,13 +30,6 @@ public class Constants {
 	}
 	public static class INTENT{
 
-		public static class PLAYBACK{
-			public static final String PLAY_PAUSE = "com.android.murano500k.PLAYBACK_PLAY_PAUSE";
-			public static final String RESUME = "com.android.murano500k.PLAYBACK_RESUME";
-			public static final String PAUSE = "com.android.murano500k.PLAYBACK_PAUSE";
-			public static final String PLAY_NEXT = "com.android.murano500k.PLAYBACK_PLAY_NEXT";
-			public static final String PLAY_PREV = "com.android.murano500k.PLAYBACK_PLAY_PREV";
-		}
 
 		public static class SLEEP{
 			public static final String SET = "com.android.murano500k.SLEEP_SET";
@@ -43,16 +37,12 @@ public class Constants {
 		}
 		public static final String SET_BUFFER_SIZE = "com.android.murano500k.INTENT_SET_BUFFER_SIZE";
 		public static final String UPDATE_STATIONS = "com.android.murano500k.UPDATE_STATIONS";
-		public static final String HANDLE_CONNECTIVITY = "com.android.murano500k.HANDLE_CONNECTIVITY";
-		public static final String CLOSE_NOTIFICATION = "com.android.murano500k.INTENT_CLOSE_NOTIFICATION";
-		public static final String OPEN_APP = "com.android.murano500k.INTENT_OPEN_APP";
 	}
 	public static class EXTRAS{
 		public static final String CALLED_BY = "com.android.murano500k.CALLED_BY";
 	}
 
 	public static final String NO_DATA = "co.mobiwise.library.NO_DATA";
-	public static final String ACTION_MEDIAPLAYER_STOP = "co.mobiwise.library.ACTION_STOP_MEDIAPLAYER";
 
 	public static final String ACTION_SLEEP_UPDATE = "com.android.murano500k.ACTION_SLEEP_UPDATE";
 	public static final String ACTION_SLEEP_CANCEL = "com.android.murano500k.ACTION_SLEEP_CANCEL";

@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.1'
+    buildToolsVersion '24.0.2'
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
@@ -12,7 +12,9 @@ android {
         targetSdkVersion 24
         versionCode 2
         versionName "2.0"
-        multiDexEnabled true
+        multiDexEnabled false
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
         jackOptions {
             enabled true
         }
@@ -24,7 +26,7 @@ android {
 
     dexOptions {
         javaMaxHeapSize "4g"
-        dexInProcess false
+
 
     }
     buildTypes {
@@ -35,8 +37,6 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-        incremental true
-
     }
 }
 repositories {
@@ -48,39 +48,52 @@ repositories {
     }
 }
 dependencies {
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.0'
+    compile 'com.google.dagger:dagger:2.6.1'
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile('com.github.ozodrukh:CircularReveal:2.0.0@aar') {
         transitive = true;
     }
-    compile 'com.android.support:cardview-v7:24.2.0'
-    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'org.apache.commons:commons-lang3:3.4'
+
     compile 'com.android.support:cardview-v7:24.2.0'
     compile 'com.android.support:appcompat-v7:24.2.0'
+    androidTestCompile 'com.android.support:appcompat-v7:24.2.0'
     compile 'com.android.support:design:24.2.0'
+    androidTestCompile 'com.android.support:design:24.2.0'
     compile 'com.android.support:support-v13:24.2.0'
-    compile 'com.android.support:recyclerview-v7:24.2.0'
-    compile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support:support-v13:24.2.0'
     compile 'com.android.support:support-v4:24.2.0'
+    androidTestCompile 'com.android.support:support-v4:24.2.0'
+    compile 'com.android.support:recyclerview-v7:24.2.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha5'
+
     compile 'com.github.claucookie.miniequalizer:library:1.0.0'
     compile 'com.wang.avi:library:1.0.5'
+
+    compile 'org.greenrobot:eventbus:3.0.0'
+
     compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'io.reactivex:rxjava:1.1.6'
-    compile 'com.jakewharton.rxbinding:rxbinding:0.3.0'
+    compile 'io.reactivex:rxjava:1.1.8'
+    compile 'com.github.pwittchen:reactivenetwork:0.5.1'
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
     compile 'com.cantrowitz:rxbroadcast:1.0.0'
+    compile 'com.trello:rxlifecycle:0.7.0'
+    compile 'com.trello:rxlifecycle-components:0.7.0'
+
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava:2.0.2'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+
+    compile 'junit:junit:4.12'
     testCompile 'junit:junit:4.12'
+    androidTestCompile 'junit:junit:4.12'
+
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha5'
-    compile 'com.vk:androidsdk:1.6.5'
-    compile 'com.trello:rxlifecycle:0.6.1'
-    compile 'com.trello:rxlifecycle-components:0.6.1'
-    compile 'org.greenrobot:eventbus:3.0.0'
-    compile 'com.github.pwittchen:reactivenetwork:0.5.1'
 
-
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
 
 }

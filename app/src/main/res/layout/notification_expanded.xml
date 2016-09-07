@@ -47,18 +47,6 @@
             android:scaleType="fitXY"
             android:layout_gravity="center_vertical"
             android:visibility="visible"/>
-        <ImageView
-            android:id="@+id/notification_expanded_spinner"
-            style="@style/NotificationAction.Play"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:elevation="20dp"
-            android:cropToPadding="true"
-            android:background="#00ffffff"
-            android:scaleType="fitXY"
-            android:layout_gravity="center_vertical"
-            android:visibility="gone"
-            android:src="@drawable/ic_loading"/>
 
 
         <ImageButton

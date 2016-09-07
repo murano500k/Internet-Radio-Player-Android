@@ -1,4 +1,4 @@
-package com.android.murano500k.newradio;
+package com.android.murano500k.newradio.ui;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -13,7 +13,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import static com.vk.sdk.VKUIHelper.getApplicationContext;
+import com.android.murano500k.newradio.Constants;
+import com.android.murano500k.newradio.PlaylistManager;
+import com.android.murano500k.newradio.R;
+import com.android.murano500k.newradio.ServiceRadioRx;
 
 /**
  * Created by artem on 8/23/16.
@@ -22,17 +25,15 @@ import static com.vk.sdk.VKUIHelper.getApplicationContext;
 public class DialogShower {
 public static final String TAG="DialogShower";
 	MenuItem sleepTimerMenuItem;
-	Context context;
 	private AlertDialog dialogSetBufferSize;
 	PlaylistManager playlistManager;
 	private int sizeBuffer, sizeDecode;
 
-	public DialogShower(Context context, PlaylistManager plm) {
-		this.context = context;
+	public DialogShower(PlaylistManager plm) {
 		this.playlistManager = plm;
 	}
 
-	public void showDialogSetBufferSize(LayoutInflater layoutInflater) {
+	public void showDialogSetBufferSize(Context context, LayoutInflater layoutInflater) {
 
 
 			View dialogView= layoutInflater.inflate(R.layout.dialog_buffer, null);
@@ -49,8 +50,8 @@ public static final String TAG="DialogShower";
 					sizeBuffer = Integer.parseInt(editBuffer.getText().toString());
 					sizeDecode = Integer.parseInt(editDecode.getText().toString());
 					Log.d(TAG, "onBufferOptionClick sizeBuffer=" + sizeBuffer + " sizeDecode=" + sizeDecode);
-					Intent intent = new Intent(getApplicationContext(), ServiceRadio.class);
-					intent.setAction(Constants.INTENT.SET_BUFFER_SIZE);
+					Intent intent = new Intent(context, ServiceRadioRx.class);
+					intent.setAction(ServiceRadioRx.INTENT_SET_BUFFER_SIZE);
 					intent.putExtra(Constants.DATA_AUDIO_BUFFER_CAPACITY, sizeBuffer);
 					intent.putExtra(Constants.DATA_AUDIO_DECODE_CAPACITY, sizeDecode);
 					context.startService(intent);
@@ -63,7 +64,7 @@ public static final String TAG="DialogShower";
 				@Override
 				public void onClick(View view) {
 					if (dialogSetBufferSize != null && dialogSetBufferSize.isShowing()) {
-						Toast.makeText(getApplicationContext(), "Set buffer size cancelled", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, "Set buffer size cancelled", Toast.LENGTH_SHORT).show();
 						dialogSetBufferSize.dismiss();
 					}
 				}
@@ -73,12 +74,13 @@ public static final String TAG="DialogShower";
 					.setView(dialogView)
 					.setCancelable(true)
 					.create();
+
 			dialogSetBufferSize.show();
 
 
 
 	}
-	public void showCancelTimerDialog(MenuItem menuItem) {
+	public void showCancelTimerDialog(MenuItem menuItem, Context context) {
 		sleepTimerMenuItem=menuItem;
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		AlertDialog dialog = builder.setTitle("Cancel current timer?")
@@ -89,8 +91,8 @@ public static final String TAG="DialogShower";
 								Log.d(TAG, "try to cancel timer");
 
 									Intent intent = new Intent();
-									intent.setAction(Constants.INTENT.SLEEP.CANCEL);
-									PendingIntent pending = PendingIntent.getService(getApplicationContext(), 0, intent, 0);
+									intent.setAction(ServiceRadioRx.INTENT_SLEEP_CANCEL);
+									PendingIntent pending = PendingIntent.getService(context, 0, intent, 0);
 									menuItem.setChecked(false);
 									try {
 										pending.send();
@@ -115,7 +117,7 @@ public static final String TAG="DialogShower";
 
 	public int selected;
 
-	public void showSetTimerDialog(MenuItem menuItem) {
+	public void showSetTimerDialog(MenuItem menuItem, Context context) {
 		sleepTimerMenuItem=menuItem;
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		final CharSequence[] array = {"1", "15", "30", "60", "90", "120", "240"};
@@ -135,11 +137,11 @@ public static final String TAG="DialogShower";
 
 								int mins = Integer.parseInt(array[selected].toString());
 								int secondsBeforeSleep = mins * 60;
-									Intent intent = new Intent(getApplicationContext(), ServiceRadio.class);
-									intent.setAction(Constants.INTENT.SLEEP.SET);
+									Intent intent = new Intent(context, ServiceRadioRx.class);
+									intent.setAction(ServiceRadioRx.INTENT_SLEEP_SET);
 									Log.d(TAG, "secondsBeforeSleep putExtra : " + secondsBeforeSleep);
-									intent.putExtra(Constants.DATA_SLEEP_TIMER_LEFT_SECONDS, secondsBeforeSleep);
-									PendingIntent pending = PendingIntent.getService(getApplicationContext(), 0, intent, 0);
+									intent.putExtra(ServiceRadioRx.EXTRA_SLEEP_SECONDS, secondsBeforeSleep);
+									PendingIntent pending = PendingIntent.getService(context, 0, intent, 0);
 									sleepTimerMenuItem.setChecked(true);
 									try {
 										pending.send();

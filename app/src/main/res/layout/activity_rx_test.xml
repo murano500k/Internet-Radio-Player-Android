@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                tools:context="com.android.murano500k.newradio.ActivityRadio"
-                tools:ignore="ContentDescription">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
 
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_rx_test"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:ignore="ContentDescription"
+    tools:context="com.android.murano500k.newradio.ui.ActivityRxTest"
+    android:theme="@style/AppTheme">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/select_pls"
+        android:elevation="24dp"
+        android:background="@color/colorPrimary"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:text="Tap to select playlist file"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"/>
+    </LinearLayout>
 
     <ImageButton
         android:layout_width="70dp"
@@ -69,7 +90,6 @@
         android:layout_toRightOf="@+id/buttonControlStart"
         android:scaleType="fitCenter" />
 
-
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
@@ -77,9 +97,8 @@
         android:id="@+id/progressBar"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        />
+        android:layout_alignParentTop="true"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -87,15 +106,13 @@
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/list_item"
-        tools:context="com.android.murano500k.onlineradioplayer.MainActivity"
+        tools:context="com.android.murano500k.newradio.ui.ActivityRxTest"
         android:fadingEdge="vertical|horizontal"
         android:fadingEdgeLength="30dp"
         android:visibility="visible"
         tools:layout_editor_absoluteY="0dp"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/progressBar"
         android:paddingBottom="150dp"
         android:clipToPadding="false"/>
-
 </RelativeLayout>

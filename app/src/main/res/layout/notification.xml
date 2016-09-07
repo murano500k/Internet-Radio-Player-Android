@@ -30,49 +30,55 @@
         android:layout_height="80dp"
         android:layout_margin="5dp"
         android:src="@drawable/default_art"
-        android:layout_weight="10"
+        android:layout_weight="1"
         android:layout_gravity="center_vertical"/>
 
-    <ImageButton
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:id="@+id/notification_prev"
-        android:src="@drawable/prev_selector"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="5"
+        android:id="@+id/notification_buttons">
 
-        android:elevation="20dp"
-        android:background="#00ffffff"
-        style="@style/NotificationAction.Play"
+        <ImageButton
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/notification_prev"
+            android:src="@drawable/prev_selector"
+            android:elevation="20dp"
+            android:background="#00ffffff"
+            style="@style/NotificationAction.Play"
+            android:scaleType="fitCenter"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"/>
 
-        android:scaleType="fitCenter"
-        android:layout_gravity="center_vertical"/>
+        <ImageButton
+            android:id="@+id/notification_play"
+            style="@style/NotificationAction.Play"
+            android:src="@drawable/playpause_selector"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:elevation="20dp"
+            android:adjustViewBounds="false"
+            android:cropToPadding="true"
+            android:background="#00ffffff"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"/>
 
-    <ImageButton
-        android:id="@+id/notification_play"
-        style="@style/NotificationAction.Play"
-        android:src="@drawable/playpause_selector"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:elevation="20dp"
+        <ImageButton
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:id="@+id/notification_next"
+            android:src="@drawable/next_selector"
+            style="@style/NotificationAction.Play"
+            android:elevation="20dp"
+            android:background="#00ffffff"
+            android:scaleType="fitCenter"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
-        android:adjustViewBounds="false"
-        android:cropToPadding="true"
-        android:saveEnabled="false"
-        android:background="#00ffffff"
-        android:scaleType="fitXY"
-        android:layout_gravity="center_vertical"/>
-    <ImageView
-        android:id="@+id/notification_spinner"
-        style="@style/NotificationAction.Play"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:elevation="20dp"
-        android:visibility="gone"
-        android:cropToPadding="true"
-        android:background="#00ffffff"
-        android:scaleType="fitXY"
-        android:layout_gravity="center_vertical"
-        android:src="@drawable/ic_loading"/>
-<!--
+    <!--
     <com.wang.avi.AVLoadingIndicatorView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/notification_spinner"
@@ -86,18 +92,5 @@
         android:padding="10dp"
         android:background="#00ffffff"
         android:layout_gravity="center_vertical"/>-->
-
-    <ImageButton
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:id="@+id/notification_next"
-        android:src="@drawable/next_selector"
-        style="@style/NotificationAction.Play"
-
-        android:elevation="20dp"
-        android:background="#00ffffff"
-
-        android:scaleType="fitCenter"
-        android:layout_gravity="center_vertical"/>
 
 </LinearLayout>

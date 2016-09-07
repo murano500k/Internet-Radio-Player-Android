@@ -6,12 +6,6 @@
           app:showAsAction="never"
           android:orderInCategory="25"/>
 
-    <item android:id="@+id/action_select_fav"
-          android:title="@string/only_favorites"
-          android:checkable="true"
-          app:showAsAction="never"
-          android:orderInCategory="100"/>
-
     <item android:id="@+id/action_sleeptimer"
           android:title="@string/sleep_timer"
           android:checkable="true"
@@ -28,13 +22,14 @@
         android:orderInCategory="100"
         tools:ignore="AppCompatResource" />
 
-    <item android:id="@+id/action_log"
-          android:title="Show log"
-          app:showAsAction="never"/>
-
-    <item android:id="@+id/action_add"
-          android:title="Add station"
+    <item android:id="@+id/action_select_pls"
+          android:title="Select m3u playlist"
           android:icon="@android:drawable/ic_menu_add"
           android:orderInCategory="101"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/action_reset"
+          android:title="Reset player"
+          android:orderInCategory="120"
           app:showAsAction="never"/>
 </menu>
