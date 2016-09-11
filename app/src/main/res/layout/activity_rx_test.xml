@@ -93,12 +93,6 @@
         android:visibility="visible"
         android:layout_below="@id/progressBar">
 
-        <TextView
-            android:text="Select playlist from side menu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"/>
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

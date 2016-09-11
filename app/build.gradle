@@ -10,8 +10,8 @@ android {
         applicationId "com.android.murano500k.newradio"
         minSdkVersion 20
         targetSdkVersion 24
-        versionCode 2
-        versionName "2.0"
+        versionCode 5
+        versionName "2.5"
         multiDexEnabled false
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -58,7 +58,6 @@ dependencies {
         transitive = true
     }
     compile 'org.apache.commons:commons-lang3:3.4'
-
     compile 'com.android.support:cardview-v7:24.2.0'
     compile 'com.android.support:appcompat-v7:24.2.0'
     androidTestCompile 'com.android.support:appcompat-v7:24.2.0'

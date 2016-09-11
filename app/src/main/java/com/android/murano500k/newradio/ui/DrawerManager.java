@@ -117,7 +117,7 @@ public class DrawerManager {
 				.withOnDrawerItemClickListener((view, position, drawerItem) -> {
 					Log.v(TAG, "getPlaylistDrawerItem. was clicked. "+ drawerItem.getIdentifier());
 					drawer.closeDrawer();
-					getActivity().showToast("Loading playlist...");
+					getActivity().updateLoadingVisibility();
 					Log.v(TAG, "getPlaylistDrawerItem. was clicked. "+ drawerItem.getIdentifier());
 					getActivity().getPlaylistDownloader().downloadPlaylist(urlStr, (int) drawerItem.getIdentifier());
 					return true;
@@ -149,7 +149,6 @@ public class DrawerManager {
 				.withChecked(sleepRunning)
 				.withOnCheckedChangeListener((drawerItem, buttonView, isChecked) -> {
 					Log.v(TAG, "action_sleeptimer. was clicked: " +getActivity().getService().isSleepTimerRunning());
-					//drawer.closeDrawer();
 
 					if(getActivity().getService()==null || !getActivity().getService().isServiceConnected) {
 						getActivity().showToast("service not connected");

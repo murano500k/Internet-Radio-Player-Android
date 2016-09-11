@@ -91,7 +91,7 @@ public class ActivityRxTest extends AppCompatActivity {
 		public void onServiceConnected(ComponentName arg0, IBinder binder) {
 			Log.i(TAG, "Service Connected.");
 			serviceRadioRx = ((ServiceRadioRx.LocalBinder) binder).getService();
-			updateLoadingVisibility(View.GONE, 1);
+			updateLoadingVisibility(1);
 
 		}
 
@@ -109,14 +109,16 @@ public class ActivityRxTest extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_rx_test);
 		EventBus.getDefault().register(this);
+		if(serviceRadioRx!=null) serviceRadioRx.isServiceConnected=false;
 		playlistDownloader=new PlaylistDownloader(getApplicationContext());
 		urlManager =new UrlManager(this);
 		playlistManager = new PlaylistManager(getApplicationContext());
 		drawerManager=new DrawerManager(this);
 		initUI();
-		updateLoadingVisibility(View.VISIBLE);
+		updateLoadingVisibility();
 		if(initActivePlaylist()) connect();
 	}
+
 	private boolean initActivePlaylist(){
 		if(playlistManager.getStations()==null){
 			int i = playlistManager.getActivePlaylistIndex();
@@ -145,20 +147,6 @@ public class ActivityRxTest extends AppCompatActivity {
 			return true;
 		}
 	}
-/*
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		if(grantResults[0]==PERMISSION_GRANTED){
-			playlistDownloader.downloadPlaylist(urlManager.getPlaylistUrl(INDEX_CUSTOM),INDEX_CUSTOM);
-		}else {
-			int i=INDEX_DI;
-			playlistManager.saveActivePlaylistIndex(i);
-			String url = urlManager.getPlaylistUrl(i);
-			playlistDownloader.downloadPlaylist(url,i);
-		}
-	}*/
-
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		playlistManager.saveActivePlaylistIndex(drawerManager.getDrawer().getCurrentSelectedPosition());
@@ -182,19 +170,19 @@ public class ActivityRxTest extends AppCompatActivity {
 			if(i==INDEX_CUSTOM) urlManager.saveCustomPlaylistString(s);
 			playlistManager.selectPls(s);
 			initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
-			connect();
 			if(getService()!=null && getService().isServiceConnected) {
 				Intent intentReset=new Intent(this,ServiceRadioRx.class);
 				intentReset.setAction(ServiceRadioRx.INTENT_RESET);
 				startService(intentReset);
-			}
+				updateLoadingVisibility(-1);
+			}else connect();
 		}
 		super.onNewIntent(intent);
 	}
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(resultCode==RESULT_CANCELED) {
-			drawerManager.getDrawer().setSelection(playlistManager.getActivePlaylistIndex());
+			drawerManager.getDrawer().setSelection(INDEX_DI);
 			Toast.makeText(getApplicationContext(), "Playlist not selected", Toast.LENGTH_SHORT).show();
 		}
 		else if(resultCode==RESULT_OK){
@@ -227,7 +215,7 @@ public class ActivityRxTest extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), "Please install a File Manager.", Toast.LENGTH_SHORT).show();
 		}
 	}
-	private void updateLoadingVisibility(int loadingVisibility, int drawerOpenClosed){
+	private void updateLoadingVisibility(int drawerOpenClosed){
 			serviceRadioRx.isServiceConnected=true;
 			drawerManager.initDrawer(
 					playlistManager.isShuffle(),
@@ -235,13 +223,12 @@ public class ActivityRxTest extends AppCompatActivity {
 					playlistManager.getActivePlaylistIndex());
 		if(drawerOpenClosed>0) drawerManager.getDrawer().openDrawer();
 		if(drawerOpenClosed<0) drawerManager.getDrawer().closeDrawer();
-		loadingLayout.setVisibility(loadingVisibility);
-		if(loadingVisibility==View.GONE) updateUI(UI_STATE.IDLE, playlistManager.getActivePlaylistName(),0);
+		loadingLayout.setVisibility(View.GONE);
+		updateUI(UI_STATE.IDLE, playlistManager.getActivePlaylistName(),0);
 	}
-	private void updateLoadingVisibility(int loadingVisibility){
-		loadingLayout.setVisibility(loadingVisibility);
+	public void updateLoadingVisibility(){
+		loadingLayout.setVisibility(View.VISIBLE);
 		updateUI(UI_STATE.LOADING, "Loading playlist", 0);
-		if(serviceRadioRx!=null) serviceRadioRx.isServiceConnected=false;
 	}
 
 	/*private void onNewPlaylistSelected(int i){
