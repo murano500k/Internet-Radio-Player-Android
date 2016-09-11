@@ -2,21 +2,10 @@
 Android application for playing online audio streams. 
 </h4>
 <h3>
-<a href="https://app.box.com/s/z32stlza8ub4ek2180z68f98172duqhx"> Download apk version 2.2</a>
+<a href="https://app.box.com/s/z32stlza8ub4ek2180z68f98172duqhx"> Download apk version 2.5</a>
 </h3>
-<h4>
-Download free high-quality streams m3u playlist:
-</h4>
-
-<h3><ul>
-  <li><a href="http://diforfree.org/pls/di_hi.m3u">Digitally Imported</a></li>
-  <li><a href="http://diforfree.org/pls/radiotunes_hi.m3u">Radio Tunes</a></li>
-  <li><a href="http://diforfree.org/pls/jazzradio_hi.m3u">Jazz Radio</a></li>
-  <li><a href="http://diforfree.org/pls/rockradio_hi.m3u">Rock Radio</a></li>
-</ul></h3>
-
-
-<img src="Screenshot.png" alt="app_screenshot" height="480" width="270">
+<img src="Screenshot_1.png" alt="app_screenshot1" height="480" width="270">
+<img src="Screenshot_2.png" alt="app_screenshot2" height="480" width="270">
 
 
 <h1>Features:</h1>
@@ -24,15 +13,11 @@ Download free high-quality streams m3u playlist:
   <li>Auto resume interrupted playback when internet connection reestablished</li>
   <li>Set custom audio buffer size</li>
   <li>Audio buffer progress animation</li>
-  <li>Add your station</li>
   <li>Handle Audiofocus change</li>
   <li>Handle Audio device added/removed</li>
-  <li>Handle Call state changed</li>
   <li>Status bar notification</li>
-  <li>Home screen widget</li>
   <li>Sleep timer</li>
-  <li>Show playing audiotrack metadata</li>
-  <li>Favorite stations</li>
+  <li>Show audiotrack metadata</li>
 </ul>
 <h1>Used frameworks:</h1>
 <ul>
