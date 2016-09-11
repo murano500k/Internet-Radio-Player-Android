@@ -10,8 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
@@ -19,10 +17,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.android.murano500k.newradio.Constants;
+import com.android.murano500k.newradio.PlaylistDownloader;
 import com.android.murano500k.newradio.PlaylistManager;
 import com.android.murano500k.newradio.R;
 import com.android.murano500k.newradio.ServiceRadioRx;
+import com.android.murano500k.newradio.UrlManager;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -35,41 +34,70 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static com.android.murano500k.newradio.UrlManager.INDEX_CUSTOM;
+import static com.android.murano500k.newradio.UrlManager.INDEX_DI;
+
 public class ActivityRxTest extends AppCompatActivity {
 	public static final String TAG = "ActivityRadio";
+	public static final String INTENT_TOKEN_UPDATED = "com.android.murano500k.newradio.INTENT_TOKEN_UPDATED";
 	public static final String INTENT_UPDATE_STATIONS = "com.android.murano500k.newradio.INTENT_UPDATE_STATIONS";
+	public static final String EXTRA_UPDATE_STATIONS_RESULT_STRING = "com.android.murano500k.newradio.EXTRA_UPDATE_STATIONS_RESULT_STRING";
+	public static final String EXTRA_UPDATE_STATIONS_INDEX = "com.android.murano500k.newradio.EXTRA_UPDATE_STATIONS_INDEX";
 	public static final String INTENT_OPEN_APP = "com.android.murano500k.newradio.INTENT_OPEN_APP";
 	public static final String INTENT_CLOSE_APP = "com.android.murano500k.newradio.INTENT_CLOSE_APP";
-	public static final String INTENT_SELECT_PLS = "com.android.murano500k.newradio.INTENT_SELECT_PLS";
 	private static final int SELECT_PLS_REQUEST_CODE = 444;
+
+	final public static class UI_STATE{
+		static final int LOADING= 0;
+		static final int PLAYING= 1;
+		static final int IDLE= -1;
+	}
+
 	RecyclerView recyclerView;
 	ListAdapterRx adapter;
 	ImageButton btnPlay, btnPrev, btnNext;
 	private AVLoadingIndicatorView spinner;
 	private static ServiceRadioRx serviceRadioRx;
 	boolean isListInitiated = false;
-	boolean isFavOnly;
 	private DialogShower dialogShower;
 	private ProgressBar progressBar;
+	private UrlManager urlManager;
+
+
+	public PlaylistManager getPlaylistManager() {
+		return playlistManager;
+	}
+
+	public DialogShower getDialogShower() {
+		return dialogShower;
+	}
+
 	private PlaylistManager playlistManager;
-	private ActivityRxTest activityRxTest;
-	private LinearLayout layoutSelectPls;
+	private LinearLayout loadingLayout;
 	private Toast toast;
+	private PlaylistDownloader playlistDownloader;
+	private DrawerManager drawerManager;
 
 	private boolean isPlaying() {
 		return serviceRadioRx != null && serviceRadioRx.isPlaying();
+	}
+	public ServiceRadioRx getService() {
+		return serviceRadioRx;
 	}
 
 	private ServiceConnection mServiceConnection = new ServiceConnection() {
 
 		@Override
 		public void onServiceConnected(ComponentName arg0, IBinder binder) {
-			//log("Service Connected.");
+			Log.i(TAG, "Service Connected.");
 			serviceRadioRx = ((ServiceRadioRx.LocalBinder) binder).getService();
+			updateLoadingVisibility(View.GONE, 1);
+
 		}
 
 		@Override
 		public void onServiceDisconnected(ComponentName arg0) {
+			serviceRadioRx.isServiceConnected=false;
 		}
 	};
 	public void connect() {
@@ -80,34 +108,60 @@ public class ActivityRxTest extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_rx_test);
-		activityRxTest=this;
 		EventBus.getDefault().register(this);
+		playlistDownloader=new PlaylistDownloader(getApplicationContext());
+		urlManager =new UrlManager(this);
 		playlistManager = new PlaylistManager(getApplicationContext());
-		layoutSelectPls=(LinearLayout) findViewById(R.id.select_pls);
+		drawerManager=new DrawerManager(this);
 		initUI();
-		ArrayList<String> list=null;
-		if (savedInstanceState != null) list = savedInstanceState.getStringArrayList(Constants.KEY_LIST_URLS);
-		if(list==null || list.size()<1) list = playlistManager.getStations();
-		if(list==null || list.size()<1) {
-			btnPlay.setVisibility(View.GONE);
-			btnNext.setVisibility(View.GONE);
-			btnPrev.setVisibility(View.GONE);
-			layoutSelectPls.setVisibility(View.VISIBLE);
-		} else {
-			layoutSelectPls.setVisibility(View.GONE);
-			btnPlay.setVisibility(View.VISIBLE);
-			btnNext.setVisibility(View.VISIBLE);
-			btnPrev.setVisibility(View.VISIBLE);
-			playlistManager.getStations();
-			if(serviceRadioRx==null || !serviceRadioRx.isServiceConnected) connect();
-			initList(list, playlistManager.getSelectedUrl());
-			updateUI();
+		updateLoadingVisibility(View.VISIBLE);
+		if(initActivePlaylist()) connect();
+	}
+	private boolean initActivePlaylist(){
+		if(playlistManager.getStations()==null){
+			int i = playlistManager.getActivePlaylistIndex();
+			String url=null;
+			if(i==INDEX_CUSTOM) {
+				String res = urlManager.getSavedCustomPlaylistString();
+				if (res != null) {
+					Intent intent = new Intent(this, ActivityRxTest.class);
+					intent.setAction(ActivityRxTest.INTENT_UPDATE_STATIONS);
+					intent.putExtra(ActivityRxTest.EXTRA_UPDATE_STATIONS_RESULT_STRING, res);
+					intent.putExtra(ActivityRxTest.EXTRA_UPDATE_STATIONS_INDEX, i);
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(intent);
+					return false;
+				}
+			} else url = urlManager.getPlaylistUrl(i);
+			if (url == null || url.length() == 0 || url.contains("undefined")) {
+				i = INDEX_DI;
+				playlistManager.saveActivePlaylistIndex(i);
+				url = urlManager.getPlaylistUrl(i);
+			}
+			playlistDownloader.downloadPlaylist(url,i);
+			return false;
+		}else {
+			initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
+			return true;
 		}
 	}
+/*
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if(grantResults[0]==PERMISSION_GRANTED){
+			playlistDownloader.downloadPlaylist(urlManager.getPlaylistUrl(INDEX_CUSTOM),INDEX_CUSTOM);
+		}else {
+			int i=INDEX_DI;
+			playlistManager.saveActivePlaylistIndex(i);
+			String url = urlManager.getPlaylistUrl(i);
+			playlistDownloader.downloadPlaylist(url,i);
+		}
+	}*/
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putStringArrayList(Constants.KEY_LIST_URLS, playlistManager.getStations());
+		playlistManager.saveActivePlaylistIndex(drawerManager.getDrawer().getCurrentSelectedPosition());
 		super.onSaveInstanceState(outState);
 	}
 
@@ -116,100 +170,51 @@ public class ActivityRxTest extends AppCompatActivity {
 		if(intent.getAction().contains(INTENT_OPEN_APP)) updateUI();
 		else if(intent.getAction().contains(INTENT_CLOSE_APP)){
 			this.unbindService(mServiceConnection);
+			playlistManager.saveActivePlaylistIndex(drawerManager.getDrawer().getCurrentSelectedPosition());
 			finish();
 		}
 		else if(intent.getAction().contains(INTENT_UPDATE_STATIONS)){
-			isListInitiated = false;
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
-				}
-			});
-		}
-		super.onNewIntent(intent);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu, menu);
-		for (int i = 0; i < menu.size(); i++) {
-			MenuItem item = menu.getItem(i);
-
-			if (item.getItemId() == R.id.action_shuffle) {
-				item.setChecked(playlistManager.isShuffle());
-			} else if (item.getItemId() == R.id.action_sleeptimer) {
-				if(serviceRadioRx==null || !serviceRadioRx.isServiceConnected) item.setChecked(false);
-				else item.setChecked(serviceRadioRx.isSleepTimerRunning());
-			}
-		}
-		return true;
-	}
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.action_shuffle:
-				if(serviceRadioRx==null || !serviceRadioRx.isServiceConnected) break;
-				Log.d(TAG, "action_shuffle. was checked: " + item.isChecked());
-				item.setChecked(!playlistManager.isShuffle());
-				playlistManager.setShuffle(item.isChecked());
-				break;
-			/*case R.id.action_select_fav:
-				Log.d(TAG, "action_select_fav. was checked: " + item.isChecked());
-				item.setChecked(!playlistManager.isOnlyFavorites());
-				playlistManager.setOnlyFavorites( item.isChecked());
-				*//*Intent intent = new Intent(this, ServiceRadioRx.class);
-				intent.setAction(Constants.INTENT.UPDATE_STATIONS);
-				intent.putExtra(Constants.DATA_FAV_ONLY, isFavOnly);
-				intent.putExtra(Constants.DATA_LIST_URLS, playlistManager.getStations());
-				intent.putExtra(Constants.DATA_CURRENT_STATION_URL, playlistManager.getSelectedUrl());
-				startService(intent);*//*
-				isListInitiated = false;
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
-					}
-				});
-				break;*/
-			case R.id.action_sleeptimer:
-				Log.d(TAG, "action_sleeptimer. was checked: " + item.isChecked());
-				if(serviceRadioRx==null || !serviceRadioRx.isServiceConnected) break;
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						if (item.isChecked()) dialogShower.showCancelTimerDialog( item, activityRxTest);
-						else dialogShower.showSetTimerDialog(item, activityRxTest);
-					}
-				});
-				break;
-			case R.id.action_reset:
-				if(serviceRadioRx==null || !serviceRadioRx.isServiceConnected) break;
-				Log.d(TAG, "action_reset. was clicked");
+			int i = intent.getIntExtra(EXTRA_UPDATE_STATIONS_INDEX, -1);
+			String s=intent.getStringExtra(EXTRA_UPDATE_STATIONS_RESULT_STRING);
+			Log.w("onUpdateStations", "index="+i);
+			Log.w("onUpdateStations", "str_result="+s);
+			playlistManager.saveActivePlaylistIndex(i);
+			if(i==INDEX_CUSTOM) urlManager.saveCustomPlaylistString(s);
+			playlistManager.selectPls(s);
+			initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
+			connect();
+			if(getService()!=null && getService().isServiceConnected) {
 				Intent intentReset=new Intent(this,ServiceRadioRx.class);
 				intentReset.setAction(ServiceRadioRx.INTENT_RESET);
 				startService(intentReset);
-				break;
-			case R.id.action_buffer:
-				if(serviceRadioRx==null || !serviceRadioRx.isServiceConnected) break;
-				Log.d(TAG, "action_buffer");
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						dialogShower.showDialogSetBufferSize(activityRxTest,getLayoutInflater());
-					}
-				});
-				break;
-			case R.id.action_select_pls:
-				Log.d(TAG, "action_select_pls");
-				selectPlsIntent();
-				break;
+			}
+		}
+		super.onNewIntent(intent);
+	}
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(resultCode==RESULT_CANCELED) {
+			drawerManager.getDrawer().setSelection(playlistManager.getActivePlaylistIndex());
+			Toast.makeText(getApplicationContext(), "Playlist not selected", Toast.LENGTH_SHORT).show();
+		}
+		else if(resultCode==RESULT_OK){
+			if(requestCode==SELECT_PLS_REQUEST_CODE) {
+				playlistDownloader.downloadPlaylist(data.getData().toString(), INDEX_CUSTOM);
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if(serviceRadioRx != null && serviceRadioRx.isServiceConnected) {
+			unbindService(mServiceConnection);
+			serviceRadioRx=null;
 		}
 
-		return super.onOptionsItemSelected(item);
 	}
-	private void selectPlsIntent(){
+	public void selectPlsIntent(){
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("audio/mpeg-url");
 		intent.setType("audio/x-mpegurl");
@@ -222,60 +227,52 @@ public class ActivityRxTest extends AppCompatActivity {
 			Toast.makeText(getApplicationContext(), "Please install a File Manager.", Toast.LENGTH_SHORT).show();
 		}
 	}
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if(resultCode==RESULT_CANCELED) Toast.makeText(getApplicationContext(), "Station not added", Toast.LENGTH_SHORT).show();
-		else if(resultCode==RESULT_OK){
-			if(requestCode==SELECT_PLS_REQUEST_CODE) {
-				String res=playlistManager.selectPls(data.getData());
-				if(res!=null) {
-					Log.e(TAG, "load playlist failed. "+ res);
-					showToast("Error opening file. " +res);
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							layoutSelectPls.setVisibility(View.VISIBLE);
-							btnPlay.setVisibility(View.GONE);
-							btnNext.setVisibility(View.GONE);
-							btnPrev.setVisibility(View.GONE);
-						}
-					});
+	private void updateLoadingVisibility(int loadingVisibility, int drawerOpenClosed){
+			serviceRadioRx.isServiceConnected=true;
+			drawerManager.initDrawer(
+					playlistManager.isShuffle(),
+					serviceRadioRx.isSleepTimerRunning(),
+					playlistManager.getActivePlaylistIndex());
+		if(drawerOpenClosed>0) drawerManager.getDrawer().openDrawer();
+		if(drawerOpenClosed<0) drawerManager.getDrawer().closeDrawer();
+		loadingLayout.setVisibility(loadingVisibility);
+		if(loadingVisibility==View.GONE) updateUI(UI_STATE.IDLE, playlistManager.getActivePlaylistName(),0);
+	}
+	private void updateLoadingVisibility(int loadingVisibility){
+		loadingLayout.setVisibility(loadingVisibility);
+		updateUI(UI_STATE.LOADING, "Loading playlist", 0);
+		if(serviceRadioRx!=null) serviceRadioRx.isServiceConnected=false;
+	}
 
-				}else {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-
-							layoutSelectPls.setVisibility(View.GONE);
-							btnPlay.setVisibility(View.VISIBLE);
-							btnNext.setVisibility(View.VISIBLE);
-							btnPrev.setVisibility(View.VISIBLE);
-							showToast("file loaded successfully");
-							initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
-						}
-					});
-
-				}
-				/*if(Fpath==null) Toast.makeText(getApplicationContext(), "Empty path", Toast.LENGTH_SHORT).show();
-				else {
-					ArrayList<String> list=playlistManager.selectPls(Fpath);
-					if(list==null || list.size()==0)Log.e(TAG,"list is Empty");
-					else for (String s: list) Log.w(TAG, "item: " + s);
-				}*/
-			}
-
-
+	/*private void onNewPlaylistSelected(int i){
+		hideToast();
+		Assert.assertTrue(i>0);
+		(false);
+			if(drawerManager.getDrawer().isDrawerOpen()) drawerManager.getDrawer().closeDrawer();
+			//showToast("file loaded successfully");
+			playlistManager.saveActivePlaylistIndex(i);
+			if(getService()==null || !getService().isServiceConnected) connect();
+			drawerManager.onDrawerPlaylistTypeChanged(i);
+			initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
 		}
-		super.onActivityResult(requestCode, resultCode, data);
-	}
+		updateUI();
+		*//*if(getService()!=null && getService().isServiceConnected) {
+			Intent intentReset=new Intent(this,ServiceRadioRx.class);
+			intentReset.setAction(ServiceRadioRx.INTENT_RESET);
+			startService(intentReset);
+		}*//*
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-	}
+				}});
+
+	}*/
+
+
 	private void btnControlClick(String extra){
 		Log.i(TAG, "btnControlClick: "+extra);
-		if(true) {
+		if(getService().isServiceConnected) {
 			EventBus.getDefault().post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, ServiceRadioRx.STATUS_LOADING, playlistManager.getSelectedUrl()));
 			Intent intent = new Intent(getApplicationContext(), ServiceRadioRx.class);
 			intent.setAction(ServiceRadioRx.INTENT_USER_ACTION);
@@ -283,8 +280,9 @@ public class ActivityRxTest extends AppCompatActivity {
 			startService(intent);
 		}else Toast.makeText(getApplicationContext(),"Player is locked!", Toast.LENGTH_SHORT).show();
 	}
-
 	public void initUI() {
+		loadingLayout =(LinearLayout) findViewById(R.id.select_pls);
+
 		progressBar=(ProgressBar) findViewById(R.id.progressBar);
 		dialogShower =new DialogShower(playlistManager);
 
@@ -293,15 +291,9 @@ public class ActivityRxTest extends AppCompatActivity {
 		spinner = (AVLoadingIndicatorView) findViewById(R.id.spinner);
 		btnPlay = (ImageButton) findViewById(R.id.buttonControlStart);
 
-		btnPlay.setOnClickListener(v -> {
-			btnControlClick(ServiceRadioRx.EXTRA_PLAY_PAUSE_PRESSED);
-		});
-		btnPrev.setOnClickListener(v -> {
-			btnControlClick(ServiceRadioRx.EXTRA_PREV_PRESSED);
-		});
-		btnNext.setOnClickListener(v -> {
-			btnControlClick(ServiceRadioRx.EXTRA_NEXT_PRESSED);
-		});
+		btnPlay.setOnClickListener(v -> btnControlClick(ServiceRadioRx.EXTRA_PLAY_PAUSE_PRESSED));
+		btnPrev.setOnClickListener(v -> btnControlClick(ServiceRadioRx.EXTRA_PREV_PRESSED));
+		btnNext.setOnClickListener(v -> btnControlClick(ServiceRadioRx.EXTRA_NEXT_PRESSED));
 		btnPlay.setOnTouchListener((view, motionEvent) -> {
 			if(motionEvent.getAction()==MotionEvent.ACTION_BUTTON_PRESS) view.setPressed(true);
 			else if(motionEvent.getAction()==MotionEvent.ACTION_BUTTON_RELEASE) view.setPressed(false);
@@ -317,12 +309,13 @@ public class ActivityRxTest extends AppCompatActivity {
 			else if(motionEvent.getAction()==MotionEvent.ACTION_BUTTON_RELEASE) view.setPressed(false);
 			return false;
 		});
-		layoutSelectPls.setOnClickListener(new View.OnClickListener() {
+		/*loadingLayout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				selectPlsIntent();
 			}
 		});
+		*/
 	}
 
 	public void initList(ArrayList<String> list, String urlS) {
@@ -338,14 +331,13 @@ public class ActivityRxTest extends AppCompatActivity {
 		if(serviceRadioRx==null || !serviceRadioRx.isServiceConnected) connect();
 	}
 
-	private void updateUI(){
-		if(isPlaying())updateUI(Constants.UI_STATE.PLAYING, playlistManager.getNameFromUrl(playlistManager.getSelectedUrl()), 100);
-		else updateUI(Constants.UI_STATE.IDLE, getResources().getString(R.string.app_name), 100);
+	public void updateUI(){
+		if(isPlaying())updateUI(UI_STATE.PLAYING, playlistManager.getNameFromUrl(playlistManager.getSelectedUrl()), 100);
+		else updateUI(UI_STATE.IDLE, playlistManager.getActivePlaylistName(), 100);
 	}
 	private void updateUI(int state, String title, int progress) {
-		//Log.d(TAG, "updatePlaybackViews state: " + state);
 		switch (state) {
-			case Constants.UI_STATE.LOADING:
+			case UI_STATE.LOADING:
 				setTitle(title);
 				progressBar.setProgress(progress);
 				progressBar.setIndeterminate(true);
@@ -354,7 +346,7 @@ public class ActivityRxTest extends AppCompatActivity {
 				//btnPlay.setVisibility(View.INVISIBLE);
 				btnPlay.setActivated(true);
 				break;
-			case Constants.UI_STATE.PLAYING:
+			case UI_STATE.PLAYING:
 				setTitle(title);
 				progressBar.setProgress(progress);
 				progressBar.setIndeterminate(false);
@@ -362,7 +354,7 @@ public class ActivityRxTest extends AppCompatActivity {
 				btnPlay.setVisibility(View.VISIBLE);
 				btnPlay.setActivated(true);
 				break;
-			case Constants.UI_STATE.IDLE:
+			case UI_STATE.IDLE:
 				setTitle(title);
 				progressBar.setProgress(progress);
 				progressBar.setIndeterminate(false);
@@ -378,26 +370,26 @@ public class ActivityRxTest extends AppCompatActivity {
 		UiEvent.UI_ACTION action = eventUi.getUiAction();
 		String url = eventUi.getExtras().url;
 		String name = "";
-		if(url!=null && !url.equals("")) name=playlistManager.getNameFromUrl(url);
+		if(url!=null && !url.equals("")) name=playlistManager.getActivePlaylistName();
 
 		if (action.equals(UiEvent.UI_ACTION.PLAYBACK_STARTED)) {
 			Log.i(TAG, "onPlayerStartedEvent: " + name);
-			updateUI(Constants.UI_STATE.PLAYING, name, 0);
+			updateUI(UI_STATE.PLAYING, name, 0);
 			if (recyclerView != null && adapter != null && adapter.getItemIndex(eventUi.getExtras().url) != -1)
 				recyclerView.smoothScrollToPosition(adapter.getItemIndex(eventUi.getExtras().url));
 		}
 		else if (action.equals(UiEvent.UI_ACTION.PLAYBACK_STOPPED)) {
-			updateUI(Constants.UI_STATE.IDLE, getResources().getString(R.string.app_name), 0);
+			updateUI(UI_STATE.IDLE, playlistManager.getActivePlaylistName(), 0);
 		}
 		else if (action.equals(UiEvent.UI_ACTION.BUFFER_UPDATED)) {
-			updateUI(Constants.UI_STATE.PLAYING, name, eventUi.getExtras().progress);
+			updateUI(UI_STATE.PLAYING, name, eventUi.getExtras().progress);
 		}
 		else if (action.equals(UiEvent.UI_ACTION.LOADING_STARTED)) {
-			updateUI(Constants.UI_STATE.LOADING, "loading...", eventUi.getExtras().progress);
+			updateUI(UI_STATE.LOADING, "loading...", eventUi.getExtras().progress);
 		}
 		else if (action.equals(UiEvent.UI_ACTION.STATION_SELECTED)) {
 			Log.i(TAG, "onStationSelected: "+ name);
-			updateUI(Constants.UI_STATE.LOADING, name, 0);
+			updateUI(UI_STATE.LOADING, name, 0);
 			if(recyclerView!=null && adapter!=null && adapter.getItemIndex(eventUi.getExtras().url)!=-1)
 				recyclerView.smoothScrollToPosition(adapter.getItemIndex(eventUi.getExtras().url));
 		}
@@ -411,32 +403,21 @@ public class ActivityRxTest extends AppCompatActivity {
 		Log.d(TAG, "onSleepTimerStatusUpdate " + action + " " + seconds);
 		if (action== SleepEvent.SLEEP_ACTION.CANCEL) {
 			Toast.makeText(getApplicationContext(), "Sleep time cancelled", Toast.LENGTH_SHORT).show();
-			if(dialogShower.sleepTimerMenuItem!=null){
-				dialogShower.sleepTimerMenuItem.setChecked(false);
-				dialogShower.sleepTimerMenuItem.setIcon(R.drawable.ic_sleep);
-				dialogShower.sleepTimerMenuItem.setTitle("Set sleep timer");
-				dialogShower.sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-			}
+			if(drawerManager.getDrawer()!=null)
+				drawerManager.getDrawer().updateItem(drawerManager.getDrawerItemSleep(false,DrawerManager.INDEX_SLEEP));
 			setTitle(R.string.app_name);
 		} else if (action== SleepEvent.SLEEP_ACTION.UPDATE) {
 			if (seconds > 1) {
 				if(seconds>60) setTitle(seconds/60 + " minutes left");
 				else setTitle(seconds+" seconds to sleep");
-				if(dialogShower.sleepTimerMenuItem!=null) {
-					dialogShower.sleepTimerMenuItem.setChecked(true);
-					dialogShower.sleepTimerMenuItem.setIcon(R.drawable.ic_cancel_sleep);
-					dialogShower.sleepTimerMenuItem.setTitle("Cancel sleep timer");
-					dialogShower.sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-				}
+				drawerManager.getDrawer().updateItem(
+						drawerManager.getDrawerItemSleep(true,DrawerManager.INDEX_SLEEP));
+
 			}
 		} else if (action== SleepEvent.SLEEP_ACTION.FINISH) {
 			Toast.makeText(getApplicationContext(), "Sleep timer finished", Toast.LENGTH_SHORT).show();
-			if(dialogShower.sleepTimerMenuItem!=null) {
-				dialogShower.sleepTimerMenuItem.setChecked(false);
-				dialogShower.sleepTimerMenuItem.setIcon(R.drawable.ic_sleep);
-				dialogShower.sleepTimerMenuItem.setTitle("Set sleep timer");
-				dialogShower.sleepTimerMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-			}
+			drawerManager.getDrawer().updateItem(
+					drawerManager.getDrawerItemSleep(false,DrawerManager.INDEX_SLEEP));
 		}
 	}
 	public void showToast(String text){
@@ -451,5 +432,19 @@ public class ActivityRxTest extends AppCompatActivity {
 					toast=Toast.makeText(getApplicationContext(), text,Toast.LENGTH_SHORT);
 					toast.show();
 				});
+	}
+	public void hideToast(){
+		Observable.just(1)
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(integer -> {
+					if(toast!=null){
+						toast.cancel();
+						toast=null;
+					}
+				});
+	}
+	public PlaylistDownloader getPlaylistDownloader() {
+		return playlistDownloader;
 	}
 }

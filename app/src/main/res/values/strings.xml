@@ -1,12 +1,19 @@
 <resources>
     <string name="app_name">Online Radio</string>
-    <string name="description">Plays internet radio streams</string>
-    <string name="action_settings">Settings</string>
-    <integer name="com_vk_sdk_AppId">5548641</integer>
 
-    <string name="set_buffer_size">Set buffer size</string>
-    <string name="only_favorites">Only favorites</string>
-    <string name="sleep_timer">Sleep timer</string>
-    <string name="shuffle">Shuffle</string>
-    <string name="title_activity_start">StartActivity</string>
+    <string name="title_section_di">Digitally Imported</string>
+    <string name="title_section_radiotunes">Radio Tunes</string>
+    <string name="title_section_jazz">Jazz Radio</string>
+    <string name="title_section_rock">Radio Rock</string>
+    <string name="title_section_classic">Classical Radio</string>
+    <string name="title_section_custom">Custom playlist</string>
+
+    <string name="title_section_shuffle">Shuffle</string>
+    <string name="title_section_reset">Reset player</string>
+    <string name="title_section_sleep">Sleep timer</string>
+    <string name="title_section_buffer">Set audio buffer size</string>
+
+    <string name="title_section_stations">Stations</string>
+
+
 </resources>

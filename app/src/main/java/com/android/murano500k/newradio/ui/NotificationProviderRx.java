@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
-import com.android.murano500k.newradio.Constants;
+import com.android.murano500k.newradio.PlayerStatus;
 import com.android.murano500k.newradio.PlaylistManager;
 import com.android.murano500k.newradio.R;
 import com.android.murano500k.newradio.ServiceRadioRx;
@@ -24,7 +24,7 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
  */
 public class NotificationProviderRx {
 	public static final String TAG = "NotificationProvider";
-
+	public static final int NOTIFICATION_ID = 1431;
 	private String stationName = "";
     private int artImage = R.drawable.default_art;
 
@@ -84,12 +84,21 @@ public class NotificationProviderRx {
 			mNotificationTemplate.setImageViewResource(R.id.notification_play, R.drawable.ic_play);
 			mExpandedView.setImageViewResource(R.id.notification_expanded_play, R.drawable.ic_play);
 		}
-		Notification notification = notificationBuilder.setSmallIcon(R.mipmap.ic_launcher)
-				.setPriority(Notification.PRIORITY_HIGH)
-				.setDeleteIntent(getActivityPendingIntent(ActivityRxTest.INTENT_CLOSE_APP, 10))
-				.setColor(serviceRadioRx.getColor(R.color.colorPrimary))
-				.setContent(mNotificationTemplate)
-				.build();
+		Notification notification = null;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+			notification = notificationBuilder.setSmallIcon(R.mipmap.ic_launcher)
+					.setPriority(Notification.PRIORITY_HIGH)
+					.setDeleteIntent(getActivityPendingIntent(ActivityRxTest.INTENT_CLOSE_APP, 10))
+					.setColor(serviceRadioRx.getColor(R.color.colorPrimary))
+					.setContent(mNotificationTemplate)
+					.build();
+		}else {
+			notification = notificationBuilder.setSmallIcon(R.mipmap.ic_launcher)
+					.setPriority(Notification.PRIORITY_HIGH)
+					.setDeleteIntent(getActivityPendingIntent(ActivityRxTest.INTENT_CLOSE_APP, 10))
+					.setContent(mNotificationTemplate)
+					.build();
+		}
 		notification.bigContentView = mExpandedView;
 		if(playerStatus==ServiceRadioRx.STATUS_WAITING_CONNECTIVITY){
 			notification.ledARGB = 0xFFff0000;
@@ -102,10 +111,10 @@ public class NotificationProviderRx {
 			notification.ledOnMS = 1000;
 			notification.ledOffMS = 100;
 		}
-		mNotificationManager.notify(Constants.NOTIFICATION_ID, notification);
+		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}
 	public void cancelNotification(){
-		if(mNotificationManager!=null)mNotificationManager.cancel(Constants.NOTIFICATION_ID);
+		if(mNotificationManager!=null)mNotificationManager.cancel(NOTIFICATION_ID);
 	}
 
 	private PendingIntent getActivityPendingIntent(String action, int i){

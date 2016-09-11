@@ -16,7 +16,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.murano500k.newradio.ui.NotificationProviderRx;
-import com.android.murano500k.newradio.ui.PlayerStatus;
 import com.android.murano500k.newradio.ui.SleepEvent;
 import com.android.murano500k.newradio.ui.UiEvent;
 import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
@@ -40,7 +39,10 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	public static final String INTENT_SLEEP_SET = "com.android.murano500k.newradio.INTENT_SLEEP_SET";
 	public static final String INTENT_SLEEP_CANCEL = "com.android.murano500k.newradio.INTENT_SLEEP_CANCEL";
 	public static final String INTENT_SET_BUFFER_SIZE = "com.android.murano500k.newradio.INTENT_SET_BUFFER_SIZE";
-
+	public static final String EXTRA_AUDIO_BUFFER_CAPACITY = "com.android.murano500k" +
+			".EXTRA_AUDIO_BUFFER_CAPACITY";
+	public static final String EXTRA_AUDIO_DECODE_CAPACITY = "com.android.murano500k" +
+			".EXTRA_AUDIO_DECODE_CAPACITY";
 	public static final String EXTRA_SLEEP_SECONDS= "com.android.murano500k.newradio.INTENT_SLEEP_CANCEL";
 
 	public static final String INTENT_USER_ACTION = "com.android.murano500k.newradio.INTENT_USER_ACTION";
@@ -72,9 +74,6 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		WAITING_FOCUS,
 		WAITING_UNMUTE
 	}
-	public static final int PLAYING=1;
-	public static final int LOADING=0;
-	public static final int STOPPED=-1;
 	private ComponentName mMediaButtonReceiverComponent;
 	private SleepTimerTask sleepTimerTask;
 
@@ -92,9 +91,6 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	private PlaylistManager playlistManager;
 	private int AUDIO_BUFFER_CAPACITY_MS = 800;
 	private int AUDIO_DECODE_CAPACITY_MS = 400;
-	private final String SUFFIX_PLS = ".pls";
-	private final String SUFFIX_RAM = ".ram";
-	private final String SUFFIX_WAX = ".wax";
 
 	private MultiPlayer mRadioPlayer;
 
@@ -113,11 +109,9 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	@Override
 	public IBinder onBind(Intent intent) {
 		if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-
 		notificationProviderRx =new NotificationProviderRx(getApplicationContext(), this);
 		registerHeadsetPlugReceiver();
 		registerMediaButtonsReciever();
-		isServiceConnected=true;
 		playerStatus=STATUS_STOPPED;
 		notificationProviderRx.updateNotification(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus);
 
@@ -136,7 +130,6 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		dontlistenConnectivity();
 		unRegisterHeadsetPlugReceiver();
 		unRegisterMediaButtonsReciever();
-		isServiceConnected=false;
 		if(playerStatus!=STATUS_STOPPED) {
 			if(playerStatus!=STATUS_WAITING_CONNECTIVITY) abandonFocus();
 			else dontlistenConnectivity();
@@ -151,11 +144,12 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	public void onCreate() {
 		super.onCreate();
 		playlistManager=new PlaylistManager(getApplicationContext());
+		playlistManager.getUrlManager().updateToken();
+
 		int buf=playlistManager.getBufferSize();
 		int dec=playlistManager.getDecodeSize();
 		if(buf>100) AUDIO_BUFFER_CAPACITY_MS=buf;
 		if(dec>100) AUDIO_DECODE_CAPACITY_MS=dec;
-		showToast("AUDIO_BUFFER_CAPACITY_MS="+ AUDIO_BUFFER_CAPACITY_MS+ "\nAUDIO_DECODE_CAPACITY_MS="+AUDIO_DECODE_CAPACITY_MS );
 	}
 
 	@Override
@@ -166,7 +160,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if(intent!=null){
+		if(intent!=null && intent.getAction()!=null){
 			String action = intent.getAction();
 			if(action!=null && action.contains(INTENT_USER_ACTION)){
 				Log.i(TAG, "intent: "+ intent.getExtras().getString(EXTRA_PLAY_PAUSE_PRESSED, "")
@@ -183,9 +177,9 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				else if (intent.getExtras().containsKey(EXTRA_PLAY_LIST_STATION_PRESSED))
 					playUrlPressed(intent.getStringExtra(EXTRA_URL));
 
-			}else if(action.contains(INTENT_SET_BUFFER_SIZE)) {
-				AUDIO_BUFFER_CAPACITY_MS=intent.getIntExtra(Constants.DATA_AUDIO_BUFFER_CAPACITY, 800);
-				AUDIO_DECODE_CAPACITY_MS=intent.getIntExtra(Constants.DATA_AUDIO_DECODE_CAPACITY, 400);
+			}else if(action!=null &&action.contains(INTENT_SET_BUFFER_SIZE)) {
+				AUDIO_BUFFER_CAPACITY_MS=intent.getIntExtra(EXTRA_AUDIO_BUFFER_CAPACITY, 800);
+				AUDIO_DECODE_CAPACITY_MS=intent.getIntExtra(EXTRA_AUDIO_DECODE_CAPACITY, 400);
 				playlistManager.saveBufferSize(AUDIO_BUFFER_CAPACITY_MS);
 				playlistManager.saveDecodeSize(AUDIO_DECODE_CAPACITY_MS);
 				showToast("AUDIO_BUFFER_CAPACITY_MS="+ AUDIO_BUFFER_CAPACITY_MS+ "\nAUDIO_DECODE_CAPACITY_MS="+AUDIO_DECODE_CAPACITY_MS );
@@ -202,7 +196,6 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
 				getPlayer().stop();
 				bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, playlistManager.getSelectedUrl()));
-				showToast("Player reset");
 			} else if (action.equals(INTENT_SLEEP_SET)) {
 				Log.d(TAG, "serv INTENT_SLEEP_SET");
 				int secs = intent.getIntExtra(EXTRA_SLEEP_SECONDS, -254);
@@ -337,13 +330,6 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		}else Log.w("Connectivity","continue listening");
 
 	}
-	public void listenConnectivity(){
-		if(internetListener==null || internetListener.isUnsubscribed()) {
-			Log.w("Connectivity","start listening");
-			internetListener=getInternetListener("google.com");
-		}else Log.w("Connectivity","continue listening");
-
-	}
 	public void dontlistenConnectivity(){
 		Log.i(TAG,"dontlistenConnectivity");
 
@@ -352,22 +338,12 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 			internetListener.unsubscribe();
 		}else Log.w("Connectivity","was not listening");
 	}
-	public boolean islisteningConnectivity(){
-		return internetListener != null && !internetListener.isUnsubscribed();
-	}
 	public void abandonFocus(){
 		if(playerStatus.focusStatus==FOCUS_STATUS.HAS_FOCUS
 				||playerStatus.focusStatus==FOCUS_STATUS.WAITING_FOR_FOCUS) {
 			audioManager.abandonAudioFocus(audioFocusChangeListener);
 		}
 	}
-
-
-
-
-
-
-
 	private boolean requestFocus() {
 			int r = audioManager.requestAudioFocus(
 					getAudioFocusChangeListener(),
@@ -407,11 +383,8 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, playlistManager.getSelectedUrl()));
 			abandonFocus();
 			listenConnectivity(playlistManager.getSelectedUrl());
-		} else if(playerStatus==STATUS_WAITING_FOCUS){
-
-		} else if(playerStatus==STATUS_WAITING_CONNECTIVITY){
-
-		} else {
+		} else if(playerStatus!=STATUS_WAITING_FOCUS &&
+				playerStatus!=STATUS_WAITING_CONNECTIVITY){
 			playerStatus=STATUS_STOPPED;
 			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, playlistManager.getSelectedUrl()));
 			abandonFocus();
@@ -449,6 +422,9 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		getPlayer().playAsync(url);
 	}
 	public boolean checkSuffix(String streamUrl) {
+		String SUFFIX_PLS = ".pls";
+		String SUFFIX_RAM = ".ram";
+		String SUFFIX_WAX = ".wax";
 		return streamUrl.contains(SUFFIX_PLS) ||
 				streamUrl.contains(SUFFIX_RAM) ||
 				streamUrl.contains(SUFFIX_WAX);
@@ -465,13 +441,11 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	}
 	public MultiPlayer getPlayer() {
 		try {
-			java.net.URL.setURLStreamHandlerFactory(new java.net.URLStreamHandlerFactory() {
-				public java.net.URLStreamHandler createURLStreamHandler(String protocol) {
-					Log.d("LOG", "Asking for stream handler for protocol: '" + protocol + "'");
-					if ("icy".equals(protocol))
-						return new com.spoledge.aacdecoder.IcyURLStreamHandler();
-					return null;
-				}
+			java.net.URL.setURLStreamHandlerFactory(protocol -> {
+				Log.d("LOG", "Asking for stream handler for protocol: '" + protocol + "'");
+				if ("icy".equals(protocol))
+					return new com.spoledge.aacdecoder.IcyURLStreamHandler();
+				return null;
 			});
 		} catch (Throwable t) {
 			Log.w("LOG", "Cannot set the ICY URLStreamHandler - maybe already set ? - " + t);
@@ -484,7 +458,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		return mRadioPlayer;
 	}
 	public String getNextUrl(String current, PlaylistManager playlistManager) {
-		String newUrl = current;
+		String newUrl;
 		if (playlistManager.isShuffle()){
 			newUrl = playlistManager
 					.getStations()
@@ -492,7 +466,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 					new Random().nextInt(playlistManager.getStations().size())
 					].toString();
 		}else {
-			ArrayList<String> stations = new ArrayList<String>(playlistManager.getStations());
+			ArrayList<String> stations = new ArrayList<>(playlistManager.getStations());
 			if (stations.indexOf(current) > stations.size() - 2) newUrl = stations.get(0);
 			else newUrl = stations.get(stations.indexOf(current) + 1);
 		}
@@ -640,23 +614,26 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
-				int state = intent.getIntExtra("state", -1);
-				switch (state) {
-					case 0:
-						// headset unplugged
-						if(playerStatus!=STATUS_STOPPED)playPausePressed();
-						break;
-					case 1:
-						if(playerStatus==STATUS_STOPPED){
-							playerStatus=STATUS_LOADING;
-							bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, playlistManager.getSelectedUrl()));
-							if(requestFocus()) tryToPlayAsync(playlistManager.getSelectedUrl());
-							else {
-								playerStatus=STATUS_STOPPED;
-								bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, playlistManager.getSelectedUrl()));
+				if (isServiceConnected) {
+					int state = intent.getIntExtra("state", -1);
+					switch (state) {
+						case 0:
+							// headset unplugged
+							if (playerStatus != STATUS_STOPPED) playPausePressed();
+							break;
+						case 1:
+							if (playerStatus == STATUS_STOPPED) {
+								playerStatus = STATUS_LOADING;
+								bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, playlistManager.getSelectedUrl()));
+								if (requestFocus())
+									tryToPlayAsync(playlistManager.getSelectedUrl());
+								else {
+									playerStatus = STATUS_STOPPED;
+									bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, playlistManager.getSelectedUrl()));
+								}
 							}
-						}
-						break;
+							break;
+					}
 				}
 			}
 		}

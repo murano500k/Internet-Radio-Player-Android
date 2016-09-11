@@ -1,5 +1,7 @@
 package com.android.murano500k.newradio.ui;
 
+import com.android.murano500k.newradio.PlayerStatus;
+
 /**
  * Created by artem on 8/30/16.
  */

@@ -22,15 +22,9 @@ public class SleepEvent {
 		return sleepAction;
 	}
 
-	public void setSleepAction(SLEEP_ACTION sleepAction) {
-		this.sleepAction = sleepAction;
-	}
 
 	public int getSeconds() {
 		return seconds;
 	}
 
-	public void setSeconds(int seconds) {
-		this.seconds = seconds;
-	}
 }

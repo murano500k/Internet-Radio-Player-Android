@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.android.murano500k.newradio.Constants;
 import com.android.murano500k.newradio.PlaylistManager;
 import com.android.murano500k.newradio.R;
 import com.android.murano500k.newradio.ServiceRadioRx;
@@ -26,15 +25,15 @@ import java.util.ArrayList;
 
 import es.claucookie.miniequalizerlibrary.EqualizerView;
 
-public class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder> {
+ class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder> {
 
 	public static final String TAG = "ListAdapter";
 	private ArrayList<String> mValues;
-	boolean shouldPlayAnim;
-	boolean isFavOnly;
+	private boolean shouldPlayAnim;
+	//boolean isFavOnly;TODO FAV
 	public Context context;
-	String artist;
-	String song;
+	private String artist;
+	private String song;
 	private PlaylistManager playlistManager;
 	private String urlSelected;
 
@@ -52,8 +51,7 @@ public class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder
 		final ImageView mFavView;
 		String URL;
 
-
-		public ViewHolder(View view) {
+		 ViewHolder(View view) {
 			super(view);
 			mView=(StationListItem)view;
 			mMainView =(RelativeLayout)view.findViewById(R.id.layout_main);
@@ -115,8 +113,7 @@ public class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder
 		if(numberText.length()>1)holder.mIdView.setText(numberText);
 		holder.mStationNameView.setText(playlistManager.getNameFromUrl(holder.URL));
 		holder.mFavView.setVisibility(View.GONE);
-/*
-
+/*//TODO FAVORITES
 		if(isFavOnly){
 			holder.mFavView.setVisibility(View.GONE);
 		}else {
@@ -138,7 +135,7 @@ public class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder
 		});
 	}
 
-	public int getItemIndex(String url) {
+	int getItemIndex(String url) {
 		if(mValues.indexOf(url)>=0) return mValues.indexOf(url);
 		else return -1;
 	}
@@ -148,14 +145,10 @@ public class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder
 		return mValues.size();
 	}
 
-	public ArrayList<String>getItems(){
-		return mValues;
-	}
-
 	private void updateUI(int state, String url, String artist, String song){
 		this.artist=artist;
 		this.song=song;
-		shouldPlayAnim=(state==Constants.UI_STATE.PLAYING);
+		shouldPlayAnim=(state== ActivityRxTest.UI_STATE.PLAYING);
 		if(url!=null) {
 			String lastUrl=urlSelected;
 			urlSelected=url;
@@ -171,28 +164,28 @@ public class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder
 		if (action.equals(UiEvent.UI_ACTION.PLAYBACK_STARTED)) {
 			Log.i(TAG, "onPlayerStartedEvent");
 			shouldPlayAnim=true;
-			updateUI(Constants.UI_STATE.PLAYING, eventUi.getExtras().url, null, null);
+			updateUI(ActivityRxTest.UI_STATE.PLAYING, eventUi.getExtras().url, null, null);
 		}
 		else if (action.equals(UiEvent.UI_ACTION.PLAYBACK_STOPPED)) {
 			shouldPlayAnim=false;
-			updateUI(Constants.UI_STATE.IDLE, urlSelected, null, null);
+			updateUI(ActivityRxTest.UI_STATE.IDLE, urlSelected, null, null);
 		}
 		else if (action.equals(UiEvent.UI_ACTION.METADATA_UPDATED)) {
 			shouldPlayAnim=true;
-			updateUI(Constants.UI_STATE.PLAYING, urlSelected, eventUi.getExtras().artist, eventUi.getExtras().song);
+			updateUI(ActivityRxTest.UI_STATE.PLAYING, urlSelected, eventUi.getExtras().artist, eventUi.getExtras().song);
 		}
 		else if (action.equals(UiEvent.UI_ACTION.LOADING_STARTED)) {
 			shouldPlayAnim=false;
-			updateUI(Constants.UI_STATE.LOADING, eventUi.getExtras().url, null, null);
+			updateUI(ActivityRxTest.UI_STATE.LOADING, eventUi.getExtras().url, null, null);
 		}
 		else if (action.equals(UiEvent.UI_ACTION.STATION_SELECTED)) {
 			Log.i(TAG, "onStationSelected");
 			if(eventUi.getExtras().playerStatus==ServiceRadioRx.STATUS_PLAYING){
 				shouldPlayAnim=true;
-				updateUI(Constants.UI_STATE.PLAYING, eventUi.getExtras().url, eventUi.getExtras().artist, eventUi.getExtras().song);
+				updateUI(ActivityRxTest.UI_STATE.PLAYING, eventUi.getExtras().url, eventUi.getExtras().artist, eventUi.getExtras().song);
 			}else {
 				shouldPlayAnim=false;
-				updateUI(Constants.UI_STATE.LOADING,eventUi.getExtras().url, null, null);
+				updateUI(ActivityRxTest.UI_STATE.LOADING,eventUi.getExtras().url, null, null);
 			}
 		}
 	}

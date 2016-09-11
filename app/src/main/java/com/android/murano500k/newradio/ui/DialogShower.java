@@ -13,10 +13,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.murano500k.newradio.Constants;
 import com.android.murano500k.newradio.PlaylistManager;
 import com.android.murano500k.newradio.R;
 import com.android.murano500k.newradio.ServiceRadioRx;
+
+import org.greenrobot.eventbus.EventBus;
+
+import static com.android.murano500k.newradio.ServiceRadioRx.EXTRA_AUDIO_BUFFER_CAPACITY;
+import static com.android.murano500k.newradio.ServiceRadioRx.EXTRA_AUDIO_DECODE_CAPACITY;
 
 /**
  * Created by artem on 8/23/16.
@@ -52,21 +56,19 @@ public static final String TAG="DialogShower";
 					Log.d(TAG, "onBufferOptionClick sizeBuffer=" + sizeBuffer + " sizeDecode=" + sizeDecode);
 					Intent intent = new Intent(context, ServiceRadioRx.class);
 					intent.setAction(ServiceRadioRx.INTENT_SET_BUFFER_SIZE);
-					intent.putExtra(Constants.DATA_AUDIO_BUFFER_CAPACITY, sizeBuffer);
-					intent.putExtra(Constants.DATA_AUDIO_DECODE_CAPACITY, sizeDecode);
+					intent.putExtra(EXTRA_AUDIO_BUFFER_CAPACITY, sizeBuffer);
+					intent.putExtra(EXTRA_AUDIO_DECODE_CAPACITY, sizeDecode);
 					context.startService(intent);
 					if (dialogSetBufferSize != null && dialogSetBufferSize.isShowing())
 						dialogSetBufferSize.dismiss();
 				}
 			});
 
-			b2.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (dialogSetBufferSize != null && dialogSetBufferSize.isShowing()) {
-						Toast.makeText(context, "Set buffer size cancelled", Toast.LENGTH_SHORT).show();
-						dialogSetBufferSize.dismiss();
-					}
+			b2.setOnClickListener(view -> {
+				if (dialogSetBufferSize != null && dialogSetBufferSize.isShowing()) {
+					Toast.makeText(context, "Set buffer size cancelled", Toast.LENGTH_SHORT).show();
+					dialogSetBufferSize.dismiss();
+
 				}
 			});
 			dialogSetBufferSize = new AlertDialog.Builder(context)
@@ -80,8 +82,7 @@ public static final String TAG="DialogShower";
 
 
 	}
-	public void showCancelTimerDialog(MenuItem menuItem, Context context) {
-		sleepTimerMenuItem=menuItem;
+	public void showCancelTimerDialog(Context context) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		AlertDialog dialog = builder.setTitle("Cancel current timer?")
 				.setPositiveButton("OK",
@@ -93,16 +94,13 @@ public static final String TAG="DialogShower";
 									Intent intent = new Intent();
 									intent.setAction(ServiceRadioRx.INTENT_SLEEP_CANCEL);
 									PendingIntent pending = PendingIntent.getService(context, 0, intent, 0);
-									menuItem.setChecked(false);
 									try {
 										pending.send();
 									} catch (PendingIntent.CanceledException e) {
 										Log.d(TAG, "PendingIntent.CanceledException e: " + e.getMessage());
+										EventBus.getDefault().post(new SleepEvent(SleepEvent.SLEEP_ACTION.CANCEL, -1));
 										e.printStackTrace();
-										menuItem.setChecked(true);
 									}
-
-
 							}
 						}).setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
@@ -112,13 +110,11 @@ public static final String TAG="DialogShower";
 							}
 						}).create();
 		dialog.show();
-
 	}
 
 	public int selected;
 
-	public void showSetTimerDialog(MenuItem menuItem, Context context) {
-		sleepTimerMenuItem=menuItem;
+	public void showSetTimerDialog(Context context) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		final CharSequence[] array = {"1", "15", "30", "60", "90", "120", "240"};
 		AlertDialog dialog = builder.setTitle("Set sleep timer in minutes")
@@ -142,21 +138,19 @@ public static final String TAG="DialogShower";
 									Log.d(TAG, "secondsBeforeSleep putExtra : " + secondsBeforeSleep);
 									intent.putExtra(ServiceRadioRx.EXTRA_SLEEP_SECONDS, secondsBeforeSleep);
 									PendingIntent pending = PendingIntent.getService(context, 0, intent, 0);
-									sleepTimerMenuItem.setChecked(true);
 									try {
 										pending.send();
 									} catch (PendingIntent.CanceledException e) {
 										Log.d(TAG, "PendingIntent.CanceledException e: " + e.getMessage());
 										e.printStackTrace();
-										sleepTimerMenuItem.setChecked(false);
 									}
-
 							}
 						}).setNegativeButton("Cancel",
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog,
 							                    int whichButton) {
 								Log.d(TAG, "cancelled");
+								EventBus.getDefault().post(new SleepEvent(SleepEvent.SLEEP_ACTION.CANCEL, -1));
 							}
 						}).create();
 		dialog.show();

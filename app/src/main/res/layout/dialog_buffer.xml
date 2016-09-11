@@ -11,7 +11,7 @@ android:theme="@style/AppTheme" >
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left|center_horizontal"
         android:layout_margin="10dp">
 
         <LinearLayout
@@ -88,7 +88,8 @@ android:theme="@style/AppTheme" >
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_below="@+id/linearLayout"
-        android:layout_alignStart="@+id/linearLayout">
+        android:layout_alignStart="@+id/linearLayout"
+        android:layout_gravity="center_horizontal">
 
         <Button
             android:layout_width="wrap_content"
@@ -96,8 +97,7 @@ android:theme="@style/AppTheme" >
             android:text="OK"
             android:id="@+id/buttonOk"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            />
+            android:layout_gravity="left"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -105,7 +105,6 @@ android:theme="@style/AppTheme" >
             android:text="Cancel"
             android:id="@+id/buttonCancel"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
             />
     </LinearLayout>
 

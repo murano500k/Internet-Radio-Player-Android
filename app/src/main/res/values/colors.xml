@@ -6,8 +6,5 @@
     <color name="colorAccent">#17947f</color>
     <color name="colorText">#b7b4f1</color>
     <color name="colorTextAccent">#aeeee3</color>
-    <color name="colorErrorRed">#FF0000</color>
-    <color name="colorWhite">#FFFFFF</color>
-    <color name="colorBlue">#4CB1E3</color>
 
 </resources>
