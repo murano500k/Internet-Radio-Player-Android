@@ -2,7 +2,7 @@
 Android application for playing online audio streams. 
 </h4>
 <h3>
-<a href="https://app.box.com/s/z32stlza8ub4ek2180z68f98172duqhx"> Download apk version 2.5</a>
+<a href="https://app.box.com/s/ri2w2qtupmt2ydmugrlg4myqo7gm1ksd"> Download apk version 2.5</a>
 </h3>
 <img src="Screenshot_1.png" alt="app_screenshot1" height="480" width="270">
 <img src="Screenshot_2.png" alt="app_screenshot2" height="480" width="270">
