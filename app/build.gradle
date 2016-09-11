@@ -14,24 +14,31 @@ android {
         versionName "2.5"
         multiDexEnabled false
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
         jackOptions {
             enabled true
         }
-
     }
     lintOptions {
-        abortOnError false
+        abortOnError true
     }
-
     dexOptions {
         javaMaxHeapSize "4g"
-
-
     }
     buildTypes {
         debug {
             true
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+        flavor1 {
+        }
+        flavor2 {
+            proguardFile 'flavor2-rules.pro'
         }
     }
     compileOptions {

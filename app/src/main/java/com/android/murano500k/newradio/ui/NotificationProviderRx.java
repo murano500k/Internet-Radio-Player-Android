@@ -17,6 +17,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static com.android.murano500k.newradio.R.layout.notification;
 
 
 /**
@@ -45,7 +46,7 @@ public class NotificationProviderRx {
 	public void updateNotification(UiEvent.UI_ACTION action, PlayerStatus playerStatus){
 
 
-		RemoteViews mNotificationTemplate = new RemoteViews(serviceRadioRx.getApplicationContext().getPackageName(), R.layout.notification);
+		RemoteViews mNotificationTemplate = new RemoteViews(serviceRadioRx.getApplicationContext().getPackageName(), notification);
 		RemoteViews mExpandedView = new RemoteViews(serviceRadioRx.getApplicationContext().getPackageName(), R.layout.notification_expanded);
 		Notification.Builder notificationBuilder = new Notification.Builder(context);
 		if(playlistManager.getSelectedUrl()!=null) this.stationName = playlistManager.getNameFromUrl(playlistManager.getSelectedUrl());
@@ -85,31 +86,30 @@ public class NotificationProviderRx {
 			mExpandedView.setImageViewResource(R.id.notification_expanded_play, R.drawable.ic_play);
 		}
 		Notification notification = null;
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-			notification = notificationBuilder.setSmallIcon(R.mipmap.ic_launcher)
-					.setPriority(Notification.PRIORITY_HIGH)
-					.setDeleteIntent(getActivityPendingIntent(ActivityRxTest.INTENT_CLOSE_APP, 10))
-					.setColor(serviceRadioRx.getColor(R.color.colorPrimary))
-					.setContent(mNotificationTemplate)
-					.build();
-		}else {
-			notification = notificationBuilder.setSmallIcon(R.mipmap.ic_launcher)
-					.setPriority(Notification.PRIORITY_HIGH)
-					.setDeleteIntent(getActivityPendingIntent(ActivityRxTest.INTENT_CLOSE_APP, 10))
-					.setContent(mNotificationTemplate)
-					.build();
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			notificationBuilder = notificationBuilder
+					.setColor(serviceRadioRx.getColor(R.color.colorPrimary));
 		}
+			notification = notificationBuilder.setSmallIcon(R.mipmap.ic_launcher)
+					.setPriority(Notification.PRIORITY_HIGH)
+					.setDeleteIntent(getActivityPendingIntent(ActivityRxTest.INTENT_CLOSE_APP, 10))
+					.setContent(mNotificationTemplate)
+					.build();
+
 		notification.bigContentView = mExpandedView;
+
 		if(playerStatus==ServiceRadioRx.STATUS_WAITING_CONNECTIVITY){
-			notification.ledARGB = 0xFFff0000;
-			notification.flags = Notification.FLAG_SHOW_LIGHTS;
+			//notification.ledARGB = 0xFFff0000;
+			notification.ledARGB = 0xFF00FF7F;
+			notification.flags = Notification.FLAG_SHOW_LIGHTS/* | Notification.FLAG_FOREGROUND_SERVICE*/;
 			notification.ledOnMS = 100;
 			notification.ledOffMS = 100;
-		}else if(playerStatus!=ServiceRadioRx.STATUS_PLAYING && playerStatus!=ServiceRadioRx.STATUS_STOPPED){
-			notification.ledARGB = 0xFFff0000;
+		}else if(playerStatus!=ServiceRadioRx.STATUS_PLAYING &&
+				playerStatus!=ServiceRadioRx.STATUS_STOPPED){
+			notification.ledARGB = 0xFF00FF7F;
 			notification.flags = Notification.FLAG_SHOW_LIGHTS;
-			notification.ledOnMS = 1000;
-			notification.ledOffMS = 100;
+			notification.ledOnMS = 2000;
+			notification.ledOffMS = 50;
 		}
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}

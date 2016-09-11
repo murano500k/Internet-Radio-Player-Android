@@ -1,5 +1,7 @@
 package com.android.murano500k.newradio.ui;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.murano500k.newradio.PlaylistManager;
 import com.android.murano500k.newradio.R;
@@ -25,7 +28,9 @@ import java.util.ArrayList;
 
 import es.claucookie.miniequalizerlibrary.EqualizerView;
 
- class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder> {
+import static android.content.Context.CLIPBOARD_SERVICE;
+
+class ListAdapterRx extends RecyclerView.Adapter<ListAdapterRx.ViewHolder> {
 
 	public static final String TAG = "ListAdapter";
 	private ArrayList<String> mValues;
@@ -133,6 +138,24 @@ import es.claucookie.miniequalizerlibrary.EqualizerView;
 			holder.mView.setFav(!holder.mView.isFav());
 			playlistManager.setStationFavorite(holder.URL, holder.mView.isFav());
 		});
+		View.OnLongClickListener onTextLongClickListener = new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				String textToCopy=""
+						+ holder.mArtistView.getText().toString()
+						+ " "
+						+ holder.mSongView.getText().toString();
+				Toast.makeText(context, "'"+textToCopy+"' copied to clipboard",
+						Toast.LENGTH_SHORT).show();
+				ClipboardManager clipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
+				ClipData clip = ClipData.newPlainText(textToCopy, textToCopy);
+				clipboard.setPrimaryClip(clip);
+				return true;
+			}
+
+		};
+		holder.mArtistView.setOnLongClickListener(onTextLongClickListener);
+		holder.mSongView.setOnLongClickListener(onTextLongClickListener);
 	}
 
 	int getItemIndex(String url) {
