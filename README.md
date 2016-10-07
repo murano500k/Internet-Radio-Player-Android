@@ -2,7 +2,7 @@
 Android application for playing online audio streams. 
 </h4>
 <h3>
-<a href="https://app.box.com/s/6ng5vwvlk4m1vctk30c6dr1kiuq0gdzv"> Download apk version 2.5.1</a>
+<a href="https://play.google.com/store/apps/details?id=com.stc.radio.player"> Download from Google Play</a>
 </h3>
 <img src="Screenshot_1.png" alt="app_screenshot1" height="480" width="270">
 <img src="Screenshot_2.png" alt="app_screenshot2" height="480" width="270">
