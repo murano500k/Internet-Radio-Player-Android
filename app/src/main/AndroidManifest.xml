@@ -1,59 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.murano500k.newradio">
+          package="com.stc.radio.player">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS"/>
 
     <application
-        android:allowBackup="true"
+        android:name=".RadioApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:fullBackupContent="true">
+        android:theme="@style/AppTheme">
+        <!--
+        android:allowBackup="true"
+        android:fullBackupContent="true"
+        -->
+        <meta-data
+            android:name="AA_DB_NAME"
+            android:value="radio.db"/>
+        <meta-data
+            android:name="AA_DB_VERSION"
+            android:value="1"/>
+        <meta-data
+            android:name="AA_MODELS"
+            android:value="com.stc.radio.player.db.Station, com.stc.radio.player.db.Playlist, com.stc.radio.player.db.RadioSettings, com.stc.radio.player.db.NowPlaying"/>
 
         <service
             android:name=".ServiceRadioRx"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.android.murano500k.newradio.INTENT_USER_ACTION"/>
-                <action android:name="com.android.murano500k.newradio.INTENT_RESET"/>
-                <action android:name="com.android.murano500k.newradio.INTENT_SLEEP_SET"/>
-                <action android:name="com.android.murano500k.newradio.INTENT_SLEEP_CANCEL"/>
-                <action android:name="com.android.murano500k.newradio.INTENT_SET_BUFFER_SIZE"/>
+                <action android:name="com.stc.radio.player.INTENT_RESET"/>
+                <action android:name="com.stc.radio.player.INTENT_SLEEP_SET"/>
+                <action android:name="com.stc.radio.player.INTENT_SLEEP_CANCEL"/>
+                <action android:name="com.stc.radio.player.INTENT_SET_BUFFER_SIZE"/>
+
             </intent-filter>
         </service>
 
         <activity
-            android:name=".ui.ActivityRxTest"
-            android:launchMode="singleTop"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:name=".ui.MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <action android:name="com.android.murano500k.newradio.INTENT_OPEN_APP"/>
-                <action android:name="com.android.murano500k.newradio.INTENT_CLOSE_APP"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <intent-filter>
-                <action android:name="android.intent.action.GET_CONTENT"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <!-- no scheme is interpreted as both file and content -->
-                <data android:mimeType="audio/x-mpegurl"/>
-                <data android:mimeType="audio/mpeg-url"/>
-                <data android:mimeType="audio/mpegurl"/>
+                <action android:name="com.stc.radio.player.INTENT_USER_ACTION"/>
+                <action android:name="com.stc.radio.player.INTENT_OPEN_APP"/>
+                <action android:name="com.stc.radio.player.INTENT_CLOSE_APP"/>
             </intent-filter>
         </activity>
 

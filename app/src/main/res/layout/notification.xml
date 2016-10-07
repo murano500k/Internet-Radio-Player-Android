@@ -14,83 +14,113 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<LinearLayout android:id="@+id/notification_base"
-              xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:background="@color/colorSecondary"
+              android:layout_gravity="center_vertical"
               android:orientation="horizontal"
-
-              tools:ignore="ContentDescription">
+              android:weightSum="10"
+              android:background="@color/colorPrimary"
+              android:id="@+id/notification_base"
+              android:layout_height="96dp"
+                android:minHeight="96dp">
 
     <ImageView
-        android:id="@+id/notification_artimage"
-        android:layout_width="100dp"
-        android:layout_height="80dp"
-        android:layout_margin="5dp"
-        android:src="@drawable/default_art"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"/>
+        android:id="@+id/album_art"
+        android:scaleType="fitXY"
+        tools:src="@mipmap/ic_launcher"
+        android:layout_width="96dp"
+        android:layout_height="96dp"/>
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="5"
-        android:id="@+id/notification_buttons">
+        android:orientation="vertical"
+        >
 
-        <ImageButton
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:id="@+id/notification_prev"
-            android:src="@drawable/prev_selector"
-            android:elevation="20dp"
-            android:background="#00ffffff"
-            style="@style/NotificationAction.Play"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/extra_info"
+            tools:text="casting to MyCast"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            android:contentDescription="@string/currently_playing_extra_info"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorTextAccent"
+            android:textAllCaps="true"
+            android:textStyle="normal|bold"
+            android:layout_marginTop="4dp"/>
 
-        <ImageButton
-            android:id="@+id/notification_play"
-            style="@style/NotificationAction.Play"
-            android:src="@drawable/playpause_selector"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:elevation="20dp"
-            android:adjustViewBounds="false"
-            android:cropToPadding="true"
-            android:background="#00ffffff"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/title"
+            tools:text="The Best Music EVAH1111 THE BEST"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/currently_playing_song"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorPrimary"/>
+        <TextView
+            android:id="@+id/artist"
+            tools:text="John Doe and Band"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/currently_playing_artist"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="normal|italic"/>
 
-        <ImageButton
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:id="@+id/notification_next"
-            android:src="@drawable/next_selector"
-            style="@style/NotificationAction.Play"
-            android:elevation="20dp"
-            android:background="#00ffffff"
-            android:scaleType="fitCenter"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/notification_prev"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_notif_prev_new"
+                android:elevation="20dp"
+                android:background="#00ffffff"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"/>
+
+            <ImageButton
+                android:id="@+id/notification_play"
+                android:src="@drawable/ic_notif_play_new"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="20dp"
+                android:background="#00ffffff"
+                android:layout_gravity="center_vertical"
+                android:visibility="visible"
+                android:layout_weight="1"/>
+
+            <ImageButton
+                android:id="@+id/notification_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_notif_next_new"
+                android:elevation="20dp"
+                android:background="#00ffffff"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <!--
-    <com.wang.avi.AVLoadingIndicatorView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/notification_spinner"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:elevation="20dp"
-        android:visibility="gone"
-        app:indicator="Pacman"
-        app:indicator_color="@color/colorAccent"
 
-        android:padding="10dp"
-        android:background="#00ffffff"
-        android:layout_gravity="center_vertical"/>-->
+    <!--android:background="@color/colorPrimary"
+    android:tintMode="src_in"-->
+    <!-- android:tint="@color/colorAccent"
+     android:src="@drawable/ic_play_arrow_black_36dp"
+     android:background="?selectableItemBackgroundBorderless"-->
+
+
 
 </LinearLayout>

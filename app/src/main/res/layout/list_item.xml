@@ -1,158 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<com.android.murano500k.newradio.StationListItem
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/list_item"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:clickable="true"
+    android:background="@color/cardview_dark_background"
+    android:layout_marginBottom="5dp"
+    android:layout_marginEnd="5dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginTop="5dp"
     android:layout_height="wrap_content"
-    card_view:cardCornerRadius="5dp"
-    android:layout_marginLeft="10dp"
-    android:layout_marginRight="10dp"
-    android:layout_marginTop="10dp"
-    android:clipToPadding="false"
-    android:minHeight="50dp">
-    <LinearLayout
+    android:layout_centerVertical="false"
+    android:layout_centerHorizontal="false"
+    android:layout_centerInParent="false">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:clickable="false"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_checked"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentStart="false"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
+
+    <TextView
+        android:id="@+id/name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
+        android:textColor="@color/md_white_1000"
+        android:textSize="18sp"
+        android:hint="station name"
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorSecondary"
-            android:id="@+id/layout_main">
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:layout_marginStart="48dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_centerVertical="false"
-                android:layout_toStartOf="@+id/imgFav"
-                android:id="@+id/layout_select"
-                android:layout_alignParentLeft="false"
-                android:layout_alignBottom="@id/imgFav"
-                android:layout_alignParentTop="false">
-
-                <TextView
-                    android:id="@+id/item_index"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18dp"
-                    android:paddingLeft="5dp"
-                    android:layout_gravity="center_vertical"
-                    android:hint="n"/>
-
-
-                <TextView
-                    android:id="@+id/station_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="name"
-                    android:gravity="center_vertical"
-                    android:layout_centerVertical="true"
-                    android:textSize="@dimen/station_text_size"
-                    android:textAlignment="center"
-                    android:layout_gravity="center_vertical"
-                    android:padding="5dp"
-                    android:maxHeight="60dp"
-                    android:maxLines="2"
-                    android:minHeight="40dp"
-                    android:minLines="1"/>
-
-
-            </LinearLayout>
-
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/imgFav"
-                android:layout_alignParentEnd="false"
-                android:src="@drawable/ic_fav_disabled"
-                android:cropToPadding="false"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:visibility="gone"
-                android:padding="5dp"/>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/layout_extras"
-            android:background="@color/accent_material_light">
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hapticFeedbackEnabled="false"
-                android:id="@+id/statusLayout"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp">
-                <es.claucookie.miniequalizerlibrary.EqualizerView
-                    xmlns:custom="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/playbackAnim"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    custom:foregroundColor="@color/colorTextAccent"
-                    custom:animDuration="8000"
-                    custom:paddingEnd="5dp"
-                    custom:paddingStart="5dp"
-                    android:layout_margin="10dp"
-                    />
-            </FrameLayout>
-
-
-            <ImageView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:id="@+id/art"
-                android:src="@drawable/ic_checked"
-                android:layout_centerVertical="true"
-                android:visibility="visible"
-                android:layout_alignParentLeft="true"
-                android:layout_margin="5dp"
-                android:adjustViewBounds="true"
-                android:cropToPadding="true"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/artist"
-                android:visibility="visible"
-                android:textColor="@color/colorTextAccent"
-                android:layout_toLeftOf="@+id/statusLayout"
-                android:layout_alignParentLeft="false"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
-                android:textSize="14dp"
-                android:textStyle="italic"
-                android:textAlignment="center"
-                android:layout_toRightOf="@+id/art" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/song"
-                android:visibility="visible"
-                android:textColor="@color/colorTextAccent"
-                android:layout_toLeftOf="@+id/statusLayout"
-                android:layout_alignParentLeft="false"
-                android:layout_below="@+id/artist"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="20dp"
-                android:textSize="14dp"
-                android:textAlignment="center"
-                android:layout_toRightOf="@+id/art" />
-        </RelativeLayout>
-
-    </LinearLayout>
-
-</com.android.murano500k.newradio.StationListItem>
+</android.support.v7.widget.CardView>

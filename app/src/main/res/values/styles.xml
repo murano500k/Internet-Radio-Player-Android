@@ -1,7 +1,7 @@
 <resources>
 
 
-    <style name="AppTheme" parent="Theme.AppCompat">
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -11,6 +11,13 @@
         <item name="android:windowActionBar">false</item>
 
     </style>
-
+    <!-- <style name="AppTheme.PopupOverlay" parent="AppTheme">
+         <item name="windowActionModeOverlay">true</item>
+         <item name="colorPrimary">@color/colorPrimary</item>
+         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+         <item name="colorAccent">@color/colorAccent</item>
+         <item name="android:textColor">@color/colorText</item>
+         <item name="android:textColorHighlight">@color/colorTextAccent</item>
+     </style>-->
 
 </resources>

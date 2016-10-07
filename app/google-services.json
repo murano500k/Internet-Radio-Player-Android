@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "847008257196",
+    "firebase_url": "https://internet-radio-834d4.firebaseio.com",
+    "project_id": "internet-radio-834d4",
+    "storage_bucket": "internet-radio-834d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:847008257196:android:52efa1d24ad10316",
+        "android_client_info": {
+          "package_name": "com.stc.radio.player"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "847008257196-n303bmimduha13n5adlcjrg7pn9vg0j0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCp3vtO2uIfBN_3PmR35gDlJ42k3x-v5iE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
