@@ -85,9 +85,9 @@ public class PlaybackControlsFragment extends Fragment {
 	}
 	public static PlaybackControlsFragment newInstance(PlaybackControlsFragment oldF,String url) {
 		Bundle args = new Bundle();
-		if(oldF!=null && url.contains(oldF.getUrl()) && oldF.getArtBitmap()!=null) {
-			args.putParcelable(ARG_ART_BITMAP, oldF.getArtBitmap());
-		}
+		//if(oldF!=null && url.contains(oldF.getUrl()) && oldF.getArtBitmap()!=null) {
+		//	args.putParcelable("BitmapImage",oldF.getArtBitmap());
+		//}
 		PlaybackControlsFragment fragment = new PlaybackControlsFragment();
 		fragment.setArguments(args);
 		return fragment;
@@ -121,6 +121,8 @@ public class PlaybackControlsFragment extends Fragment {
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+		Timber.w("check");
+		if(!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
         rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
 
 		mPlayPause = (ImageButton) rootView.findViewById(R.id.play_pause);
@@ -132,8 +134,10 @@ public class PlaybackControlsFragment extends Fragment {
 	    mStation = (TextView) rootView.findViewById(R.id.extra_info);
         mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
 		art= getArguments().getParcelable(ARG_ART_BITMAP);
-		if(art!=null) mAlbumArt.setImageBitmap(art);
-		else bus.post(new RequestArt());
+		Timber.w("art %s", art);
+		//if(art!=null) mAlbumArt.setImageBitmap(art);
+		//else bus.post(new RequestArt());
+		bus.post(new RequestArt());
 	    rootView.setOnTouchListener(getOnSwipeListener(rootView));
 
 		updateStation(DbHelper.getCurrentStation().name, DbHelper.getCurrentStation().url);
@@ -153,9 +157,6 @@ public class PlaybackControlsFragment extends Fragment {
 			Timber.w("onLeftToRightSwipe");
 			updateButtons(MainActivity.UI_STATE.LOADING);
 			mListener.onControlsFragmentInteraction(-1);
-
-
-			//((ActivityRxTest) getActivity()).onPlayNextPrev(-1);
 		}
 
 		@Override
@@ -168,8 +169,6 @@ public class PlaybackControlsFragment extends Fragment {
 			Timber.w("onRightToLeftSwipe");
 			updateButtons(MainActivity.UI_STATE.LOADING);
 			mListener.onControlsFragmentInteraction(1);
-
-			//((ActivityRxTest) getActivity()).onPlayNextPrev(1);
 		}
 	};
 	}
@@ -178,20 +177,15 @@ public class PlaybackControlsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        Timber.d("fragment.onStart");
-	    if(!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
-
+	    Timber.w("check");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Timber.d("fragment.onStop");
-	    if(EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this);
+	    Timber.w("check");
 
     }
-
-
 	/*public void onMetadataChanged(Metadata metadata) {
         Timber.d("onMetadataChanged %s %s %s", metadata.getArtist(), metadata.getSong(), metadata.getUrl());
         if (getActivity() == null) {
@@ -249,62 +243,47 @@ public class PlaybackControlsFragment extends Fragment {
 		updateButtons(state);
 	}
 	public void updateMetadata(String currentArtist, String currentSong) {
-		artist = "";
-		if (currentArtist != null) artist = currentArtist;
+		if(currentArtist!=null) {
+			artist=currentArtist;
+			mArtist.setText(artist);
+		}
+		if(currentSong!=null) {
+			song=currentSong;
+			mSong.setText(song);
+		}
+	}
+	public void updateMetadata(Metadata metadata) {
+
+		if(metadata.getArtist()!=null) artist=metadata.getArtist();
+		else artist="";
 		mArtist.setText(artist);
-		song = "";
-		if (currentSong != null) song = currentSong;
+
+		if(metadata.getSong()!=null) song=metadata.getSong();
+		else song="";
 		mSong.setText(song);
-		DbHelper.setMetadata(new Metadata(artist,song, url));
 	}
 
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
+		Timber.w("check");
 		if (context instanceof PlaybackControlsFragment.OnControlsFragmentInteractionListener) {
 			mListener = (PlaybackControlsFragment.OnControlsFragmentInteractionListener) context;
 		} else {
 			throw new RuntimeException(context.toString()
 					+ " must implement OnListFragmentInteractionListener");
 		}
-
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		Timber.w("check");
+		if(EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this);
 		mListener = null;
 	}
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onMetadataChanged(Metadata metadata) {
-		assertNotNull(metadata);
-		Timber.d("onMetadataChanged %s, %s", metadata.getArtist(), metadata.getSong());
-		if (getActivity() == null) {
-			Timber.w("onPlaybackStateChanged called when getActivity null," +
-					"this should not happen if the callback was properly unregistered. Ignoring.");
-			return;
-		}
-		updateMetadata(metadata.getArtist(), metadata.getSong());
-	}
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void onUiStateChanged(UiEvent event) {
-		assertNotNull(event);
-		UiEvent.UI_ACTION action =event.getUiAction();
-		Timber.d("onUiStateChanged %s", action);
-		int uiState= MainActivity.UI_STATE.IDLE;
-		switch(action){
-			case PLAYBACK_STARTED:
-				updateButtons(MainActivity.UI_STATE.PLAYING);
-				break;
-			case PLAYBACK_STOPPED:
-				updateButtons(MainActivity.UI_STATE.IDLE);
-				break;
-			case LOADING_STARTED:
-				updateButtons(MainActivity.UI_STATE.LOADING);
-				return;
-		}
-	}
+
 
 
 	@Subscribe(threadMode = ThreadMode.MAIN)

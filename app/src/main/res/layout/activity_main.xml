@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/toolbar"
             android:layout_above="@+id/container_controls"
-            android:layout_marginTop="11dp"/>
+            android:layout_marginTop="9dp"/>
 
         <ProgressBar
             style="?android:attr/progressBarStyle"
@@ -41,8 +41,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/progress_splash"
             android:indeterminate="true"
-            android:layout_centerInParent="true"
-            android:visibility="gone"/>
+            android:layout_centerInParent="true"/>
 
         <FrameLayout
             android:id="@+id/container_controls"
@@ -58,7 +57,6 @@
     </RelativeLayout>
 
     <fragment android:id="@+id/navigation_drawer"
-              android:layout_marginTop="?attr/actionBarSize"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_gravity="start"

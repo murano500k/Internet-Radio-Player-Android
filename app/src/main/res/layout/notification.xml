@@ -23,96 +23,103 @@
               android:weightSum="10"
               android:background="@color/colorPrimary"
               android:id="@+id/notification_base"
-              android:layout_height="96dp"
-                android:minHeight="96dp">
+              android:minHeight="96dp"
+              android:layout_height="70dp">
 
     <ImageView
         android:id="@+id/album_art"
         android:scaleType="fitXY"
         tools:src="@mipmap/ic_launcher"
-        android:layout_width="96dp"
-        android:layout_height="96dp"/>
+        android:layout_width="70dp"
+        android:layout_height="70dp"/>
 
-    <LinearLayout
-        android:id="@+id/content"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
-
-        <TextView
-            android:id="@+id/extra_info"
-            tools:text="casting to MyCast"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="visible"
-            android:contentDescription="@string/currently_playing_extra_info"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/colorTextAccent"
-            android:textAllCaps="true"
-            android:textStyle="normal|bold"
-            android:layout_marginTop="4dp"/>
-
-        <TextView
-            android:id="@+id/title"
-            tools:text="The Best Music EVAH1111 THE BEST"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/currently_playing_song"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary"/>
-        <TextView
-            android:id="@+id/artist"
-            tools:text="John Doe and Band"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/currently_playing_artist"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="normal|italic"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:gravity="bottom">
 
             <ImageButton
                 android:id="@+id/notification_prev"
-                android:layout_height="wrap_content"
                 android:src="@drawable/ic_notif_prev_new"
-                android:elevation="20dp"
+                android:layout_height="match_parent"
                 android:background="#00ffffff"
-                android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:layout_width="wrap_content"/>
+                android:layout_width="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingTop="44dp"/>
 
             <ImageButton
                 android:id="@+id/notification_play"
                 android:src="@drawable/ic_notif_play_new"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="20dp"
+                android:layout_height="match_parent"
                 android:background="#00ffffff"
-                android:layout_gravity="center_vertical"
-                android:visibility="visible"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingTop="44dp"/>
 
             <ImageButton
                 android:id="@+id/notification_next"
+                android:src="@drawable/ic_notif_next_new"
+                android:layout_height="match_parent"
+                android:background="#00ffffff"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingTop="44dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_alignParentEnd="true">
+
+            <TextView
+                android:id="@+id/extra_info"
+                tools:text="casting to MyCast"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_notif_next_new"
-                android:elevation="20dp"
-                android:background="#00ffffff"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"/>
+                android:visibility="visible"
+                android:contentDescription="@string/currently_playing_extra_info"
+                android:textColor="@color/colorTextAccent"
+                android:textAllCaps="true"
+                android:textStyle="normal|bold"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/title"
+                tools:text="The Best Music EVAH1111 THE BEST"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/currently_playing_song"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textSize="12sp"/>
+            <TextView
+                android:id="@+id/artist"
+                tools:text="John Doe and Band"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/currently_playing_artist"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textStyle="normal|italic"
+                android:textSize="12sp"/>
+
         </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
 
 
     <!--android:background="@color/colorPrimary"

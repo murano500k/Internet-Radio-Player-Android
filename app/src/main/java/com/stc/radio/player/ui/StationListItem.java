@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 import com.mikepenz.fastadapter.IDraggable;
 import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter.utils.ViewHolderFactory;
@@ -136,6 +138,18 @@ public class StationListItem
 		viewHolder.name.setText(station.name);
 		viewHolder.name.setBackgroundColor(ctx.getResources().getColor(isSelected() ? R.color.colorAccent : R.color.cardview_dark_background));
 		viewHolder.name.setTextColor(ctx.getResources().getColor(isSelected() ? R.color.colorPrimary : R.color.md_white_1000));
+
+		viewHolder.favButton.setOnLikeListener(new OnLikeListener() {
+			@Override
+			public void liked(LikeButton likeButton) {
+
+			}
+
+			@Override
+			public void unLiked(LikeButton likeButton) {
+
+			}
+		});
 	}
 	@Override
 	public int getType() {
@@ -166,6 +180,8 @@ public class StationListItem
 		@BindView(R.id.icon)
 		ImageView icon;
 
+		@BindView(R.id.fav_button)
+		LikeButton favButton;
 
 
 

@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity
 			case PLAYBACK_STARTED:
 				progressBar.setIndeterminate(false);
 				uiState=UI_STATE.PLAYING;
+
 				break;
 			case PLAYBACK_STOPPED:
 				progressBar.setIndeterminate(false);
@@ -182,13 +183,30 @@ public class MainActivity extends AppCompatActivity
 				uiState=UI_STATE.LOADING;
 				break;
 		}
-		if(fragmentControls==null || !fragmentControls.getUrl().contains(event.getExtras().url))
+
+
+		if(fragmentControls==null || fragmentControls.getUrl()==null || !fragmentControls.getUrl().contains(event.getExtras().url))
 			initControlsFragment(
 					event.getExtras().url,
-					event.getExtras().artist,
-					event.getExtras().song,
+					null,
+					null,
 					uiState);
+		else {
+			DbHelper.setPlayerState(uiState);
+			DbHelper.setUrl(event.getExtras().url);
+			DbHelper.setMetadata(new Metadata(null,null,null));
+			fragmentControls.updateButtons(uiState);
+		}
 	}
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onMetadataChanged(Metadata metadata) {
+		assertNotNull(metadata);
+		Timber.d("onMetadataChanged %s, %s", metadata.getArtist(), metadata.getSong());
+		DbHelper.setMetadata(metadata);
+		if(fragmentControls==null) initControlsFragment(metadata.getUrl(), metadata.getArtist(),metadata.getSong(), UI_STATE.PLAYING);
+		else fragmentControls.updateMetadata(metadata);
+	}
+
 
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -208,7 +226,7 @@ public class MainActivity extends AppCompatActivity
 		toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		splashScreen = (ProgressBar) findViewById(R.id.progress_splash);
-		splashScreen.setVisibility(View.GONE);
+		if(splashScreen!=null) splashScreen.setVisibility(View.GONE);
 		connectivityManager=(ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 		bus.register(this);
 		ButterKnife.bind(this);
@@ -354,7 +372,8 @@ public class MainActivity extends AppCompatActivity
 		}
 		showToast("Loading started");
 		Timber.w("Loading started");
-		splashScreen.setVisibility(View.VISIBLE);
+		if(splashScreen==null) splashScreen= (ProgressBar) findViewById(R.id.progress_splash);
+		if(splashScreen!=null) splashScreen.setVisibility(View.VISIBLE);
 		mTitle=getTitle();
 		setTitle("LOADING...");
 	}
@@ -367,7 +386,8 @@ public class MainActivity extends AppCompatActivity
 		mTitle=DbHelper.getPlaylistName(DbHelper.getCurrentPlaylistId());
 		restoreActionBar();
 		updateUI();
-		splashScreen.setVisibility(View.GONE);
+		if(splashScreen==null) splashScreen= (ProgressBar) findViewById(R.id.progress_splash);
+		if(splashScreen!=null) splashScreen.setVisibility(View.GONE);
 	}
 
 	public void updateUI(){

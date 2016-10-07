@@ -741,6 +741,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	public void onArtRequested(RequestArt requestArt){
 		Timber.v("onArtRequested %s",currentArt!=null ? currentArt.toString() : "null");
 		if(currentArt!=null)bus.post(currentArt);
+		else updateArt();
 	}
 	@Subscribe()
 	public void onNewItemToPlay(StationListItem item){
