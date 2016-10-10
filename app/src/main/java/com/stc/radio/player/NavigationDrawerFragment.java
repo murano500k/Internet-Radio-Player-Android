@@ -1,4 +1,4 @@
-package com.stc.radio.player.ui;
+package com.stc.radio.player;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -16,9 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import com.stc.radio.player.R;
-import com.stc.radio.player.db.DbHelper;
 
 import timber.log.Timber;
 
@@ -50,7 +47,6 @@ public class NavigationDrawerFragment extends Fragment {
 	private View mFragmentContainerView;
 
 	private int mCurrentSelectedPosition = 0;
-	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 
 	public NavigationDrawerFragment() {
@@ -78,6 +74,7 @@ public class NavigationDrawerFragment extends Fragment {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				selectItem(position);
+				updateDrawerState(false);
 			}
 		});
 		mDrawerListView.setAdapter(new ArrayAdapter<String>(
@@ -93,7 +90,7 @@ public class NavigationDrawerFragment extends Fragment {
 				}));
 
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-		selectItem(mCurrentSelectedPosition);
+		//selectItem(mCurrentSelectedPosition);
 		return mDrawerListView;
 	}
 
@@ -154,9 +151,7 @@ public class NavigationDrawerFragment extends Fragment {
 
 		// If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
 		// per the navigation drawer design guidelines.
-		if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
-			mDrawerLayout.openDrawer(mFragmentContainerView);
-		}
+		//mDrawerLayout.isDrawerOpen()
 
 		// Defer code dependent on restoration of previous instance state.
 		mDrawerLayout.post(new Runnable() {
@@ -208,7 +203,6 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		DbHelper.setActivePlaylistId(DbHelper.getPlaylistId(mDrawerListView.getSelectedItemPosition()));
 	}
 
 	@Override

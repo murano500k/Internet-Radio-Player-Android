@@ -1,10 +1,12 @@
-package com.stc.radio.player;
+package com.stc.radio.player.utils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.KeyEvent;
+
+import com.stc.radio.player.ServiceRadioRx;
 
 public class MediaButtonsReceiver extends BroadcastReceiver {
 

@@ -10,7 +10,7 @@
     android:layout_height="wrap_content"
     app:layoutManager="LinearLayoutManager"
     tools:listitem="@layout/list_item"
-    tools:context="com.stc.radio.player.ui.MainActivity"
+    tools:context="com.stc.radio.player.MainActivity"
     android:fadingEdge="horizontal|vertical"
     android:fadingEdgeLength="30dp"
     android:theme="@style/AppTheme"

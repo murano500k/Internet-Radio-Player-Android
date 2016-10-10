@@ -1,5 +1,7 @@
 package com.stc.radio.player.ui;
 
+import com.stc.radio.player.PlaybackControlsFragment;
+
 public class ActivityRxTest
 		/*extends AppCompatActivity implements ItemAdapter.ItemFilterListener, ItemTouchCallback*/
 

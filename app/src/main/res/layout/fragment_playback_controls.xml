@@ -10,7 +10,7 @@
                 android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
                 android:id="@+id/fragment_playback_controls"
                 android:elevation="30dp"
-                tools:context="com.stc.radio.player.ui.MainActivity">
+                tools:context="com.stc.radio.player.MainActivity">
     <ImageView
         android:id="@+id/album_art"
         tools:src="@mipmap/ic_launcher"

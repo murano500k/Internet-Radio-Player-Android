@@ -1,4 +1,4 @@
-package com.stc.radio.player.ui;
+package com.stc.radio.player;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.activeandroid.ActiveAndroid;
-import com.activeandroid.query.Select;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.IItem;
@@ -22,24 +20,14 @@ import com.mikepenz.fastadapter.adapters.FastItemAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fastadapter_extensions.drag.ItemTouchCallback;
 import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
-import com.stc.radio.player.R;
-import com.stc.radio.player.db.DbHelper;
-import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
 
-import org.greenrobot.eventbus.Subscribe;
-
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import timber.log.Timber;
 
-import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * A fragment representing a list of Items.
@@ -53,7 +41,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	private static final String ARG_PLAYLIST_ID = "com.stc.radio.player.ui.ARG_PLAYLIST_ID";
 	private long playlistId;
 	private OnListFragmentInteractionListener mListener;
-	private FastItemAdapter fastItemAdapter;
+	private FastItemAdapter<StationListItem> fastItemAdapter;
 	private RecyclerView recyclerView;
 	private SimpleDragCallback touchCallback;
 	private ItemTouchHelper touchHelper;
@@ -65,24 +53,15 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	public ListFragment() {
 	}
 
-	public static ListFragment newInstance(long activePlaylistId) {
-		ListFragment fragment = new ListFragment();
-		Bundle args = new Bundle();
-		args.putLong(ARG_PLAYLIST_ID, activePlaylistId);
-		fragment.setArguments(args);
-		return fragment;
+	public static ListFragment newInstance() {
+		return new ListFragment();
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (getArguments() != null) {
-			playlistId = getArguments().getLong(ARG_PLAYLIST_ID);
-		} else {
-			
-		}
 	}
-	@Subscribe()
+	/*@Subscribe()
 	public void onPrevNext(int or) {
 		if(or>0){
 			Timber.d("onNext");
@@ -91,7 +70,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			Timber.d("onPrev");
 			selectPrevItem();
 		}
-	}
+	}*/
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
@@ -105,7 +84,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			recyclerView.setLayoutManager(new LinearLayoutManager(context));
 			recyclerView.setItemAnimator(new DefaultItemAnimator());
 			//final FastScrollIndicatorAdapter<StationListItem> fastScrollIndicatorAdapter = new FastScrollIndicatorAdapter<>();
-			fastItemAdapter=initFastAdapter(savedInstanceState, playlistId);
+			fastItemAdapter=initFastAdapter();
 
 			recyclerView.setAdapter(fastItemAdapter);
 			//DragScrollBar materialScrollBar = new DragScrollBar(context, recyclerView, true);
@@ -113,29 +92,28 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			touchCallback = new SimpleDragCallback(this);
 			touchHelper = new ItemTouchHelper(touchCallback);
 			touchHelper.attachToRecyclerView(recyclerView);
+			//EventBus.getDefault().post(fastItemAdapter);
 		}
 		return view;
 	}
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if (savedInstanceState != null) {
-			//Restore the fragment's state here
-		}
+
 	}
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		NowPlaying nowPlaying= DbHelper.getNowPlaying();
-		nowPlaying
-				.withUrl(getSelectedItem().station.url).save();
+
 
 	}
-	public void updateActivePlaylist() {
-
+	public FastItemAdapter<StationListItem> getAdapter() {
+		if(fastItemAdapter==null) fastItemAdapter=initFastAdapter();
+		assertNotNull(fastItemAdapter);
+		return fastItemAdapter;
 	}
 
-	private FastItemAdapter<StationListItem> initFastAdapter(Bundle savedInstanceState, long activePlaylistId){
+	private FastItemAdapter<StationListItem> initFastAdapter(){
 
 		fastItemAdapter = new FastItemAdapter<>();
 		fastItemAdapter.withSelectable(true);
@@ -149,7 +127,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			}
 		});
 		fastItemAdapter.getItemAdapter().withItemFilterListener(this);
-		Timber.w("PlaylistId = %d", activePlaylistId);
+		/*Timber.w("PlaylistId = %d", activePlaylistId);
 		List<Station> list = new Select()
 				.from(Station.class).where("PlaylistId = ?",activePlaylistId).execute();
 		assertNotNull(list);
@@ -157,7 +135,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		ActiveAndroid.beginTransaction();
 		try {
 			DbHelper.resetActiveStations();
-		for(Station s: list) {
+		*//*for(Station s: list) {
 			s.active=true;
 			StationListItem stationListItem = new StationListItem()
 					.withIdentifier(s.getId())
@@ -166,7 +144,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			s.position=fastItemAdapter.getAdapterPosition(stationListItem);
 			s.save();
 		}
-		if(savedInstanceState!=null) fastItemAdapter.withSavedInstanceState(savedInstanceState);
+		if(savedInstanceState!=null) fastItemAdapter.withSavedInstanceState(savedInstanceState);*//*
 
 		}catch (Exception e){
 			Timber.e(e);
@@ -174,7 +152,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		}
 		finally {
 			ActiveAndroid.endTransaction();
-		}
+		}*/
 		return fastItemAdapter;
 		/*if(getActionBar()!=null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -228,7 +206,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			return null;
 		}
 		Set list = fastItemAdapter.getSelectedItems();
-		if(list!=null)Timber.w("selected listsize=%d list:%s",list.size(), list.toString());
+		//if(list!=null)Timber.w("selected listsize=%d list:%s",list.size(), list.toString());
 		StationListItem item=null;
 		if(list!=null && !list.isEmpty()) item=(StationListItem)list.iterator().next();
 		if(item!=null)Timber.d("item=%s", item.station.name);
@@ -241,13 +219,21 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			Timber.v("item %s",item.station.name);
 			adapter.getFastAdapter().deselect();
 			adapter.getFastAdapter().select(position,false);
-
 			//fastItemAdapter.set(position, item.withSetSelected(true));
 			//fastItemAdapter.notifyAdapterItemChanged(position);
 			mListener.onListFragmentInteraction(item);
 			return true;
 		}
-	};
+	};/*
+	public void restoreState(int position){
+		if(position>-1 && fastItemAdapter!=null){
+			StationListItem item = getSelectedItem();
+			if(item !=null && fastItemAdapter.getAdapterPosition(item)!=position)
+				fastItemAdapter.deselect();
+			fastItemAdapter.select(position, false);
+			if(recyclerView!=null) recyclerView.smoothScrollToPosition(position);
+		}
+	}
 	public void selectNextItem() {
 		StationListItem item=null;
 		int pos=-1;
@@ -300,13 +286,25 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		if(getSelectedItem()!=null) DbHelper.setUrl(getSelectedItem().getStation().url);
 		if(recyclerView!=null) recyclerView.smoothScrollToPosition(pos);
 
-		/*if(oldSelection!=null) {
+		*//*if(oldSelection!=null) {
 			int oldpos=fastItemAdapter.getAdapterPosition(oldSelection);
 			if(oldpos>0) {
 				fastItemAdapter.set(oldpos, oldSelection);
 				fastItemAdapter.notifyAdapterItemChanged(oldpos);
 			}
-		}*/
+		}*//*
+	}*/
+
+
+	public void updateSelection(Station station) {
+		if(station!=null && fastItemAdapter!=null){
+			StationListItem item = getSelectedItem();
+			if(item !=null && item.station.position!=station.position) {
+				fastItemAdapter.deselect();
+				fastItemAdapter.select(station.position, false);
+			}
+			if(recyclerView!=null) recyclerView.smoothScrollToPosition(station.position);
+		}
 	}
 
 	public interface OnListFragmentInteractionListener {

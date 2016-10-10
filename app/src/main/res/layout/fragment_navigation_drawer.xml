@@ -6,7 +6,7 @@
           android:divider="@android:color/black"
           android:dividerHeight="1dp"
           android:background="@color/colorPrimary"
-          tools:context="com.stc.radio.player.ui.NavigationDrawerFragment" />
+          tools:context="com.stc.radio.player.NavigationDrawerFragment" />
 
 
 <!--android:id="@+id/fragment_naivgation_drawer"-->

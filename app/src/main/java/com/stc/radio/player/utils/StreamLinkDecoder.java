@@ -1,4 +1,4 @@
-package com.stc.radio.player;
+package com.stc.radio.player.utils;
 
 import android.os.AsyncTask;
 

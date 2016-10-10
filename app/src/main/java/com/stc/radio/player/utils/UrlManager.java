@@ -1,4 +1,4 @@
-package com.stc.radio.player;
+package com.stc.radio.player.utils;
 
 /**
  * Created by artem on 9/9/16.

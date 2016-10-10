@@ -61,7 +61,7 @@
         android:paddingBottom="150dp"
         android:layout_above="@+id/fragment_playback_controls"/>
 
-    <fragment android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
+    <fragment android:name="com.stc.radio.player.PlaybackControlsFragment"
               android:id="@+id/fragment_playback_controls"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"

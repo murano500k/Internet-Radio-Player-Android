@@ -23,18 +23,24 @@ public class Station extends Model {
 	public int position;
 
 
-	@Column(name = "Art")
-	public int art;
+	@Column(name = "ArtUrl")
+	public String artUrl;
+	@Column(name = "ArtPath")
+	public String artPath;
 
+	public boolean equals(Station station){
+		if(station==null) return false;
+		return (station.getId()==this.getId());
+	}
 
-	public Station(String url, String name, long playlistId) {
+	public Station(String url, String name, long playlistId, String artUrl) {
 		this.url = url;
 		this.name = name;
 		this.playlistId = playlistId;
 		this.active = false;
 		this.favorite = false;
 		this.position = -1;
-
+		this.artUrl = artUrl;
 	}
 
 
