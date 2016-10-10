@@ -1,6 +1,7 @@
 package com.stc.radio.player.ui;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,6 +28,7 @@ import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Collections;
@@ -113,6 +115,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			touchCallback = new SimpleDragCallback(this);
 			touchHelper = new ItemTouchHelper(touchCallback);
 			touchHelper.attachToRecyclerView(recyclerView);
+			EventBus.getDefault().post(fastItemAdapter);
 		}
 		return view;
 	}
@@ -127,8 +130,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		NowPlaying nowPlaying= DbHelper.getNowPlaying();
-		nowPlaying
-				.withUrl(getSelectedItem().station.url).save();
+		nowPlaying.withUrl(getSelectedItem().station.url).save();
 
 	}
 	public void updateActivePlaylist() {
@@ -157,7 +159,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		ActiveAndroid.beginTransaction();
 		try {
 			DbHelper.resetActiveStations();
-		for(Station s: list) {
+		/*for(Station s: list) {
 			s.active=true;
 			StationListItem stationListItem = new StationListItem()
 					.withIdentifier(s.getId())
@@ -166,7 +168,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			s.position=fastItemAdapter.getAdapterPosition(stationListItem);
 			s.save();
 		}
-		if(savedInstanceState!=null) fastItemAdapter.withSavedInstanceState(savedInstanceState);
+		if(savedInstanceState!=null) fastItemAdapter.withSavedInstanceState(savedInstanceState);*/
 
 		}catch (Exception e){
 			Timber.e(e);
@@ -228,7 +230,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			return null;
 		}
 		Set list = fastItemAdapter.getSelectedItems();
-		if(list!=null)Timber.w("selected listsize=%d list:%s",list.size(), list.toString());
+		//if(list!=null)Timber.w("selected listsize=%d list:%s",list.size(), list.toString());
 		StationListItem item=null;
 		if(list!=null && !list.isEmpty()) item=(StationListItem)list.iterator().next();
 		if(item!=null)Timber.d("item=%s", item.station.name);
@@ -241,13 +243,21 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			Timber.v("item %s",item.station.name);
 			adapter.getFastAdapter().deselect();
 			adapter.getFastAdapter().select(position,false);
-
 			//fastItemAdapter.set(position, item.withSetSelected(true));
 			//fastItemAdapter.notifyAdapterItemChanged(position);
 			mListener.onListFragmentInteraction(item);
 			return true;
 		}
 	};
+	public void restoreState(int position){
+		if(position>-1 && fastItemAdapter!=null){
+			StationListItem item = getSelectedItem();
+			if(item !=null && fastItemAdapter.getAdapterPosition(item)!=position)
+				fastItemAdapter.deselect();
+			fastItemAdapter.select(position, false);
+			if(recyclerView!=null) recyclerView.smoothScrollToPosition(position);
+		}
+	}
 	public void selectNextItem() {
 		StationListItem item=null;
 		int pos=-1;
@@ -307,6 +317,14 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 				fastItemAdapter.notifyAdapterItemChanged(oldpos);
 			}
 		}*/
+	}
+
+	public void onImageLoaded(Station s, Bitmap bitmap) {
+		StationListItem stationListItem=new StationListItem().withStation(s).withIdentifier(s.getId()).withFavorite(s.favorite).withIcon(bitmap);
+		fastItemAdapter.add(stationListItem);
+		stationListItem.station.active=true;
+		stationListItem.station.position=fastItemAdapter.getGlobalPosition(fastItemAdapter.getAdapterPosition(stationListItem));
+		fastItemAdapter.notifyAdapterItemInserted(stationListItem.station.position);
 	}
 
 	public interface OnListFragmentInteractionListener {

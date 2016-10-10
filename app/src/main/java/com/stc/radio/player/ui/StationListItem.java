@@ -1,8 +1,7 @@
 package com.stc.radio.player.ui;
 
 import android.content.Context;
-import android.net.Uri;
-import android.support.annotation.DrawableRes;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,9 +13,7 @@ import com.mikepenz.fastadapter.IDraggable;
 import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter.utils.ViewHolderFactory;
 import com.stc.radio.player.R;
-import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.Station;
-import com.stc.radio.player.utils.PabloPicasso;
 
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class StationListItem
 	private boolean mExpanded = false;
 	private boolean mIsDraggable = true;
 	private boolean mFavorite = false;
-	private int mIconRes;
+	private Bitmap mIconBitmap;
 
 
 	public boolean isAnimated() {
@@ -55,8 +52,8 @@ public class StationListItem
 		return this;
 	}
 
-	public StationListItem withIconRes(@DrawableRes int iconRes) {
-		this.mIconRes=iconRes;
+	public StationListItem withIcon(Bitmap b) {
+		this.mIconBitmap=b;
 		return this;
 	}
 
@@ -125,7 +122,7 @@ public class StationListItem
 		}
 		//get the context*/
 		assertNotNull(this.station);
-		String artUrl = DbHelper.getArtUrl(station.url);
+		/*String artUrl = DbHelper.getArtUrl(station.url);
 		//Timber.w("station %s artUrl=%s", station.name, artUrl);
 		PabloPicasso.with(ctx).load(Uri.parse(artUrl))
 				.placeholder(R.drawable.ic_default_art)
@@ -133,7 +130,7 @@ public class StationListItem
 				//.resizeDimen(R.dimen.list_item_art_size, R.dimen.list_item_art_size)
 				.fit()
 				.tag(ctx)
-				.into(viewHolder.icon);
+				.into(viewHolder.icon);*/
 
 		viewHolder.name.setText(station.name);
 		viewHolder.name.setBackgroundColor(ctx.getResources().getColor(isSelected() ? R.color.colorAccent : R.color.cardview_dark_background));
@@ -150,6 +147,7 @@ public class StationListItem
 
 			}
 		});
+		if(mIconBitmap!=null) viewHolder.icon.setImageBitmap(mIconBitmap);
 	}
 	@Override
 	public int getType() {

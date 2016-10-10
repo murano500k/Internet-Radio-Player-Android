@@ -7,12 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
@@ -23,8 +19,6 @@ import android.widget.Toast;
 import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
 import com.spoledge.aacdecoder.MultiPlayer;
 import com.spoledge.aacdecoder.PlayerCallback;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.Station;
 import com.stc.radio.player.ui.BufferUpdate;
@@ -34,7 +28,6 @@ import com.stc.radio.player.ui.NotificationProviderRx;
 import com.stc.radio.player.ui.SleepEvent;
 import com.stc.radio.player.ui.StationListItem;
 import com.stc.radio.player.ui.UiEvent;
-import com.stc.radio.player.utils.PabloPicasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -49,8 +42,9 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-import static com.activeandroid.Cache.getContext;
+import static com.stc.radio.player.db.DbHelper.getNowPlaying;
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
 
 
 public class ServiceRadioRx extends Service implements PlayerCallback{
@@ -116,19 +110,28 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	private List<StationListItem> listStations;
 
 	public String getCurrentUrl() {
+		String currentUrl=DbHelper.getNowPlaying().getUrl();
 		if(currentUrl!=null) return currentUrl;
-		Timber.w("currentUrl is null");
-		return "";
+		Timber.e("currentUrl is null");
+		return null;
 	}
 
-	public String updateCurrentUrl(String currentUrl) {
-		if(this.currentUrl!=null && !this.currentUrl.contains(currentUrl)) currentArt=null;
-		String lastUrl="";
-		if(this.currentUrl!=null) lastUrl=this.currentUrl;
-		this.currentUrl = currentUrl;
-		Timber.v("%s -> %s",lastUrl, currentUrl);
-		//if(!lastUrl.contains(currentUrl)) bus.post(new UiEvent(UiEvent.UI_ACTION.STATION_SELECTED, playerStatus, currentUrl));
-		return lastUrl;
+	public boolean updateCurrentUrl(String newUrl) {
+		String lastUrl=DbHelper.getNowPlaying().getUrl();
+		if(newUrl!=null) {
+			if(lastUrl==null) lastUrl ="";
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.LOADING).withArtist(null).withSong(null).save();
+			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, newUrl));
+			Timber.v("%s -> %s",lastUrl, newUrl);
+			if(lastUrl.contains(newUrl)) return false;
+			else return true;
+		} else {
+			fail("asked to play null");
+			Timber.e("updateCurrentUrl newUrl =null");
+			DbHelper.setUrl(null);
+			newUrl="";
+		}
+		return false;
 	}
 
 	public boolean isPlaying() {
@@ -153,6 +156,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		playerStatus=STATUS_STOPPED;
 		if(!bus.isRegistered(notificationProviderRx)) bus.register(notificationProviderRx);
 		if(!bus.isRegistered(this)) bus.register(this);
+		DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 		return mLocalBinder;
 	}
 
@@ -172,6 +176,8 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 			if(playerStatus!=STATUS_WAITING_CONNECTIVITY) abandonFocus();
 			else dontlistenConnectivity();
 			playerStatus=STATUS_STOPPED;
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
+
 			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus));
 			getPlayer().stop();
 		}
@@ -213,6 +219,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				DbHelper.setDecodeSize(intent.getIntExtra(EXTRA_AUDIO_DECODE_CAPACITY, 400));
 				if(playerStatus!=STATUS_STOPPED) {
 					playerStatus=STATUS_LOADING;
+					DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.LOADING).withArtist(null).withSong(null).save();
 					bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
 					getPlayer().stop();
 				}
@@ -244,8 +251,10 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 	private void playPrevNextPressed(int or) {
 		Timber.v("play %s", or>0 ? "Next":"Prev");
-		List<Station> list=DbHelper.getPlaylistStations(DbHelper.getNowPlaying().activePlaylistId);
-		int oldPos = DbHelper.getCurrentPosition();
+		List<Station> list=DbHelper.getPlaylistStations(getNowPlaying().activePlaylistId);
+		int oldPos = DbHelper.getActivePosition();
+		if(oldPos<0)Timber.e("selected old %d", oldPos);
+		else Timber.v("selected old %d", oldPos);
 		if(or>0) {
 			if (DbHelper.isShuffle()) {
 				playUrlPressed(list.get(new Random().nextInt(list.size() - 1)).url);
@@ -254,58 +263,79 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				while (iterator.hasNext()) {
 					Station station = iterator.next();
 					if (station.position == oldPos) {
+						//DbHelper.setUrl(station.url)
 						playUrlPressed(iterator.hasNext() ? iterator.next().url : station.url);
-						break;
+						return;
 					}
 				}
 			}
 		}else {
-
-
-
+			Station prevStation=null;
+			Iterator<Station> iterator = list.iterator();
+			if(iterator.hasNext()) {
+				prevStation = iterator.next();
+				while (iterator.hasNext()) {
+					Station station=iterator.next();
+					if (station.position == oldPos) {
+						playUrlPressed(prevStation.url);
+						return;
+					}
+					prevStation=station;
+			}
+				if(prevStation!=null)playUrlPressed(prevStation.url);
+				else Timber.e("PREVSTATION ERROR");
+			}
 		}
 	}
 
 
 	private void playPausePressed() {
 		Log.w("playPausePressed", ""+playerStatus);
-		if(playerStatus==STATUS_STOPPED){
-			playerStatus=STATUS_LOADING;
-			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
+		Timber.w("url %s", getCurrentUrl());
+		PlayerStatus lastStatus=playerStatus;
+		playerStatus = STATUS_LOADING;
+		DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.LOADING).withArtist(null).withSong(null).save();
+		bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
+		if(lastStatus==STATUS_STOPPED){
 			if(requestFocus()) tryToPlayAsync(getCurrentUrl());
 			else {
 				playerStatus=STATUS_STOPPED;
+				DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 				bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
 			}
 		}
-		else if(playerStatus==STATUS_WAITING_CONNECTIVITY) {
+		else if(lastStatus==STATUS_WAITING_CONNECTIVITY) {
 			playerStatus=STATUS_STOPPED;
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 			dontlistenConnectivity();
 			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
 		}
-		else if(playerStatus==STATUS_WAITING_UNMUTE) {
+		else if(lastStatus==STATUS_WAITING_UNMUTE) {
 			Log.e(TAG, "STATUS_WAITING_UNMUTE playPausePressed");
 			showToast("STATUS_WAITING_UNMUTE");
+			playerStatus=STATUS_STOPPED;
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
+			getPlayer().stop();
 		}
-		else if(playerStatus==STATUS_SWITCHING) {
+		else if(lastStatus==STATUS_SWITCHING) {
 			Log.e(TAG, "STATUS_SWITCHING playPausePressed");
 			playerStatus=STATUS_STOPPED;
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
 			getPlayer().stop();
 		}
-		else if(playerStatus==STATUS_WAITING_FOCUS) {
+		else if(lastStatus==STATUS_WAITING_FOCUS) {
 			playerStatus=STATUS_STOPPED;
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 			abandonFocus();
 			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
-		} else if(playerStatus==STATUS_LOADING){
+		} else if(lastStatus==STATUS_LOADING){
 			Log.e(TAG, "STATUS_LOADING playPausePressed");
 			playerStatus=STATUS_STOPPED;
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
 			getPlayer().stop();
-
-		} else if(playerStatus==STATUS_PLAYING){
-			playerStatus=STATUS_LOADING;
-			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
+		} else if(lastStatus==STATUS_PLAYING){
 			getPlayer().stop();
 		}
 	}
@@ -313,55 +343,50 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	private void playUrlPressed(String url) {
 		Log.w("playUrlPressed", ""+playerStatus);
 		Timber.w("url %s", url);
-		if(playerStatus==STATUS_WAITING_UNMUTE) {
-			Log.e(TAG, "STATUS_WAITING_UNMUTE playPausePressed");
-			showToast("STATUS_WAITING_UNMUTE");
-		} if(playerStatus==STATUS_STOPPED){
-			playerStatus=STATUS_LOADING;
+		PlayerStatus lastStatus=playerStatus;
+		playerStatus = STATUS_LOADING;
+		DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.LOADING).withArtist(null).withSong(null).save();
+		boolean urlChanged=updateCurrentUrl(url);
+		if(urlChanged) {
 			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
-			updateCurrentUrl(url);
-			updateArt();
+		}
+		if(lastStatus==STATUS_WAITING_UNMUTE) {
+			Log.e(TAG, "STATUS_WAITING_UNMUTE playUrlPressed");
+			showToast("STATUS_WAITING_UNMUTE");
+			playerStatus = lastStatus;
+		} if(lastStatus==STATUS_STOPPED){
 			if(requestFocus()) tryToPlayAsync(getCurrentUrl());
 			else {
 				playerStatus=STATUS_STOPPED;
+				DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 				bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED,
 						playerStatus, getCurrentUrl()));
 			}
 		}
-		else if(playerStatus==STATUS_WAITING_CONNECTIVITY) {
-			playerStatus=STATUS_STOPPED;
+		else if(lastStatus==STATUS_WAITING_CONNECTIVITY) {
 			dontlistenConnectivity();
-			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
-			playerStatus=STATUS_LOADING;
-			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
-			updateCurrentUrl(url);
-			updateArt();
 			if(requestFocus()) tryToPlayAsync(getCurrentUrl());
 			else {
 				playerStatus=STATUS_STOPPED;
+				DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 				bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
 			}
 		}
-		else if(playerStatus==STATUS_WAITING_FOCUS) {
-			playerStatus=STATUS_LOADING;
-			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
-			updateCurrentUrl(url);
-			updateArt();
+		else if(lastStatus==STATUS_WAITING_FOCUS) {
 			if(requestFocus()) tryToPlayAsync(getCurrentUrl());
 			else {
 				playerStatus=STATUS_STOPPED;
+				DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 				bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
 			}
-		}else if(playerStatus==STATUS_LOADING || playerStatus==STATUS_SWITCHING){
-			showToast("player is loading, wait");
-		}else if(playerStatus==STATUS_PLAYING){
-			if(!updateCurrentUrl(url).contains(url)) {
+		}else if(lastStatus==STATUS_LOADING || lastStatus==STATUS_SWITCHING){
+			showToast("player is loading");
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
+			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
+			getPlayer().stop();
+		}else if(lastStatus==STATUS_PLAYING){
 				playerStatus = STATUS_SWITCHING;
-				bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
-				updateArt();
-				//bus.post(new UiEvent(UiEvent.UI_ACTION.STATION_SELECTED, playerStatus, getCurrentUrl()));
 				getPlayer().stop();
-			}
 		}
 	}
 
@@ -380,6 +405,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 						if(requestFocus()) tryToPlayAsync(getCurrentUrl());
 						else {
 							playerStatus=STATUS_STOPPED;
+							DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 							bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED,playerStatus,getCurrentUrl()));
 						}
 					}
@@ -436,14 +462,14 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 	@Override
 	public void playerException(Throwable throwable) {
-		Log.w(TAG, "callback playerException: "+ throwable.getMessage());
+		Timber.w("TEST callback playerException: "+ throwable.getMessage());
 	}
 	@Override
 	public void playerStarted() {
-		Log.w(TAG, "callback playerStarted "+ playerStatus);
+		Timber.w("TEST callback playerStarted ");
 		if(playerStatus==STATUS_WAITING_CONNECTIVITY) dontlistenConnectivity();
 		playerStatus=STATUS_PLAYING;
-		DbHelper.setPlayerState(MainActivity.UI_STATE.PLAYING);
+		DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.PLAYING).withUrl(getCurrentUrl()).save();
 		bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STARTED, playerStatus, getCurrentUrl()));
 		if(loadingFailedListener != null && !loadingFailedListener.isUnsubscribed()) loadingFailedListener.unsubscribe();
 	}
@@ -451,18 +477,20 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 	@Override
 	public void playerStopped(int i) {
-		Log.w(TAG, "callback playerStopped "+ i+"% "+ playerStatus);
+		Timber.w("TEST callback playerStopped %d%", i);
 		if(playerStatus==STATUS_SWITCHING) tryToPlayAsync(getCurrentUrl());
 		else if(playerStatus==STATUS_PLAYING){
 			playerStatus=STATUS_WAITING_CONNECTIVITY;
-			DbHelper.setPlayerState(MainActivity.UI_STATE.LOADING);
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.LOADING).withArtist(null).withSong(null).save();
 			bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED, playerStatus, getCurrentUrl()));
 			abandonFocus();
 			listenConnectivity(getCurrentUrl());
 		} else if(playerStatus!=STATUS_WAITING_FOCUS &&
 				playerStatus!=STATUS_WAITING_CONNECTIVITY){
 			playerStatus=STATUS_STOPPED;
-			DbHelper.setPlayerState(MainActivity.UI_STATE.IDLE);
+
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
+
 			bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED, playerStatus, getCurrentUrl()));
 			abandonFocus();
 		}
@@ -487,9 +515,9 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
         });
     }*/
 	@Override
-	public void playerPCMFeedBuffer(boolean intermediate, int audioBufferSizeMs, int audioBufferCapacityMs) {
+	public void playerPCMFeedBuffer(boolean intermediate, int audioBufferSizeMs, int audioBufferCapacityMs){
+		DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.PLAYING).withUrl(getCurrentUrl()).save();
 		bus.post(new BufferUpdate(audioBufferSizeMs, audioBufferCapacityMs, intermediate));
-
 	}
 
 	@Override
@@ -505,7 +533,10 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 			//Timber.v("1artist %s",a);
 			//Timber.v("2track %s",s);
-			bus.post(new Metadata(a, s, getCurrentUrl()));
+			Metadata m=new Metadata(a, s, getCurrentUrl());
+			DbHelper.setMetadata(m);
+			DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.PLAYING).withUrl(getCurrentUrl()).save();
+			bus.post(m);
 		}
 	}
 
@@ -655,10 +686,12 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 					}else if(playerStatus==STATUS_WAITING_FOCUS){
 						playerStatus=STATUS_LOADING;
+						DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.LOADING).withArtist(null).withSong(null).save();
 						bus.post(new UiEvent(UiEvent.UI_ACTION.LOADING_STARTED,playerStatus, getCurrentUrl()));
 						if(requestFocus()) tryToPlayAsync(getCurrentUrl());
 						else {
 							playerStatus=STATUS_STOPPED;
+							DbHelper.getNowPlaying().withUiState(MainActivity.UI_STATE.IDLE).withArtist(null).withSong(null).save();
 							bus.post(new UiEvent(UiEvent.UI_ACTION.PLAYBACK_STOPPED,playerStatus, getCurrentUrl()));
 						}
 					}
@@ -740,13 +773,14 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	@Subscribe()
 	public void onArtRequested(RequestArt requestArt){
 		Timber.v("onArtRequested %s",currentArt!=null ? currentArt.toString() : "null");
-		if(currentArt!=null)bus.post(currentArt);
-		else updateArt();
+		//if(currentArt!=null)bus.post(currentArt);
+		//else updateArt();
 	}
 	@Subscribe()
 	public void onNewItemToPlay(StationListItem item){
 		assertTrue(item!=null);
 		Timber.v("item %s", item.station.name);
+		updateCurrentUrl(item.station.url);
 		playUrlPressed(item.station.url);
 	}
 	@Subscribe()
@@ -754,6 +788,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		Timber.v("onPlayPause %d", i);
 		if(i==0) playPausePressed();
 	}
+/*
 
 	public void updateArt() {
 		if (currentArt != null) bus.post(currentArt);
@@ -782,28 +817,9 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 					});
 		}else Timber.e("NO URL");
 	}
+*/
 
-	public static Bitmap drawableToBitmap (Drawable drawable) {
-		Bitmap bitmap = null;
 
-		if (drawable instanceof BitmapDrawable) {
-			BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-			if(bitmapDrawable.getBitmap() != null) {
-				return bitmapDrawable.getBitmap();
-			}
-		}
-
-		if(drawable.getIntrinsicWidth() <= 0 || drawable.getIntrinsicHeight() <= 0) {
-			bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888); // Single color bitmap will be created of 1x1 pixel
-		} else {
-			bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-		}
-
-		Canvas canvas = new Canvas(bitmap);
-		drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-		drawable.draw(canvas);
-		return bitmap;
-	}
 
 }
 

@@ -50,7 +50,6 @@ public class NavigationDrawerFragment extends Fragment {
 	private View mFragmentContainerView;
 
 	private int mCurrentSelectedPosition = 0;
-	private boolean mFromSavedInstanceState;
 	private boolean mUserLearnedDrawer;
 
 	public NavigationDrawerFragment() {
@@ -154,9 +153,7 @@ public class NavigationDrawerFragment extends Fragment {
 
 		// If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
 		// per the navigation drawer design guidelines.
-		if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
-			mDrawerLayout.openDrawer(mFragmentContainerView);
-		}
+		//mDrawerLayout.isDrawerOpen()
 
 		// Defer code dependent on restoration of previous instance state.
 		mDrawerLayout.post(new Runnable() {

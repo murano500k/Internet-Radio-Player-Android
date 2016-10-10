@@ -6,15 +6,19 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.widget.RemoteViews;
 
 import com.stc.radio.player.R;
 import com.stc.radio.player.ServiceRadioRx;
 import com.stc.radio.player.db.DbHelper;
+import com.stc.radio.player.db.Station;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.File;
 
 import timber.log.Timber;
 
@@ -22,6 +26,7 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static com.stc.radio.player.ui.MainActivity.INTENT_CLOSE_APP;
 import static com.stc.radio.player.ui.MainActivity.INTENT_OPEN_APP;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 
 public class NotificationProviderRx {
 	public static final String TAG = "NotificationProvider";
@@ -39,10 +44,39 @@ public class NotificationProviderRx {
         this.context = context;
         mNotificationManager= (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         this.serviceRadioRx=serviceRadioRx;
-	    EventBus.getDefault().register(this);
+	   //if(Evemnt) EventBus.getDefault().register(this);
     }
 	private Notification getNotification(){
 		stationName="";
+		artist=DbHelper.getNowPlaying().artist;
+		song=DbHelper.getNowPlaying().song;
+		if(DbHelper.getNowPlaying().getUiState()== MainActivity.UI_STATE.LOADING) {
+			artist="loading...";
+			song="";
+		}
+		else if (DbHelper.getNowPlaying().getUiState()== MainActivity.UI_STATE.IDLE) {
+			artist="";
+			song="";
+		} else {
+			if(artist==null) artist="";
+			if(song==null) song="";
+		}
+
+		if(DbHelper.getNowPlaying().getUrl()!=null) {
+			Station s = DbHelper.getActiveStation();
+			assertNotNull(s);
+			Timber.w("url=%s",s.url);
+			stationName = s.name;
+			File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath()
+					+ "/" + s.artPath);
+			if (file.exists()) {
+				BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+				art = BitmapFactory.decodeFile(file.getPath(), bmOptions);
+			} else {
+				fail();
+			}
+		}
+
 		RemoteViews mNotificationTemplate = new RemoteViews(serviceRadioRx.getApplicationContext().getPackageName(), R.layout.notification);
 		RemoteViews mExpandedView = new RemoteViews(serviceRadioRx.getApplicationContext().getPackageName(), R.layout.notification_expanded);
 		mNotificationTemplate.setOnClickPendingIntent(R.id.notification_play, getServicePendingIntent(ServiceRadioRx.EXTRA_PLAY_PAUSE_PRESSED, 0));
@@ -58,15 +92,43 @@ public class NotificationProviderRx {
 		mExpandedView.setOnClickPendingIntent(R.id.album_art, getActivityPendingIntent(INTENT_OPEN_APP, 7));
 
 		mNotificationTemplate.setTextViewText(R.id.extra_info, stationName);
-		mExpandedView.setImageViewResource(R.id.album_art, artImage);
-		mNotificationTemplate.setTextViewText(R.id.extra_info, stationName);
-		mExpandedView.setImageViewResource(R.id.album_art, artImage);
+		mNotificationTemplate.setTextViewText(R.id.artist, artist);
+		mNotificationTemplate.setTextViewText(R.id.song, song);
+		mNotificationTemplate.setImageViewBitmap(R.id.album_art, art);
+
+		mExpandedView.setTextViewText(R.id.extra_info, stationName);
+		mExpandedView.setTextViewText(R.id.artist, artist);
+		mExpandedView.setTextViewText(R.id.song, song);
+		mExpandedView.setImageViewBitmap(R.id.album_art, art);
+
 		Notification notification = new Notification.Builder(context).setSmallIcon(R.mipmap.ic_launcher)
 				.setPriority(Notification.PRIORITY_HIGH)
 				.setDeleteIntent(getActivityPendingIntent(INTENT_CLOSE_APP, 10))
 				.setContent(mNotificationTemplate)
 				.build();
 		notification.bigContentView = mExpandedView;
+		switch(DbHelper.getNowPlaying().getUiState()){
+			case MainActivity.UI_STATE.PLAYING:
+				notification.contentView.setImageViewResource(R.id.notification_play, R.drawable.ic_notif_pause_new);
+				notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_notif_pause_new);
+				notification.flags = 0;
+				notification.ledOnMS = 0;
+				break;
+			case MainActivity.UI_STATE.IDLE:
+				notification.contentView.setImageViewResource(R.id.notification_play, R.drawable.ic_notif_play_new);
+				notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_notif_play_new);
+				notification.flags = 0;
+				notification.ledOnMS = 0;
+				break;
+			case  MainActivity.UI_STATE.LOADING:
+				notification.contentView.setImageViewResource(R.id.notification_play, R.drawable.ic_loading);
+				notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_loading);
+				notification.ledARGB = 0xFF00FF7F;
+				notification.flags = Notification.FLAG_SHOW_LIGHTS/* | Notification.FLAG_FOREGROUND_SERVICE*/;
+				notification.ledOnMS = 100;
+				notification.ledOffMS = 100;
+				break;
+		}
 		return notification;
 	}
 
@@ -101,20 +163,16 @@ public class NotificationProviderRx {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onMetadataChanged(Metadata metadata) {
-		assertNotNull(metadata);
-		DbHelper.updateNowPlaying(metadata);
-		Timber.d("onMetadataChanged %s, %s", metadata.getArtist(), metadata.getSong());
-		String currentArtist=metadata.getArtist();
-		String currentSong=metadata.getSong();
-		artist = "";
-		if (currentArtist != null) artist = currentArtist;
-		song = "";
-		if (currentSong != null) song = currentSong;
 		if(notification==null) {
 			notification=getNotification();
+		}else {
+			artist = "";
+			song = "";
+			if (DbHelper.getNowPlaying().artist != null) artist = DbHelper.getNowPlaying().artist;
+			if (DbHelper.getNowPlaying().song != null) song = DbHelper.getNowPlaying().song;
+			notification.contentView.setTextViewText(R.id.artist, artist);
+			notification.bigContentView.setTextViewText(R.id.song, song);
 		}
-		notification.contentView.setTextViewText(R.id.artist, artist);
-		notification.bigContentView.setTextViewText(R.id.song, song);
 		mNotificationManager.notify(NOTIFICATION_ID, notification);
 	}
 
@@ -122,9 +180,12 @@ public class NotificationProviderRx {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onUiStateChanged(UiEvent event) {
+		notification=getNotification();
+		mNotificationManager.notify(NOTIFICATION_ID, notification);
+/*
 		assertNotNull(event);
-		DbHelper.updateNowPlaying(event);
-		if(notification==null) notification=getNotification();
+		//DbHelper.updateNowPlaying(event);
+
 		UiEvent.UI_ACTION action =event.getUiAction();
 		Timber.d("onUiStateChanged %s", action);
 		switch(action){
@@ -144,7 +205,7 @@ public class NotificationProviderRx {
 				notification.contentView.setImageViewResource(R.id.notification_play, R.drawable.ic_loading);
 				notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_loading);
 				notification.ledARGB = 0xFF00FF7F;
-				notification.flags = Notification.FLAG_SHOW_LIGHTS/* | Notification.FLAG_FOREGROUND_SERVICE*/;
+				notification.flags = Notification.FLAG_SHOW_LIGHTS*//* | Notification.FLAG_FOREGROUND_SERVICE*//*;
 				notification.ledOnMS = 100;
 				notification.ledOffMS = 100;
 				break;
@@ -154,8 +215,8 @@ public class NotificationProviderRx {
 		Timber.d("stationName %s", stationName);
 		notification.contentView.setTextViewText(R.id.extra_info, stationName);
 		notification.bigContentView.setTextViewText(R.id.extra_info, stationName);
-		mNotificationManager.notify(NOTIFICATION_ID, notification);
-	}
+		mNotificationManager.notify(NOTIFICATION_ID, notification);*/
+	}/*
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNewArt(Bitmap bitmap){
 		assertNotNull(bitmap);
@@ -167,7 +228,7 @@ public class NotificationProviderRx {
 			notification.bigContentView.setImageViewBitmap(R.id.album_art, bitmap);
 			mNotificationManager.notify(NOTIFICATION_ID, notification);
 		}
-	}
+	}*/
 
 
 

@@ -1,5 +1,8 @@
 package com.stc.radio.player.db;
 
+import android.content.Context;
+import android.os.Environment;
+
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
 import com.activeandroid.query.From;
@@ -31,7 +34,6 @@ import static com.stc.radio.player.UrlManager.RT;
 import static com.stc.radio.player.UrlManager.getPlaylistUrl;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 /**
  * Created by artem on 9/21/16.
@@ -51,6 +53,8 @@ public class DbHelper {
 	public static long ID_PLAYLIST_CUSTOM;
 
 	private static final String IMG_BASE_URL = "http://static.diforfree.org/img/channels/80/";
+	private static final String IMG_BASE_PATH = "/sdcard";
+
 
 	public static void updateNowPlaying(UiEvent eventUi) {
 		assertNotNull(eventUi.getExtras().url);
@@ -99,31 +103,29 @@ public class DbHelper {
 		NowPlaying nowPlaying =new Select().from(NowPlaying.class).executeSingle();
 		if(nowPlaying==null) {
 			if(getPlaylistId(0)<0 && !checkIfPlaylistsExist()) createPlaylists();
-
 			nowPlaying=new NowPlaying().withArtist(null).withSong(null).withActivePlaylistId(getPlaylistId(0)).withUiState(MainActivity.UI_STATE.IDLE).withUrl(null);
 			nowPlaying.save();
 		}
-		return nowPlaying;
+		return  nowPlaying;
 	}
-	public static Station getCurrentStation(){
+	public static Station getActiveStation(){
 		NowPlaying nowPlaying =getNowPlaying();
 		if(nowPlaying.url==null){
 			if(!checkIfStationsExist()) createStations();
-			Station station = new Select().from(Station.class).executeSingle();
-			nowPlaying.withUrl(station.url).save();
-			return station;
+			return null;
 		}else {
-			From test = new Select().from(Station.class).where("Url = ?", nowPlaying.getUrl());
-			if(test.exists())
-				return test.executeSingle();
+			From from= new Select().from(Station.class).where("Url = ?", nowPlaying.url);
+			if(!from.exists()) Timber.e("ERROR STATION NOT EXIST url=%s", nowPlaying.url);
+			return from.executeSingle();
 		}
-		fail("null");
-		return new Station();
 	}
-	public static Playlist getCurrentPlaylist(){
-		From from = new Select().from(Playlist.class).where("PlaylistId = ?", getNowPlaying().getActivePlaylistId());
-		assertTrue(from.exists());
-		return from.executeSingle();
+	public static Playlist getActivePlaylist(){
+		if(getNowPlaying().getActivePlaylistId()>=0) {
+			From from = new Select().from(Playlist.class).where("_id = ?", getNowPlaying().getActivePlaylistId());
+			if(from.exists()) return from.executeSingle();
+			else return null;
+		}
+		return  null;
 	}
 
 	public static void setActivePlaylistId(long playlistId) {
@@ -131,15 +133,14 @@ public class DbHelper {
 	}
 
 
-	public static int getCurrentPosition(){
-		return getCurrentStation().position;
+	public static int getActivePosition(){
+		if(getActiveStation()==null)return -1;
+		return getActiveStation().position;
 	}
-	public static long getCurrentPlaylistId(){
+	public static long getActivePlaylistId(){
 		return getNowPlaying().getActivePlaylistId();
 	}
-	public static long setCurrentPlaylistId(){
-		return getNowPlaying().getActivePlaylistId();
-	}
+
 
 
 	public static void setNowPlaying(NowPlaying newNowPlaying){
@@ -174,10 +175,8 @@ public class DbHelper {
 
 	public static NowPlaying setPlayerState(int state){
 		NowPlaying nowPlaying = getNowPlaying();
-		if(nowPlaying==null) nowPlaying=new NowPlaying();
 		nowPlaying.withUiState(state).save();
-
-			return nowPlaying;
+		return nowPlaying;
 	}
 
 	public static long getPlaylistId(int position){
@@ -247,6 +246,8 @@ public class DbHelper {
 		return res;
 	}
 	public static void checkSettingsExist(){
+		if(!new Select().from(NowPlaying.class).exists()) new NowPlaying( )
+				.withActivePlaylistId(getPlaylistId(0)).withUiState(MainActivity.UI_STATE.IDLE).save();
 		if(!new Select().from(RadioSettings.class).exists()) new RadioSettings(false,800,400).save();
 	}
 
@@ -308,6 +309,7 @@ public class DbHelper {
 				.execute();
 	}
 	public static  ArrayList<Station> downloadStations(Playlist playlist){
+
 		return updatePlaylistStations(downloadDefaultPlaylistContent(playlist.url), playlist.getId());
 	}
 
@@ -353,13 +355,38 @@ public class DbHelper {
 			assertTrue(holder.getUrls().size()>0);
 			assertTrue(holder.getNames().size()==holder.getUrls().size());
 		for(int i=0;i<holder.getUrls().size()-1; i++){
-			Station s=new Station(holder.getUrl(i), holder.getName(i), plsId);
+			Station s=new Station(holder.getUrl(i), holder.getName(i), plsId, getArtName(holder.getUrl(i)));
 			s.save();
 			stations.add(s);
 		}
 		assertTrue(stations.size()>0);
 		return stations;
 	}
+
+	private static String getArtName(String url) {
+		String pls=null;
+		if(url.contains("di.fm")) pls="di";
+		else if(url.contains("rock")) pls="rockradio";
+		else if(url.contains("jazz")) pls="jazzradio";
+		else if(url.contains("tunes")) pls="radiotunes";
+		else if(url.contains("classic")) pls="classicalradio";
+		else return null;
+		String station = url.substring(url.lastIndexOf("/")+1);
+		station=station.substring(0, station.indexOf("?"));
+		String result = pls+"_"+station;
+		if(url.contains("di.fm")) result+=".jpg";
+		else result+="_hi.jpg";
+		//String basePath=context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath()+"/";
+		//Timber.v(basePath);
+		return result;
+	}
+	private static String getArtPath(Context context, String artName) {
+		String basePath=context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath()+"/";
+		Timber.v(basePath);
+		return basePath+artName;
+	}
+
+
 	public static  String getNameFromUrl(String url){
 		Station station = new Select().from(Station.class).where("Url = ?", url).executeSingle();
 		if(station!=null) return station.name;

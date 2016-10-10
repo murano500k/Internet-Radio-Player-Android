@@ -29,19 +29,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.stc.radio.player.BitmapManager;
 import com.stc.radio.player.OnSwipeListener;
 import com.stc.radio.player.R;
-import com.stc.radio.player.RequestArt;
 import com.stc.radio.player.db.DbHelper;
-import com.stc.radio.player.db.NowPlaying;
+import com.stc.radio.player.db.Station;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.File;
 
 import timber.log.Timber;
 
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 
 
 /**
@@ -73,6 +74,18 @@ public class PlaybackControlsFragment extends Fragment {
 	private OnControlsFragmentInteractionListener mListener;
 	Bitmap art;
 
+	public int getUiState() {
+		return uiState;
+	}
+
+	public String getSong() {
+		return song;
+	}
+
+	public String getArtist() {
+		return artist;
+	}
+
 	public String getUrl() {
 		return url;
 	}
@@ -83,7 +96,7 @@ public class PlaybackControlsFragment extends Fragment {
 	public static PlaybackControlsFragment newInstance(){
 		return new PlaybackControlsFragment();
 	}
-	public static PlaybackControlsFragment newInstance(PlaybackControlsFragment oldF,String url) {
+	public static PlaybackControlsFragment newInstance(String url, String artist, String song, int uiState) {
 		Bundle args = new Bundle();
 		//if(oldF!=null && url.contains(oldF.getUrl()) && oldF.getArtBitmap()!=null) {
 		//	args.putParcelable("BitmapImage",oldF.getArtBitmap());
@@ -111,38 +124,41 @@ public class PlaybackControlsFragment extends Fragment {
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		NowPlaying nowPlaying= DbHelper.getNowPlaying();
-		nowPlaying.withArtist(artist)
-				.withSong(song)
-				.save();
+
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-		Timber.w("check");
-		if(!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
-        rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
 
+		//if(!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
+        rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
 		mPlayPause = (ImageButton) rootView.findViewById(R.id.play_pause);
 	    mPlayPause.setEnabled(true);
-
         mPlayPause.setOnClickListener(mButtonListener);
         mSong = (TextView) rootView.findViewById(R.id.title);
 	    mArtist = (TextView) rootView.findViewById(R.id.artist);
 	    mStation = (TextView) rootView.findViewById(R.id.extra_info);
         mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
-		art= getArguments().getParcelable(ARG_ART_BITMAP);
-		Timber.w("art %s", art);
-		//if(art!=null) mAlbumArt.setImageBitmap(art);
-		//else bus.post(new RequestArt());
-		bus.post(new RequestArt());
-	    rootView.setOnTouchListener(getOnSwipeListener(rootView));
+		rootView.setOnTouchListener(getOnSwipeListener(rootView));
+		Station station = DbHelper.getActiveStation();
 
-		updateStation(DbHelper.getCurrentStation().name, DbHelper.getCurrentStation().url);
-		updateMetadata(DbHelper.getNowPlaying().artist, DbHelper.getNowPlaying().song);
-		updateButtons(DbHelper.getNowPlaying().getUiState());
+		if(station!=null) {
+			File artFile = ((BitmapManager) getActivity()).getArtFile(station.artPath);
+			mStation.setText(station.name);
+			if (artFile.exists()) {
+				mAlbumArt.setImageBitmap(((BitmapManager) getActivity()).getArtBitmap(artFile));
+			}else fail();
+			Timber.w("init %d %s %s %s", DbHelper.getNowPlaying().getUiState(), station.name,DbHelper.getNowPlaying().artist, DbHelper.getNowPlaying().song );
+			updateButtons(DbHelper.getNowPlaying().getUiState());
+			if(DbHelper.getNowPlaying().getUiState()== MainActivity.UI_STATE.LOADING) updateMetadata("loading...", null);
+			else if (DbHelper.getNowPlaying().getUiState()== MainActivity.UI_STATE.IDLE) updateMetadata(null, null);
+			else updateMetadata(DbHelper.getNowPlaying().artist, DbHelper.getNowPlaying().song);
+		}else {
+			rootView.setVisibility(View.GONE);
+			Timber.e("ERROR NO ACTIVE STATION");
+		}
         return rootView;
     }
 	public OnSwipeListener getOnSwipeListener(View rootView){
@@ -177,13 +193,13 @@ public class PlaybackControlsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-	    Timber.w("check");
+	    //Timber.w("check");
     }
 
     @Override
     public void onStop() {
         super.onStop();
-	    Timber.w("check");
+	    //Timber.w("check");
 
     }
 	/*public void onMetadataChanged(Metadata metadata) {
@@ -203,71 +219,54 @@ public class PlaybackControlsFragment extends Fragment {
     }
 */
 	public void updateButtons(int state){
-		if(state!=uiState){
+		rootView.setVisibility(View.VISIBLE);
+		Timber.d("state %d", state);
 			uiState=state;
 			if(uiState == MainActivity.UI_STATE.IDLE){
 				mPlayPause.setImageDrawable(
 						ContextCompat.getDrawable(getActivity(), R.drawable.ic_play));
 				updateMetadata(null,null);
 			}else if (uiState == MainActivity.UI_STATE.LOADING) {
-				updateMetadata("loading...",null);
+				//updateMetadata("loading...",null);
 				mPlayPause.setImageDrawable(
 						ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
 			} else {
 				mPlayPause.setImageDrawable(
 						ContextCompat.getDrawable(getActivity(), R.drawable.ic_pause));
 			}
-		}
-	}
-	public void updateStation(String station, String url){
-		stationName="";
-		if(station==null) {
-			rootView.setVisibility(View.GONE);
-		}else {
-			rootView.setVisibility(View.VISIBLE);
-			stationName = station;
-			mStation.setText(stationName);
-		}
 
 	}
 
 
 
-	public void onPlaybackStateChanged(int state) {
-		Timber.d("onPlaybackStateChanged %s", state);
+
+	public void updateMetadata(String currentArtist, String currentSong) {
+		//Timber.d("onMetadataChanged %s", currentArtist);
 		if (getActivity() == null) {
 			Timber.w("onPlaybackStateChanged called when getActivity null," +
 					"this should not happen if the callback was properly unregistered. Ignoring.");
 			return;
 		}
-		updateButtons(state);
-	}
-	public void updateMetadata(String currentArtist, String currentSong) {
+		rootView.setVisibility(View.VISIBLE);
 		if(currentArtist!=null) {
 			artist=currentArtist;
-			mArtist.setText(artist);
-		}
+		}else artist="";
 		if(currentSong!=null) {
 			song=currentSong;
-			mSong.setText(song);
-		}
-	}
-	public void updateMetadata(Metadata metadata) {
+		}else song="";
 
-		if(metadata.getArtist()!=null) artist=metadata.getArtist();
-		else artist="";
 		mArtist.setText(artist);
-
-		if(metadata.getSong()!=null) song=metadata.getSong();
-		else song="";
 		mSong.setText(song);
+		//updateButtons(MainActivity.UI_STATE.PLAYING);
 	}
+
+
 
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		Timber.w("check");
+		//Timber.w("check");
 		if (context instanceof PlaybackControlsFragment.OnControlsFragmentInteractionListener) {
 			mListener = (PlaybackControlsFragment.OnControlsFragmentInteractionListener) context;
 		} else {
@@ -279,14 +278,13 @@ public class PlaybackControlsFragment extends Fragment {
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		Timber.w("check");
-		if(EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this);
+//		Timber.w("check");
+		//if(EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this);
 		mListener = null;
 	}
 
 
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onNewArt(Bitmap bitmap){
 		Timber.d("onNewArt %s", bitmap.toString());
 		assertNotNull(bitmap);

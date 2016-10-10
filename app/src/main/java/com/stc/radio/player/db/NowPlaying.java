@@ -15,7 +15,7 @@ public class NowPlaying extends Model {
 	@Column(name = "Song")
 	public String song;
 
-	@Column(name = "url")
+	@Column(name = "Url")
 	public String url;
 
 	@Column(name = "ActivePlaylistId")
