@@ -1,33 +1,8 @@
 package com.stc.radio.player.db;
 
-import com.activeandroid.ActiveAndroid;
-import com.activeandroid.query.Delete;
-import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
-import com.stc.radio.player.utils.M3UParser;
-import com.stc.radio.player.utils.UrlManager;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
-import rx.Observable;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
-import timber.log.Timber;
-
-import static com.stc.radio.player.utils.UrlManager.DI;
-import static com.stc.radio.player.utils.UrlManager.JR;
-import static com.stc.radio.player.utils.UrlManager.RR;
-import static com.stc.radio.player.utils.UrlManager.RT;
-import static com.stc.radio.player.utils.UrlManager.getPlaylistUrl;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by artem on 9/21/16.
@@ -50,6 +25,8 @@ public class DbHelper {
 	private static final String IMG_BASE_PATH = "/sdcard";
 
 
+
+/*
 
 	public static String getArtUrl(String url){
 		String pls=null;
@@ -162,12 +139,12 @@ public class DbHelper {
 			assertTrue(holder.getNames().size()==holder.getUrls().size());
 		for(int i=0;i<holder.getUrls().size()-1; i++){
 			Station s=new Station(holder.getUrl(i), holder.getName(i), plsId, getArtUrl(holder.getUrl(i)));
-			s.save();
+			//s.save();
+
 			stations.add(s);
 		}
+
 		assertTrue(stations.size()>0);
-		if(NowPlaying.getInstance()==null) new NowPlaying().setStation(stations.get(0));
-		else if( NowPlaying.getInstance().getStation()==null) NowPlaying.getInstance().setStation(stations.get(0));
 		return stations;
 	}
 
@@ -176,7 +153,7 @@ public class DbHelper {
 
 	public static  String getNameFromUrl(String url){
 		Station station = new Select().from(Station.class).where("Url = ?", url).executeSingle();
-		if(station!=null) return station.name;
+		if(station!=null) return station.getName();
 		else return "Unnamed station";
 	}
 
@@ -188,6 +165,7 @@ public class DbHelper {
 		return new Select().from(Station.class).count()>1;
 	}
 	public static boolean checkDbContent() {
+
 		return (new Select().from(Station.class).count()>1 && new Select().from(Playlist.class).count()>1 );
 	}
 	public static Observable<Integer> observeCheckDbContent() {
@@ -201,21 +179,20 @@ public class DbHelper {
 						if(!checkIfPlaylistsExist()) createPlaylists();
 						if(!checkIfStationsExist()) createStations();
 
-						/*if (new Random().nextBoolean()) {
+						*//*if (new Random().nextBoolean()) {
 							//simulate error
 							throw new RuntimeException("Error calculating value");
-						}*/
+						}*//*
 
 					}
 				});
-	}
+	}*/
 
 	public static void resetActiveStations() {
 		List<Station> stations = new Select().from(Station.class).where("Active = ?", true).execute();
 		if (stations != null) {
 			for (Station station : stations) {
-				station.active = false;
-				station.position=-1;
+				station.setActive(false);
 				station.save();
 			}
 		}

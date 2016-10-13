@@ -10,7 +10,8 @@ import android.widget.RemoteViews;
 
 import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
-import com.stc.radio.player.utils.Metadata;
+import com.stc.radio.player.db.Metadata;
+import com.stc.radio.player.utils.PabloPicasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -54,8 +55,7 @@ public class NotificationProviderRx {
 	public void onNowPlayingUpdate(NowPlaying nowPlaying) {
 		if(nowPlaying.getStation()==null) cancelNotification();
 		else if(!nowPlaying.getStation().equals(station)
-					|| nowPlaying.getStatus()!=status
-					|| !nowPlaying.getMetadata().equals(metadata)){
+					|| nowPlaying.getStatus()!=status){
 				station=nowPlaying.getStation();
 				status=nowPlaying.getStatus();
 				metadata=nowPlaying.getMetadata();
@@ -81,26 +81,19 @@ public class NotificationProviderRx {
 
 
 
-		String stationName=station.name;
+		String stationName=station.getName();
 		artist="";
-		if(metadata.getArtist()!=null) artist=metadata.getArtist();
 		song="";
-		if(metadata.getSong()!=null) song=metadata.getSong();
+		if(metadata!=null){
+			if(metadata.getArtist()!=null) artist=metadata.getArtist();
+			if(metadata.getSong()!=null) song=metadata.getSong();
+		}
 		mNotificationTemplate.setTextViewText(R.id.extra_info, stationName);
 		mNotificationTemplate.setTextViewText(R.id.artist, artist);
 		mNotificationTemplate.setTextViewText(R.id.song, song);
 		mExpandedView.setTextViewText(R.id.extra_info, stationName);
 		mExpandedView.setTextViewText(R.id.artist, artist);
 		mExpandedView.setTextViewText(R.id.song, song);
-
-		art=NowPlaying.getInstance().getStationArtBitmap(station);
-		if(art!=null) {
-			mNotificationTemplate.setImageViewBitmap(R.id.album_art, art);
-			mExpandedView.setImageViewBitmap(R.id.album_art, art);
-		}else {
-			mNotificationTemplate.setImageViewResource(R.id.album_art, R.drawable.default_art);
-			mExpandedView.setImageViewResource(R.id.album_art, R.drawable.default_art);
-		}
 		Notification notification = new Notification.Builder(context).setSmallIcon(R.mipmap.ic_launcher)
 				.setPriority(Notification.PRIORITY_HIGH)
 				.setDeleteIntent(getActivityPendingIntent(MainActivity.INTENT_CLOSE_APP, 10))
@@ -148,6 +141,8 @@ public class NotificationProviderRx {
 					notification.bigContentView.setImageViewResource(R.id.notification_play, R.drawable.ic_loading);
 					break;
 			}
+		PabloPicasso.with(context).load(station.getArtUrl()).error(R.drawable.default_art).into(mNotificationTemplate, R.id.album_art,NOTIFICATION_ID,notification);
+		PabloPicasso.with(context).load(station.getArtUrl()).error(R.drawable.default_art).into(mExpandedView, R.id.album_art,NOTIFICATION_ID,notification);
 		return notification;
 	}
 

@@ -1,18 +1,13 @@
 package com.stc.radio.player.db;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
-import com.stc.radio.player.utils.Metadata;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -29,12 +24,17 @@ public class NowPlaying extends Model {
 	@Column(name = "StationIdentifier")
 	private long stationId=-100;
 
+
+
 	@Column(name = "Status")
 	private int status=0;
 
 	@Column(name = "Shuffle")
 	private boolean shuffle=false;
 
+	static NowPlaying instance;
+
+	private Station station;
 
 
 
@@ -50,13 +50,18 @@ public class NowPlaying extends Model {
 	public static final int STATUS_WAITING_CONNECTIVITY = -5;
 	public static final int STATUS_WAITING_UNMUTE = -6;
 	public static NowPlaying getInstance(){
-		From from = new Select().from(NowPlaying.class);
-		if(from.exists()) {
-			return from.executeSingle();
-		}else {
-			return null;
+		if(instance==null) {
+			From from = new Select().from(NowPlaying.class);
+			if(from.exists()) {
+				instance= from.executeSingle();
+			}else {
+				instance=new NowPlaying();
+				instance.withStatus(0).withMetadata(null).setStation(new Select().from(Station.class).executeSingle());
+			}
 		}
+		return instance;
 	}
+
 	public int getStatus() {
 		if(status<-100) {
 			From from = new Select().from(NowPlaying.class);
@@ -90,62 +95,46 @@ public class NowPlaying extends Model {
 
 
 	public Metadata getMetadata() {
-		if(artist==null || song==null) {
-			From from = new Select().from(NowPlaying.class);
-			if(from.exists()) {
-				NowPlaying nowPlaying= from.executeSingle();
-				artist=nowPlaying.getMetadata().getArtist();
-				song=nowPlaying.getMetadata().getSong();
-			}else return null;
-			if(artist==null || song==null) return null;
-		}
+
+		if(artist==null || song==null) return null;
+
 		return new Metadata(artist, song);
 	}
 
 	public Station getStation() {
-		if(stationId<0) {
-			From from = new Select().from(NowPlaying.class);
-			if(from.exists()) {
-				NowPlaying nowPlaying= from.executeSingle();
-				stationId=nowPlaying.stationId;
-			}else stationId= -1;
+		if(station==null) {
+			if (stationId < 0) {
+				From from = new Select().from(NowPlaying.class);
+				if (from.exists()) {
+					NowPlaying nowPlaying = from.executeSingle();
+					stationId = nowPlaying.stationId;
+				} else stationId = -1;
+			}
+			if (stationId < 0) return null;
+			else {
+				From from = new Select().from(Station.class).where("_id = ?", stationId);
+				if (from.exists()) station =  from.executeSingle();
+			}
 		}
-		if(stationId<0) return null;
-		else {
-			From from = new Select().from(Station.class).where("_id = ?", stationId);
-			if(from.exists()) return from.executeSingle();
-			else return null;
-		}
+		return station;
+
 	}
 	public List<Station> getActiveList() {
 		Station station=getStation();
-		if(stationId<0 || station==null) return null;
+		if(station==null) return null;
 		else {
-			From from = new Select().from(Station.class).where("PlaylistId = ?", station.playlistId);
+			From from = new Select().from(Station.class).where("Playlist = ?", station.getPlaylist());
 			if(from.exists()) {
 				return from.execute();
 			}else return null;
 		}
 	}
 
-	public Playlist getPlaylist() {
-		if(stationId<0) {
-			From from = new Select().from(NowPlaying.class);
-			if(from.exists()) {
-				NowPlaying nowPlaying= from.executeSingle();
-				stationId=nowPlaying.stationId;
-			}else stationId= -1;
-		}
-		if(stationId<0) return null;
-		else {
-
-			From from = new Select().from(Playlist.class).where("_id = ?", getStation().playlistId);
-			if(from.exists()) return from.executeSingle();
-			else return null;
-		}
+	public String getPlaylist() {
+		if(getStation()!=null) return getStation().getPlaylist();
+		return null;
 	}
 	public NowPlaying withMetadata(Metadata metadata) {
-		boolean post=false;
 		if(metadata==null){
 			this.song = null;
 			this.artist = null;
@@ -161,6 +150,7 @@ public class NowPlaying extends Model {
 	public NowPlaying withStation(Station s) {
 		if(s==null) stationId=-100;
 		else this.stationId = s.getId();
+		station=getStation();
 		this.save();
 		return this;
 
@@ -176,7 +166,20 @@ public class NowPlaying extends Model {
 		this.save();
 		return this;
 	}
-
+	public void setMetadata(Metadata metadata, boolean fireEvent) {
+		boolean post=fireEvent;
+		if(metadata==null){
+			//if(artist!=null || song!=null) post=true;
+			this.song = null;
+			this.artist = null;
+		}else {
+			//if(!new Metadata(artist,song).equals(metadata)) post=true;
+			this.song = metadata.getSong();
+			this.artist = metadata.getArtist();
+		}
+		this.save();
+		if(post) bus.post(this);
+	}
 
 	public void setMetadata(Metadata metadata) {
 		boolean post=false;
@@ -197,14 +200,31 @@ public class NowPlaying extends Model {
 		boolean post=false;
 		if(stationId!=s.getId()) post=true;
 		this.stationId = s.getId();
+		station=getStation();
 		this.save();
 		if(post) {
 			setMetadata(null);
 			bus.post(this);
 		}
 	}
+	public void setStation(Station s, boolean fireEvent) {
+		boolean post=fireEvent;
+		this.stationId = s.getId();
+		station=getStation();
+		this.save();
+		if(post) {
+			bus.post(this);
+		}
+	}
 
-
+	public void setStatus(int status, boolean fireEvent) {
+		boolean post=fireEvent;
+		this.status = status;
+		this.save();
+		if(post) {
+			bus.post(this);
+		}
+	}
 	public void setShuffle(boolean shuffle) {
 		boolean post=false;
 		if(this.shuffle != shuffle) post=true;
@@ -222,15 +242,5 @@ public class NowPlaying extends Model {
 			setMetadata(null);
 			bus.post(this);
 		}
-	}
-	public Bitmap getArtBitmap(){
-		File file = new File(getStation().artPath);
-		if(file.exists()) return  BitmapFactory.decodeFile(file.getAbsolutePath(), new BitmapFactory.Options());
-		else return null;
-	}
-	public static Bitmap getStationArtBitmap(Station s){
-		File file = new File(s.artPath);
-		if(file.exists()) return  BitmapFactory.decodeFile(file.getAbsolutePath(), new BitmapFactory.Options());
-		else return null;
 	}
 }

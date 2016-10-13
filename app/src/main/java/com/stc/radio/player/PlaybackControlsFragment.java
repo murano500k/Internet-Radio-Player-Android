@@ -29,10 +29,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.stc.radio.player.utils.Metadata;
-import com.stc.radio.player.utils.OnSwipeListener;
 import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
+import com.stc.radio.player.db.Metadata;
+import com.stc.radio.player.utils.OnSwipeListener;
+import com.stc.radio.player.utils.PabloPicasso;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -99,6 +100,7 @@ public class PlaybackControlsFragment extends Fragment {
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		/*NowPlaying nowPlaying=NowPlaying.getInstance();
 		this.station=nowPlaying.getStation();
 		this.status=nowPlaying.getStatus();
@@ -108,7 +110,12 @@ public class PlaybackControlsFragment extends Fragment {
 		assertNotNull(status);
 		assertNotNull(art);*/
 	}
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 
+
+	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -119,6 +126,7 @@ public class PlaybackControlsFragment extends Fragment {
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+		setRetainInstance(true);
 
 		//if(!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
         rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
@@ -127,37 +135,39 @@ public class PlaybackControlsFragment extends Fragment {
         mPlayPause.setOnClickListener(mButtonListener);
         mSong = (TextView) rootView.findViewById(R.id.title);
 	    mArtist = (TextView) rootView.findViewById(R.id.artist);
-	    mStation = (TextView) rootView.findViewById(R.id.extra_info);
+	    mStation = (TextView) rootView.findViewById(R.id.station);
         mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
 		rootView.setOnTouchListener(getOnSwipeListener(rootView));
-		rootView.setVisibility(View.GONE);/*
+		rootView.setVisibility(View.GONE);
+		station= NowPlaying.getInstance().getStation();
+		metadata=NowPlaying.getInstance().getMetadata();
+		status=NowPlaying.getInstance().getStatus();
 		assertNotNull(station);
-		Timber.w("init %d %s %s %s", status, station.name, metadata==null ? null : metadata.getArtist(),metadata==null ? null : metadata.getSong() );
+		Timber.w("init %d %s %s %s", status, station.getName(), metadata==null ? null : metadata.getArtist(),metadata==null ? null : metadata.getSong() );
 		updateButtons(status);
 		updateMetadata(metadata);
-		updateStation(station);*/
+		updateStation(station);
 		return rootView;
     }
 
 	public void updateStation(Station station) {
-		if(this.station==null && station==null) return;
-		if(this.station.equals(station)) return;
+		//if(this.station==null && station==null) return;
+		//if(this.station!=null && station!=null && this.station.equals(station)) return;
+		assertNotNull(station);
 		this.station=station;
-		mStation.setText(station.name);
-		this.art=NowPlaying.getInstance().getStationArtBitmap(station);
-		assertNotNull(art);
-		mAlbumArt.setImageBitmap(art);
+		if(mStation!=null) mStation.setText(station.getName());
+		PabloPicasso.with(getContext()).load(station.getArtUrl()).error(R.drawable.default_art).fit().into(mAlbumArt);
 	}
 
 	public void updateButtons(int state){
-		if(status!=state){
+		//if(status!=state){
 			status=state;
 			rootView.setVisibility(View.VISIBLE);
 			Timber.d("state %d", state);
 			switch (state){
 				case STATUS_IDLE:
 					mPlayPause.setImageDrawable(
-							ContextCompat.getDrawable(getActivity(), R.drawable.ic_pause));
+							ContextCompat.getDrawable(getActivity(), R.drawable.ic_play));
 					updateMetadata(null);
 					break;
 				case STATUS_PLAYING:
@@ -180,18 +190,21 @@ public class PlaybackControlsFragment extends Fragment {
 							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
 					break;
 			}
-		}
+		//}
 	}
 
 	public void updateMetadata(Metadata metadata) {
-		if(this.metadata==null && metadata==null) return;
-		if(this.metadata.equals(metadata)) return;
-		this.metadata=metadata;
+		//if(this.metadata==null && metadata==null) return;
+		if(metadata!=null) {
+			this.metadata=metadata;
+		}else {
+			this.metadata=null;
+		}
 		String currentArtist=null;
 		String currentSong=null;
-		if(metadata!=null){
-			currentArtist=metadata.getArtist();
-			currentSong=metadata.getSong();
+		if(this.metadata!=null){
+			currentArtist=this.metadata.getArtist();
+			currentSong=this.metadata.getSong();
 		}
 		if (getActivity() == null) {
 			Timber.w("onPlaybackStateChanged called when getActivity null," +

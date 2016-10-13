@@ -1,4 +1,4 @@
-package com.stc.radio.player.utils;
+package com.stc.radio.player.ui;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;

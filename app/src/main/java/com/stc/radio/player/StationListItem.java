@@ -2,23 +2,30 @@ package com.stc.radio.player;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.activeandroid.query.Select;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
 import com.mikepenz.fastadapter.IDraggable;
 import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter.utils.ViewHolderFactory;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.stc.radio.player.db.Station;
+import com.stc.radio.player.utils.PabloPicasso;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import timber.log.Timber;
 
+import static com.activeandroid.Cache.getContext;
 import static junit.framework.Assert.assertNotNull;
 
 public class StationListItem
@@ -81,22 +88,24 @@ public class StationListItem
 		super.bindView(viewHolder, payloads);
 		Context ctx = viewHolder.itemView.getContext();
 		assertNotNull(this.station);
-		viewHolder.name.setText(station.name);
+		viewHolder.name.setText(station.getName());
 		viewHolder.name.setBackgroundColor(ctx.getResources().getColor(isSelected() ? R.color.colorAccent : R.color.cardview_dark_background));
 		viewHolder.name.setTextColor(ctx.getResources().getColor(isSelected() ? R.color.colorPrimary : R.color.md_white_1000));
 		viewHolder.favButton.setOnLikeListener(new OnLikeListener() {
 			@Override
 			public void liked(LikeButton likeButton) {
-				station.favorite=true;
+				station.setFavorite(true);
 				station.save();
 			}
 			@Override
 			public void unLiked(LikeButton likeButton) {
-				station.favorite=false;
+				station.setFavorite(false);
 				station.save();
 			}
 		});
-		if(icon!=null) viewHolder.icon.setImageBitmap(icon);
+
+		PabloPicasso.with(getContext()).load(station.getArtUrl()).error(R.drawable.default_art).fit().into(viewHolder.icon);
+
 	}
 	@Override
 	public int getType() {
@@ -119,7 +128,9 @@ public class StationListItem
 	public ViewHolderFactory<? extends ViewHolder> getFactory() {
 		return FACTORY;
 	}
-	protected static class ViewHolder extends RecyclerView.ViewHolder {
+	protected static class ViewHolder extends RecyclerView.ViewHolder implements Target {
+
+
 		protected View view;
 		@BindView(R.id.name)
 		TextView name;
@@ -136,6 +147,28 @@ public class StationListItem
 			super(view);
 			ButterKnife.bind(this, view);
 			this.view = view;
+		}
+
+		@Override
+		public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+			icon.setImageBitmap(bitmap);
+			long id =getItemId();
+
+			Station s = new Select().from(Station.class).where("_id = ?", id).executeSingle();
+			assertNotNull(s);
+			Timber.w("onBitmapLoaded %s %s", s.getName(), from.toString());
+
+			//PabloPicasso.saveBitmap(bitmap, new File(s.artPath));
+		}
+
+		@Override
+		public void onBitmapFailed(Drawable errorDrawable) {
+
+		}
+
+		@Override
+		public void onPrepareLoad(Drawable placeHolderDrawable) {
+
 		}
 	}
 }

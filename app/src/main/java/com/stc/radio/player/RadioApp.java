@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.Configuration;
+import com.stc.radio.player.utils.SettingsProvider;
 
 import timber.log.Timber;
 
@@ -18,7 +19,7 @@ public class RadioApp extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
+		SettingsProvider.init(getApplicationContext());
 
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new Timber.DebugTree(){

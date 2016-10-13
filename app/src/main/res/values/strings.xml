@@ -8,11 +8,12 @@
     <string name="title_section_classic">Classical Radio</string>
     <string name="title_section_custom">Custom playlist</string>
 
+
     <string name="url_section_di">di</string>
-    <string name="url_section_radiotunes">rt</string>
-    <string name="url_section_jazz">jr</string>
-    <string name="url_section_rock">rr</string>
-    <string name="url_section_classic">cr</string>
+    <string name="url_section_radiotunes">radiotunes</string>
+    <string name="url_section_jazz">jazzradio</string>
+    <string name="url_section_rock">rockradio</string>
+    <string name="url_section_classic">classicalradio</string>
 
 
     <string name="title_section_shuffle">Shuffle</string>

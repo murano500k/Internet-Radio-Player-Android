@@ -1,4 +1,4 @@
-package com.stc.radio.player.db;
+package com.stc.radio.player.ui;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;

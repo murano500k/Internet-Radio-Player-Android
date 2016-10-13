@@ -61,6 +61,7 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onActivityCreated (Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
 		// Indicate that this fragment would like to influence the set of actions in the action bar.
 		setHasOptionsMenu(true);
 	}
@@ -68,13 +69,15 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
+		setRetainInstance(true);
+
 		mDrawerListView = (ListView) inflater.inflate(
 				R.layout.fragment_navigation_drawer, container, false);
 		mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				selectItem(position);
-				updateDrawerState(false);
+				//updateDrawerState(false);
 			}
 		});
 		mDrawerListView.setAdapter(new ArrayAdapter<String>(
@@ -82,11 +85,11 @@ public class NavigationDrawerFragment extends Fragment {
 				android.R.layout.simple_list_item_activated_1,
 				android.R.id.text1,
 				new String[]{
-						getString(R.string.title_section_di),
-						getString(R.string.title_section_classic),
-						getString(R.string.title_section_jazz),
-						getString(R.string.title_section_rock),
-						getString(R.string.title_section_radiotunes),
+						getString(R.string.url_section_di),
+						getString(R.string.url_section_classic),
+						getString(R.string.url_section_jazz),
+						getString(R.string.url_section_rock),
+						getString(R.string.url_section_radiotunes),
 				}));
 
 		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
@@ -167,6 +170,7 @@ public class NavigationDrawerFragment extends Fragment {
 
 	public void selectItem(int position) {
 		Timber.d("pos=%d", position);
+
 		mCurrentSelectedPosition = position;
 		if (mDrawerListView != null) {
 			mDrawerListView.setItemChecked(position, true);
@@ -175,7 +179,7 @@ public class NavigationDrawerFragment extends Fragment {
 			mDrawerLayout.closeDrawer(mFragmentContainerView);
 		}
 		if (mCallbacks != null) {
-			mCallbacks.onNavigationDrawerItemSelected(position);
+			mCallbacks.onNavigationDrawerItemSelected((String) mDrawerListView.getAdapter().getItem(position));
 		}
 	}
 
@@ -228,6 +232,6 @@ public class NavigationDrawerFragment extends Fragment {
 		/**
 		 * Called when an item in the navigation drawer is selected.
 		 */
-		void onNavigationDrawerItemSelected(int position);
+		void onNavigationDrawerItemSelected(String pls);
 	}
 }

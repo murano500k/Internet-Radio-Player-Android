@@ -30,7 +30,7 @@
         android:layout_centerVertical="true">
 
         <TextView
-            android:id="@+id/extra_info"
+            android:id="@+id/station"
             tools:text="casting to MyCast"
             android:ellipsize="end"
             android:maxLines="1"

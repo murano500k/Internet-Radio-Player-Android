@@ -1,4 +1,4 @@
-package com.stc.radio.player.utils;
+package com.stc.radio.player.db;
 
 /**
  * Created by artem on 9/29/16.
@@ -12,6 +12,10 @@ public class Metadata {
 	}
 	public boolean equals(Metadata metadata){
 		boolean res=true;
+		if(metadata==null){
+			if(artist==null && song==null) return true;
+			else return false;
+		}
 		if(metadata.getSong()==null) {
 			if (this.song == null) return false;
 			if (metadata.getArtist() == null) {

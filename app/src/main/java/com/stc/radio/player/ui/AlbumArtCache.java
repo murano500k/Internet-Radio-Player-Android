@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stc.radio.player.utils;
+package com.stc.radio.player.ui;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;

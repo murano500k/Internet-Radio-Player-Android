@@ -6,8 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.AsyncTask;
@@ -17,39 +15,30 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.activeandroid.query.From;
-import com.activeandroid.query.Select;
 import com.github.pwittchen.reactivenetwork.library.ReactiveNetwork;
 import com.spoledge.aacdecoder.MultiPlayer;
 import com.spoledge.aacdecoder.PlayerCallback;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
 import com.stc.radio.player.ui.BufferUpdate;
 import com.stc.radio.player.ui.SleepEvent;
 import com.stc.radio.player.utils.MediaButtonsReceiver;
-import com.stc.radio.player.utils.Metadata;
+import com.stc.radio.player.db.Metadata;
 import com.stc.radio.player.utils.RequestControlsInteraction;
 import com.stc.radio.player.utils.StreamLinkDecoder;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.File;
 import java.util.List;
 import java.util.Random;
 
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-import static com.stc.radio.player.MainActivity.saveArtBitmap;
 import static com.stc.radio.player.db.NowPlaying.STATUS_IDLE;
 import static com.stc.radio.player.db.NowPlaying.STATUS_PAUSING;
 import static com.stc.radio.player.db.NowPlaying.STATUS_PLAYING;
@@ -58,6 +47,7 @@ import static com.stc.radio.player.db.NowPlaying.STATUS_SWITCHING;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_CONNECTIVITY;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_FOCUS;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_UNMUTE;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 
@@ -116,84 +106,12 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		checkDbContent();
+		isServiceConnected=true;
+		if(!bus.isRegistered(this))bus.register(this);
+
 		return mLocalBinder;
 	}
-	public void checkDbContent(){
-		checkDbSubscription = Observable.just(1)
 
-				.doOnNext(i -> {
-					showToast("Loading playlists");
-					Timber.w("Loading playlists");
-				})
-				.flatMap(new Func1<Integer, Observable<Integer>>() {
-					@Override
-					public Observable<Integer> call(Integer integer) {
-						return DbHelper.observeCheckDbContent()
-								.observeOn(AndroidSchedulers.mainThread())//interaction with UI must be performed on main thread
-								.doOnError(new Action1<Throwable>() {//handle error before it will be suppressed
-									@Override
-									public void call(Throwable throwable) {
-										showToast("Loading error " + throwable.getMessage());
-										Timber.e(throwable, "Loading error.Check network connection");
-									}
-								})
-								.onErrorResumeNext(Observable.empty());//prevent observable from breaking
-					}
-				})
-				.subscribe(new Action1<Integer>() {
-					@Override
-					public void call(Integer integer) {
-						if(checkDbSubscription!=null && !checkDbSubscription.isUnsubscribed()) checkDbSubscription.unsubscribe();
-						showToast("Loading success " + integer);
-						Timber.w("Loading success %d" , integer);
-						isServiceConnected=true;
-						if(!bus.isRegistered(getService())) bus.register(getService());
-						if(nowPlaying==null){
-							nowPlaying=new NowPlaying();
-						}
-						From from= new Select().from(Station.class);
-						assertTrue(from.exists());
-						nowPlaying.withMetadata(null).withShuffle(false).withStatus(0).setStation(from.executeSingle());
-						for(Station s: nowPlaying.getActiveList()){
-							if(s.artPath==null || !new File(s.artPath).exists()) {
-								s.artPath=MainActivity.getArtPath(getService(), MainActivity.getArtName(s.url));
-								s.save();
-								Target target = new Target() {
-									@Override
-									public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-										Timber.d("From %s", from.toString());
-
-										saveArtBitmap(s, bitmap);
-									}
-
-									@Override
-									public void onBitmapFailed(Drawable errorDrawable) {
-										Timber.e("From %s", errorDrawable.toString());
-										Bitmap bitmap= MainActivity.drawableToBitmap(errorDrawable);
-
-										saveArtBitmap(s, bitmap);
-									}
-
-									@Override
-									public void onPrepareLoad(Drawable placeHolderDrawable) {
-									}
-								};
-								Picasso.with(getService()).load(s.artPath).error(getDrawable(R.drawable.default_art)).into(target);
-
-							}
-						}
-						bus.post(nowPlaying.getPlaylist());
-						if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-						notificationProviderRx =new NotificationProviderRx(getService(), getService());
-						registerHeadsetPlugReceiver();
-						registerMediaButtonsReciever();
-						if(!bus.isRegistered(notificationProviderRx)) bus.register(notificationProviderRx);
-						Timber.w("nowPlaying should be posted");
-
-					}
-				});
-	}
 
 	private ServiceRadioRx getService() {
 		return this;
@@ -202,21 +120,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	@Override
 	public boolean onUnbind(Intent intent) {
 		isServiceConnected=false;
-		if(notificationProviderRx!=null){
-			if(bus.isRegistered(notificationProviderRx)) bus.unregister(notificationProviderRx);
-			notificationProviderRx.cancelNotification();
-			notificationProviderRx=null;
-		}
-		if(bus.isRegistered(this)) bus.unregister(this);
-		dontlistenConnectivity();
-		unRegisterHeadsetPlugReceiver();
-		unRegisterMediaButtonsReciever();
-		if(nowPlaying.getStatus()!=STATUS_IDLE) {
-			if(nowPlaying.getStatus()!=STATUS_WAITING_CONNECTIVITY) abandonFocus();
-			else dontlistenConnectivity();
-			nowPlaying.setStatus(STATUS_IDLE);
-			getPlayer().stop();
-		}
+		if(bus.isRegistered(this))bus.unregister(this);
 		return super.onUnbind(intent);
 	}
 
@@ -224,25 +128,51 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	public void onCreate() {
 		super.onCreate();
 		isServiceConnected=false;
+		if(!bus.isRegistered(this)) bus.register(this);
+		notificationProviderRx =new NotificationProviderRx(getService(), getService());
+		if(!bus.isRegistered(notificationProviderRx)) bus.register(notificationProviderRx);
+		nowPlaying=NowPlaying.getInstance();
+		assertNotNull(nowPlaying);
+		nowPlaying.withStatus(STATUS_IDLE);
+		if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		registerHeadsetPlugReceiver();
+		registerMediaButtonsReciever();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-
 		isServiceConnected=false;
+		if(bus.isRegistered(this)) bus.unregister(this);
+		if(notificationProviderRx!=null){
+			if(bus.isRegistered(notificationProviderRx)) bus.unregister(notificationProviderRx);
+			notificationProviderRx.cancelNotification();
+			notificationProviderRx=null;
+		}
+		if(nowPlaying.getStatus()!=STATUS_IDLE) {
+			if(nowPlaying.getStatus()!=STATUS_WAITING_CONNECTIVITY) abandonFocus();
+			else dontlistenConnectivity();
+			nowPlaying.setStatus(STATUS_IDLE);
+			getPlayer().stop();
+		}
+
+		dontlistenConnectivity();
+		unRegisterHeadsetPlugReceiver();
+		unRegisterMediaButtonsReciever();
 	}
 
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+
+		if(!bus.isRegistered(this))bus.register(this);
 		if(intent!=null && intent.getAction()!=null){
 			String action = intent.getAction();
 			if(action!=null && action.contains(INTENT_USER_ACTION)){
 				int which = intent.getIntExtra(EXTRA_WHICH, 0);
 				Timber.w("INTENT_USER_ACTION: %d", which);
 				onControlsInteraction(new RequestControlsInteraction(which));
-
+ 
 			}else if(action!=null && action.contains(INTENT_SET_BUFFER_SIZE)) {
 				//DbHelper.setBufferSize(intent.getIntExtra(EXTRA_AUDIO_BUFFER_CAPACITY, 800));
 				//DbHelper.setDecodeSize(intent.getIntExtra(EXTRA_AUDIO_DECODE_CAPACITY, 400));
@@ -265,14 +195,14 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	@Subscribe()
 	public void onNewStationToPlay(Station station){
 		assertTrue(station!=null);
-		Timber.w("onNewItemToPlay item %s", station.name);
+		Timber.w("onNewItemToPlay item %s", station.getName());
 		if(nowPlaying.getStation().equals(station)){
 			onPlayPause();
 		}else {
 			switch (nowPlaying.getStatus()){
 				case STATUS_IDLE:
 					nowPlaying.withStation(station).setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().url);
+					tryToPlayAsync(nowPlaying.getStation().getUrl());
 					break;
 				case STATUS_PLAYING:
 					nowPlaying.withStation(station).setStatus(STATUS_SWITCHING);
@@ -294,12 +224,12 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				case STATUS_WAITING_CONNECTIVITY:
 					dontlistenConnectivity();
 					nowPlaying.withStation(station).setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().url);
+					tryToPlayAsync(nowPlaying.getStation().getUrl());
 					break;
 				case STATUS_WAITING_FOCUS:
 					abandonFocus();
 					nowPlaying.withStation(station).setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().url);
+					tryToPlayAsync(nowPlaying.getStation().getUrl());
 					break;
 
 			}
@@ -314,7 +244,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 					Timber.e("No station selected");
 				}else {
 					nowPlaying.setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().url);
+					tryToPlayAsync(nowPlaying.getStation().getUrl());
 				}
 				break;
 			case STATUS_PLAYING:
@@ -369,7 +299,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				showToast("null list");
 				Timber.e("null list, request was: %d", request.which());
 			} else {
-				int pos = nowPlaying.getStation().position;
+				int pos = nowPlaying.getStation().getPosition();
 				if (pos < 0) {
 					showToast("null pos");
 					Timber.e("null pos, request was: %d", request.which());
@@ -377,14 +307,14 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				}
 				if (request.which() > 0) {
 					if (nowPlaying.getShuffle()) newPos = new Random().nextInt(list.size() - 1);
-					else newPos = nowPlaying.getStation().position;
-					if (nowPlaying.getStation().position != list.size() - 1) newPos += 1;
+					else newPos = nowPlaying.getStation().getPosition();
+					if (nowPlaying.getStation().getPosition() != list.size() - 1) newPos += 1;
 				} else {
-					newPos = nowPlaying.getStation().position;
-					if (nowPlaying.getStation().position != 0) newPos -= 1;
+					newPos = nowPlaying.getStation().getPosition();
+					if (nowPlaying.getStation().getPosition() != 0) newPos -= 1;
 				}
 				for (Station s : list)
-					if (s.position == newPos) {
+					if (s.getPosition() == newPos) {
 						bus.post(s);
 						return;
 					}
@@ -407,7 +337,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				.subscribe(aBoolean -> {if(aBoolean) {
 					if(nowPlaying.getStatus()==STATUS_WAITING_CONNECTIVITY){
 						nowPlaying.setStatus(STATUS_STARTING);
-						if(requestFocus()) tryToPlayAsync(nowPlaying.getStation().url);
+						if(requestFocus()) tryToPlayAsync(nowPlaying.getStation().getUrl());
 						else nowPlaying.setStatus(STATUS_IDLE);
 					}
 				}});
@@ -476,11 +406,11 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	@Override
 	public void playerStopped(int i) {
 		Timber.w("TEST callback playerStopped %d%", i);
-		if(nowPlaying.getStatus()==STATUS_SWITCHING) tryToPlayAsync(nowPlaying.getStation().url);
+		if(nowPlaying.getStatus()==STATUS_SWITCHING) tryToPlayAsync(nowPlaying.getStation().getUrl());
 		else if(nowPlaying.getStatus()==STATUS_PLAYING){
 			nowPlaying.setStatus(STATUS_WAITING_CONNECTIVITY);
 			abandonFocus();
-			listenConnectivity(nowPlaying.getStation().url);
+			listenConnectivity(nowPlaying.getStation().getUrl());
 		} else if(nowPlaying.getStatus()!=STATUS_WAITING_FOCUS &&
 				nowPlaying.getStatus()!=STATUS_WAITING_CONNECTIVITY){
 			nowPlaying.setStatus(STATUS_IDLE);
@@ -668,7 +598,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 						audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
 					}else if(nowPlaying.getStatus()==STATUS_WAITING_FOCUS){
 						nowPlaying.setStatus(STATUS_STARTING);
-						if(requestFocus()) tryToPlayAsync(nowPlaying.getStation().url);
+						if(requestFocus()) tryToPlayAsync(nowPlaying.getStation().getUrl());
 						else {
 							nowPlaying.setStatus(STATUS_IDLE);
 						}
@@ -693,6 +623,8 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 	public void registerHeadsetPlugReceiver(){
 		Log.d(TAG, "register HeadsetPlugReceiver");
+		if(nowPlaying==null )nowPlaying=new NowPlaying().withStatus(STATUS_IDLE);
+
 		if(headsetPlugReceiver==null) 		headsetPlugReceiver = new HeadsetPlugReceiver();
 		headsetPlugIntent=getApplicationContext().registerReceiver(headsetPlugReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 	}
@@ -719,7 +651,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 							if (nowPlaying.getStatus()==STATUS_IDLE) {
 
 								nowPlaying.setStatus(STATUS_STARTING);
-								if (requestFocus())	tryToPlayAsync(nowPlaying.getStation().url);
+								if (requestFocus())	tryToPlayAsync(nowPlaying.getStation().getUrl());
 								else nowPlaying.setStatus(STATUS_IDLE);
 
 							}

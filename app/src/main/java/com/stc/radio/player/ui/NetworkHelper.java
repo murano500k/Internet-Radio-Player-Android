@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.stc.radio.player.utils;
+package com.stc.radio.player.ui;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

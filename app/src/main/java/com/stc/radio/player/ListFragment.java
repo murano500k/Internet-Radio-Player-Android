@@ -20,9 +20,11 @@ import com.mikepenz.fastadapter.adapters.FastItemAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fastadapter_extensions.drag.ItemTouchCallback;
 import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
+import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.Station;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import timber.log.Timber;
@@ -38,19 +40,17 @@ import static junit.framework.Assert.assertNotNull;
 public class ListFragment extends Fragment implements ItemAdapter.ItemFilterListener, ItemTouchCallback
 {
 
-	private static final String ARG_PLAYLIST_ID = "com.stc.radio.player.ui.ARG_PLAYLIST_ID";
-	private long playlistId;
 	private OnListFragmentInteractionListener mListener;
 	private FastItemAdapter<StationListItem> fastItemAdapter;
 	private RecyclerView recyclerView;
 	private SimpleDragCallback touchCallback;
 	private ItemTouchHelper touchHelper;
-
 	/**
 	 * Mandatory empty constructor for the fragment manager to instantiate the
 	 * fragment (e.g. upon screen orientation changes).
 	 */
 	public ListFragment() {
+
 	}
 
 	public static ListFragment newInstance() {
@@ -74,6 +74,8 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
+		setRetainInstance(true);
+
 		View view = inflater.inflate(R.layout.fragment_recycler, container, false);
 
 		// Set the adapter
@@ -84,14 +86,15 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			recyclerView.setLayoutManager(new LinearLayoutManager(context));
 			recyclerView.setItemAnimator(new DefaultItemAnimator());
 			//final FastScrollIndicatorAdapter<StationListItem> fastScrollIndicatorAdapter = new FastScrollIndicatorAdapter<>();
-			fastItemAdapter=initFastAdapter();
 
+			fastItemAdapter=initFastAdapter();
 			recyclerView.setAdapter(fastItemAdapter);
 			//DragScrollBar materialScrollBar = new DragScrollBar(context, recyclerView, true);
 			//materialScrollBar.addIndicator(new AlphabetIndicator(context), true);
 			touchCallback = new SimpleDragCallback(this);
 			touchHelper = new ItemTouchHelper(touchCallback);
 			touchHelper.attachToRecyclerView(recyclerView);
+			fastItemAdapter.notifyAdapterDataSetChanged();
 			//EventBus.getDefault().post(fastItemAdapter);
 		}
 		return view;
@@ -99,6 +102,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
 
 	}
 	@Override
@@ -122,42 +126,32 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		fastItemAdapter.withFilterPredicate(new IItemAdapter.Predicate() {
 			@Override
 			public boolean filter(IItem item, CharSequence constraint) {
-				return !((StationListItem)item).station.name.toLowerCase()
+				return !((StationListItem)item).station.getName().toLowerCase()
 						.contains(constraint.toString().toLowerCase());
 			}
 		});
 		fastItemAdapter.getItemAdapter().withItemFilterListener(this);
-		/*Timber.w("PlaylistId = %d", activePlaylistId);
-		List<Station> list = new Select()
-				.from(Station.class).where("PlaylistId = ?",activePlaylistId).execute();
-		assertNotNull(list);
-		assertTrue(list.size()>0);
-		ActiveAndroid.beginTransaction();
-		try {
-			DbHelper.resetActiveStations();
-		*//*for(Station s: list) {
-			s.active=true;
-			StationListItem stationListItem = new StationListItem()
-					.withIdentifier(s.getId())
-					.withStation(s);
-			fastItemAdapter.add(stationListItem);
-			s.position=fastItemAdapter.getAdapterPosition(stationListItem);
-			s.save();
-		}
-		if(savedInstanceState!=null) fastItemAdapter.withSavedInstanceState(savedInstanceState);*//*
-
-		}catch (Exception e){
-			Timber.e(e);
-			throw new RuntimeException(e.getCause() );
-		}
-		finally {
-			ActiveAndroid.endTransaction();
-		}*/
 		return fastItemAdapter;
 		/*if(getActionBar()!=null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setHomeButtonEnabled(false);
 		}*/
+	}
+	public void replaceAdapter(List <Station> list){
+		Timber.w("newList %d", list.size());
+		fastItemAdapter.clear();
+		fastItemAdapter.notifyAdapterDataSetChanged();
+		DbHelper.resetActiveStations();
+		for(Station s: list) {
+			s.setActive(true);
+			StationListItem stationListItem = new StationListItem()
+					.withIdentifier(s.getId())
+					.withStation(s);
+			fastItemAdapter.add(stationListItem);
+			s.setPosition(fastItemAdapter.getAdapterPosition(stationListItem));
+			s.save();
+		}
+		fastItemAdapter.notifyAdapterDataSetChanged();
 	}
 	@Override
 	public void itemsFiltered() {
@@ -167,9 +161,11 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	@Override
 	public boolean itemTouchOnMove(int oldPosition, int newPosition) {
 		StationListItem item = (StationListItem) fastItemAdapter.getAdapterItem(oldPosition);
-		item.getStation().position=newPosition;
+		item.getStation().setPosition(newPosition);
+		item.getStation().save();
 		item =(StationListItem) fastItemAdapter.getAdapterItem(newPosition);
-		item.getStation().position=oldPosition;
+		item.getStation().setPosition(oldPosition);
+		item.getStation().save();
 		Collections.swap(fastItemAdapter.getAdapterItems(), oldPosition, newPosition); // change position
 		fastItemAdapter.notifyAdapterItemMoved(oldPosition, newPosition);
 		return true;
@@ -209,14 +205,14 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		//if(list!=null)Timber.w("selected listsize=%d list:%s",list.size(), list.toString());
 		StationListItem item=null;
 		if(list!=null && !list.isEmpty()) item=(StationListItem)list.iterator().next();
-		if(item!=null)Timber.d("item=%s", item.station.name);
+		if(item!=null)Timber.d("item=%s", item.station.getName());
 		else Timber.d("item=null");
 		return  item;
 	}
 	public FastItemAdapter.OnClickListener<StationListItem> listItemOnClickListener=new FastAdapter.OnClickListener<StationListItem>() {
 		@Override
 		public boolean onClick(View v, IAdapter<StationListItem> adapter, StationListItem item, int position) {
-			Timber.v("item %s",item.station.name);
+			Timber.v("item %s",item.station.getName());
 			adapter.getFastAdapter().deselect();
 			adapter.getFastAdapter().select(position,false);
 			//fastItemAdapter.set(position, item.withSetSelected(true));
@@ -245,7 +241,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			Iterator iterator = list.iterator();
 			while (iterator.hasNext()) {
 				item = (StationListItem) iterator.next();
-				if (item.getStation().name.equals(oldSelection.getStation().name)) {
+				if (item.getStation().getName().equals(oldSelection.getStation().getName())) {
 					if (iterator.hasNext()) item = (StationListItem) iterator.next();
 					break;
 				}
@@ -272,7 +268,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		item = (StationListItem) iterator.next();
 		while (iterator.hasNext()) {
 			StationListItem tempitem = (StationListItem) iterator.next();
-			if (tempitem.getStation().name.equals(oldSelection.getStation().name)) {
+			if (tempitem.getStation().getName().equals(oldSelection.getStation().getName())) {
 				break;
 			}
 			item=tempitem;
@@ -297,13 +293,17 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 
 
 	public void updateSelection(Station station) {
+
 		if(station!=null && fastItemAdapter!=null){
+			Timber.w("station %s,pos=%d,", station.getName(),station.getPosition());
+
 			StationListItem item = getSelectedItem();
-			if(item !=null && item.station.position!=station.position) {
+			if(item !=null && item.station.getPosition()!=station.getPosition()) {
 				fastItemAdapter.deselect();
-				fastItemAdapter.select(station.position, false);
+				fastItemAdapter.select(station.getPosition(), false);
 			}
-			if(recyclerView!=null) recyclerView.smoothScrollToPosition(station.position);
+
+			if(recyclerView!=null && station.getPosition()>=0) recyclerView.smoothScrollToPosition(station.getPosition());
 		}
 	}
 
