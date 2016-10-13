@@ -6,6 +6,8 @@ import com.activeandroid.annotation.Table;
 import com.stc.radio.player.contentmodel.PlaylistContent;
 import com.stc.radio.player.utils.SettingsProvider;
 
+import java.util.Random;
+
 import timber.log.Timber;
 
 /**
@@ -32,6 +34,8 @@ public class Station extends Model {
 	@Column(name = "Position")
 	private int position;
 
+	protected static int SERVERS_NUM=4;
+
 	public Station() {
 	}
 	public Station(PlaylistContent playlistContent, String playlist) {
@@ -44,6 +48,7 @@ public class Station extends Model {
 		this.favorite = false;
 		this.position = -1;
 	}
+
 
 	@Override
 	public String toString() {
@@ -79,10 +84,12 @@ public class Station extends Model {
 return "null";
 }
 	public String getUrl() {
-		String base="http://prem2.";
+
+		int num=new Random().nextInt(SERVERS_NUM-1)+1;
+		String base="";
 		if(playlist.equals("di") ) base+="di.fm";
 		else base+=playlist+".com";
-		return base+"/"+key+"_hi?"+ SettingsProvider.getToken();
+		return "http://prem"+num+"."+base+"/"+key+"_hi?"+ SettingsProvider.getToken();
 	}
 	public String getArtUrl(){
 		return artUrl;

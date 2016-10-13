@@ -11,5 +11,5 @@ public class PLAYLISTS {
 	public static final String ROCK="rockradio";
 	public static final String CLASSIC="classicalradio";
 	public static final String FAV="favorite";
-
+	public static final String SOMA="somafm";
 }

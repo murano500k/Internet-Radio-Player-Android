@@ -17,12 +17,14 @@
     <ImageView
         android:id="@+id/icon"
         android:clickable="false"
-        android:scaleType="fitXY"
+        android:scaleType="center"
         android:src="@drawable/ic_checked"
         android:layout_alignParentBottom="false"
         android:layout_alignParentStart="false"
         android:layout_width="48dp"
-        android:layout_height="48dp"/>
+        android:layout_height="48dp"
+        android:adjustViewBounds="true"
+        android:cropToPadding="true"/>
 
     <TextView
         android:id="@+id/name"
