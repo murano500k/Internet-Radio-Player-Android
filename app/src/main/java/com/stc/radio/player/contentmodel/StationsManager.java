@@ -51,7 +51,6 @@ public class StationsManager {
 		public static final String[] somaStations = {
 				"groovesalad",
 				"dronezone",
-				"indiepopv",
 				"spacestation",
 				"secretagent",
 				"lush",
@@ -61,34 +60,17 @@ public class StationsManager {
 				"defcon",
 				"seventies",
 				"folkfwd",
-				"bagel",
 				"bootliquor",
 				"suburbsofgoa",
 				"poptron",
-				"sonicuniverse",
-				"thetrip",
 				"thistle",
-
 				"fluid",
 				"digitalis",
 				"illstreet",
-				"dubstep",
-
 				"7soul",
-
-				"missioncontrol",
 				"brfm",
 				"cliqhop",
-
 				"doomed",
-
-
-				"covers",
-
-
-				"silent",
-				"sf1033",
-				"metal",
 				"earwaves",
 		};
 	}

@@ -103,7 +103,7 @@ public class StationListItem
 		});
 		viewHolder.favButton.setLiked(station.isFavorite());
 
-		PabloPicasso.with(getContext()).load(station.getArtUrl()).error(R.drawable.default_art).fit().into(viewHolder.icon);
+		PabloPicasso.with(getContext()).load(station.getArtUrl()).error(R.drawable.default_art).tag(station.getKey()).fit().into(viewHolder.icon);
 
 	}
 	@Override

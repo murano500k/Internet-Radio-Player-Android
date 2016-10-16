@@ -24,14 +24,14 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.stc.radio.player.db.Metadata;
 import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
-import com.stc.radio.player.db.Metadata;
 import com.stc.radio.player.utils.OnSwipeListener;
 import com.stc.radio.player.utils.PabloPicasso;
 
@@ -64,7 +64,7 @@ public class PlaybackControlsFragment extends Fragment {
 	private static final String ARG_UI_STATE = "com.stc.radio.player.ui.ARG_UI_STATE";
 
 
-    private ImageButton mPlayPause;
+    private ImageButton mPlayPrev, mPlayPause, mPlayNext;
     private TextView mSong;
     private TextView mArtist;
     private TextView mStation;
@@ -78,7 +78,7 @@ public class PlaybackControlsFragment extends Fragment {
 	private Metadata metadata;
 	private int status;
 	private Station station;
-
+	private FrameLayout pacmanIndicator;
 
 
 	public PlaybackControlsFragment() {
@@ -131,9 +131,19 @@ public class PlaybackControlsFragment extends Fragment {
 		//if(!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
         rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
 		mPlayPause = (ImageButton) rootView.findViewById(R.id.play_pause);
-	    mPlayPause.setEnabled(true);
-        mPlayPause.setOnClickListener(mButtonListener);
-        mSong = (TextView) rootView.findViewById(R.id.title);
+		mPlayPause.setEnabled(true);
+        mPlayPrev = (ImageButton) rootView.findViewById(R.id.play_prev);
+		pacmanIndicator = (FrameLayout) rootView.findViewById(R.id.pacman_layout);
+		pacmanIndicator.setVisibility(View.GONE);
+
+		mPlayNext= (ImageButton) rootView.findViewById(R.id.play_next);
+		mPlayPause.setOnClickListener(v ->  onButtonClicked(0));
+		pacmanIndicator.setOnClickListener(	v -> onButtonClicked(0));
+		mPlayNext.setOnClickListener(v -> onButtonClicked(1));
+		mPlayPrev.setOnClickListener(v -> onButtonClicked(-1));
+
+
+		mSong = (TextView) rootView.findViewById(R.id.title);
 	    mArtist = (TextView) rootView.findViewById(R.id.artist);
 	    mStation = (TextView) rootView.findViewById(R.id.station);
         mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
@@ -163,6 +173,7 @@ public class PlaybackControlsFragment extends Fragment {
 		PabloPicasso.with(getContext()).load(station.getArtUrl()).error(R.drawable.default_art).fit().into(mAlbumArt);
 	}
 
+
 	public void updateButtons(int state){
 		if (getActivity() == null) {
 			Timber.w("onLeftToRightSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
@@ -174,26 +185,46 @@ public class PlaybackControlsFragment extends Fragment {
 			Timber.d("state %d", state);
 			switch (state){
 				case STATUS_IDLE:
+					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
 					mPlayPause.setImageDrawable(
 							ContextCompat.getDrawable(getActivity(), R.drawable.ic_play));
 					updateMetadata(null);
 					break;
 				case STATUS_PLAYING:
+					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
 					mPlayPause.setImageDrawable(
 							ContextCompat.getDrawable(getActivity(), R.drawable.ic_pause));
 					break;
 				case STATUS_PAUSING:
+					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
 					mArtist.setText("PAUSING");
+					mPlayPause.setImageDrawable(
+							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
+					break;
 				case STATUS_STARTING:
-					mArtist.setText("STARTING");
+					pacmanIndicator.setVisibility(View.VISIBLE);
+					break;
 				case STATUS_SWITCHING:
+					pacmanIndicator.setVisibility(View.VISIBLE);
 					mArtist.setText("SWITCHING");
+
+					mPlayPause.setImageDrawable(
+							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
+					break;
 				case STATUS_WAITING_CONNECTIVITY:
+					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
 					mArtist.setText("WAITING_CONNECTIVITY");
+					mPlayPause.setImageDrawable(
+							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
+					break;
 				case STATUS_WAITING_FOCUS:
+					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
 					mArtist.setText("WAITING_FOCUS");
+					mPlayPause.setImageDrawable(
+							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
+					break;
 				case STATUS_WAITING_UNMUTE:
-					mArtist.setText("WAITING_UNMUTE");
+					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
 					mPlayPause.setImageDrawable(
 							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
 					break;
@@ -261,42 +292,69 @@ public class PlaybackControlsFragment extends Fragment {
 		//if(EventBus.getDefault().isRegistered(this)) EventBus.getDefault().unregister(this);
 		mListener = null;
 	}
+public void onButtonClicked(int which){
+	if (getActivity() == null) {
+		Timber.w("onLeftToRightSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
+		return;
+	}
+	Timber.w("<");
+	if(status==STATUS_PLAYING || status==STATUS_STARTING || status==STATUS_SWITCHING) {
+		if (which == 0) updateButtons(STATUS_PAUSING);
+		else updateButtons(STATUS_SWITCHING);
+	}else {
+		if (which == 0) updateButtons(STATUS_STARTING);
+		else updateButtons(STATUS_STARTING);
+	}
+	mListener.onControlsFragmentInteraction(which);
+}
 
 	public OnSwipeListener getOnSwipeListener(View rootView){
 		return new OnSwipeListener(rootView) {
 			@Override
 			public void onLeftToRightSwipe() {
 				super.onLeftToRightSwipe();
-				if (getActivity() == null) {
-					Timber.w("onLeftToRightSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
-					return;
-				}
-				Timber.w("onLeftToRightSwipe");
-				updateButtons(MainActivity.UI_STATE.LOADING);
-				mListener.onControlsFragmentInteraction(-1);
+				onButtonClicked(-1);
 			}
 
 			@Override
 			public void onRightToLeftSwipe() {
 				super.onRightToLeftSwipe();
-				if (getActivity() == null) {
-					Timber.w("onRightToLeftSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
-					return;
-				}
-				Timber.w("onRightToLeftSwipe");
-				updateButtons(MainActivity.UI_STATE.LOADING);
-				mListener.onControlsFragmentInteraction(1);
+
+				onButtonClicked(1);
 			}
 		};
 	}
 
-	public final View.OnClickListener mButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-	        Toast.makeText(getActivity(), "Playpause pressed", Toast.LENGTH_SHORT).show();
-	        mListener.onControlsFragmentInteraction(0);
-        }
-    };
+	public void hide() {
+		if (getActivity() == null) {
+			Timber.w("hide called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
+			return;
+		}
+		if(rootView!=null)rootView.setVisibility(View.GONE);
+	}
+	public boolean isShown(){
+		if(rootView==null) return false;
+		else return rootView.isShown();
+	}
+	public void show(NowPlaying nowPlaying){
+		if (getActivity() == null) {
+			Timber.w("hide called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
+			return;
+		}
+		if(nowPlaying!=null){
+			if(nowPlaying.getStation()!=null) {
+				this.station=nowPlaying.getStation();
+				updateStation(nowPlaying.getStation());
+			}
+			this.status=nowPlaying.getStatus();
+			this.metadata=nowPlaying.getMetadata();
+			if(status!=STATUS_IDLE || status!=STATUS_PLAYING) updateButtons(status);
+			else updateButtons(STATUS_IDLE);
+			updateMetadata(metadata);
+		}
+		if(rootView!=null)rootView.setVisibility(View.VISIBLE);
+	}
+
 
 	public interface OnControlsFragmentInteractionListener {
 		void onControlsFragmentInteraction(int value);

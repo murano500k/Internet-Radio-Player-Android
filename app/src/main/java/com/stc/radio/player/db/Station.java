@@ -11,12 +11,10 @@ import timber.log.Timber;
 /**
  * Created by artem on 9/21/16.
  */
-@Table(name = "Stations", id = "_id")
+@Table(name = "Station", id = "_id")
 public class Station extends Model {
 	@Column(name = "Name")
-	protected String name;/*
-	@Column(name = "Url", unique = true, index = true, notNull = true)
-	protected String url;*/
+	protected String name;
 	@Column(name = "Playlist")
 	protected String playlist;
 	@Column(name = "Key")

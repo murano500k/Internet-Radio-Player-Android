@@ -21,8 +21,8 @@ public class NowPlaying extends Model {
 	@Column(name = "Song")
 	private String song=null;
 
-	@Column(name = "StationIdentifier")
-	private long stationId=-100;
+	@Column(name = "StationKey")
+	private String stationKey=null;
 
 
 
@@ -33,7 +33,7 @@ public class NowPlaying extends Model {
 	private boolean shuffle=false;
 
 	static NowPlaying instance;
-
+	private String playlist;
 	private Station station;
 	private List<Station>list;
 
@@ -105,36 +105,26 @@ public class NowPlaying extends Model {
 	}
 
 	public Station getStation() {
-		if(station==null) {
-			if (stationId < 0) {
+		if (station == null) {
+			if (stationKey == null) {
 				From from = new Select().from(NowPlaying.class);
-				if (from.exists()) {
+				if (from.exists() && from.executeSingle() != null) {
 					NowPlaying nowPlaying = from.executeSingle();
-					stationId = nowPlaying.stationId;
-				} else stationId = -1;
+					stationKey = nowPlaying.getStationKey();
+				} else stationKey = null;
 			}
-			if (stationId < 0) return null;
+			if (stationKey == null) return null;
 			else {
-				From from = new Select().from(Station.class).where("_id = ?", stationId);
-				if (from.exists()) station =  from.executeSingle();
+				From from = new Select().from(Station.class).where("Key = ?", stationKey);
+				if (from.exists()) station = from.executeSingle();
 			}
 		}
 		return station;
 
 	}
-	public List<Station> getActiveList() {
-		Station station=getStation();
-		if(station==null) return null;
-		else {
-			From from = new Select().from(Station.class).where("Playlist = ?", station.getPlaylist());
-			if(from.exists()) {
-				return from.execute();
-			}else return null;
-		}
-	}
-
 	public String getPlaylist() {
-		if(getStation()!=null) return getStation().getPlaylist();
+		if(playlist!=null) return playlist;
+		else if(getStation()!=null) return getStation().getPlaylist();
 		return null;
 	}
 	public NowPlaying withMetadata(Metadata metadata) {
@@ -151,12 +141,13 @@ public class NowPlaying extends Model {
 
 
 	public NowPlaying withStation(Station s) {
-		if(s==null) stationId=-100;
-		else this.stationId = s.getId();
+		if(s==null) stationKey=null;
+		else this.stationKey =  s.getKey();
 		station=getStation();
+
+		if(station.playlist!=null)playlist=station.playlist;
 		this.save();
 		return this;
-
 	}
 	public NowPlaying withStatus(int s) {
 		this.status = s;
@@ -201,11 +192,12 @@ public class NowPlaying extends Model {
 
 	public void setStation(Station s) {
 		boolean post=false;
-		if(stationId!=s.getId()) post=true;
-		this.stationId = s.getId();
+		if(s.getKey()==null )this.stationKey=null;
+		else this.stationKey = s.getKey();
 		station=s;
-		setMetadata(null);
+		if(station.playlist!=null)playlist=station.playlist;
 
+		setMetadata(null);
 		this.save();
 		if(post) {
 			setMetadata(null);
@@ -214,8 +206,10 @@ public class NowPlaying extends Model {
 	}
 	public void setStation(Station s, boolean fireEvent) {
 		boolean post=fireEvent;
-		this.stationId = s.getId();
+		this.stationKey = s.getKey();
+
 		station=s;
+		if(station.playlist!=null)playlist=station.playlist;
 		setMetadata(null);
 
 		this.save();
@@ -256,9 +250,12 @@ public class NowPlaying extends Model {
 
 	public List<Station>getStations(){
 		if(list!=null && list.size()>1) return list;
-		else {
-			From from= new Select().from(Station.class);
+		else if (station!=null && station.playlist!=null){
+			From from= new Select().from(Station.class).where("Playlist = ?", station.playlist);
 			if(from.exists()) list=from.execute();
+		}else if (playlist!=null) {
+			From from = new Select().from(Station.class).where("Playlist = ?", playlist);
+			if (from.exists()) list = from.execute();
 		}
 		return list;
 	}
@@ -274,5 +271,15 @@ public class NowPlaying extends Model {
 
 	public void setStations(List<Station> stations) {
 		this.list=stations;
+		if(list!=null && list.get(0)!=null && list.get(0).getPlaylist()!=null)
+			this.playlist=list.get(0).playlist;
+	}
+
+	public String getStationKey() {
+		return stationKey;
+	}
+
+	public void setPlaylist(String pls) {
+		this.playlist=pls;
 	}
 }
