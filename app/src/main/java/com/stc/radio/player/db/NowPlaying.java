@@ -35,6 +35,7 @@ public class NowPlaying extends Model {
 	static NowPlaying instance;
 
 	private Station station;
+	private List<Station>list;
 
 
 
@@ -49,16 +50,18 @@ public class NowPlaying extends Model {
 	public static final int STATUS_WAITING_FOCUS = -4;
 	public static final int STATUS_WAITING_CONNECTIVITY = -5;
 	public static final int STATUS_WAITING_UNMUTE = -6;
+	private boolean baseStatus;
+
 	public static NowPlaying getInstance(){
 		if(instance==null) {
 			From from = new Select().from(NowPlaying.class);
 			if(from.exists()) {
 				instance= from.executeSingle();
 			}else {
-				instance=new NowPlaying();
-				instance.withStatus(0).withMetadata(null).setStation(new Select().from(Station.class).executeSingle());
+				return null;
 			}
 		}
+
 		return instance;
 	}
 
@@ -200,7 +203,9 @@ public class NowPlaying extends Model {
 		boolean post=false;
 		if(stationId!=s.getId()) post=true;
 		this.stationId = s.getId();
-		station=getStation();
+		station=s;
+		setMetadata(null);
+
 		this.save();
 		if(post) {
 			setMetadata(null);
@@ -210,9 +215,13 @@ public class NowPlaying extends Model {
 	public void setStation(Station s, boolean fireEvent) {
 		boolean post=fireEvent;
 		this.stationId = s.getId();
-		station=getStation();
+		station=s;
+		setMetadata(null);
+
 		this.save();
 		if(post) {
+			setMetadata(null);
+
 			bus.post(this);
 		}
 	}
@@ -222,6 +231,7 @@ public class NowPlaying extends Model {
 		this.status = status;
 		this.save();
 		if(post) {
+
 			bus.post(this);
 		}
 	}
@@ -242,5 +252,27 @@ public class NowPlaying extends Model {
 			setMetadata(null);
 			bus.post(this);
 		}
+	}
+
+	public List<Station>getStations(){
+		if(list!=null && list.size()>1) return list;
+		else {
+			From from= new Select().from(Station.class);
+			if(from.exists()) list=from.execute();
+		}
+		return list;
+	}
+
+	public void setBaseStatus(boolean baseStatus) {
+		this.baseStatus = baseStatus;
+
+	}
+
+	public boolean isPlaying() {
+		return baseStatus;
+	}
+
+	public void setStations(List<Station> stations) {
+		this.list=stations;
 	}
 }

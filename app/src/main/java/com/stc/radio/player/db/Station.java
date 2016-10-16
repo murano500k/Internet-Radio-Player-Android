@@ -3,10 +3,8 @@ package com.stc.radio.player.db;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.stc.radio.player.contentmodel.PlaylistContent;
-import com.stc.radio.player.utils.SettingsProvider;
-
-import java.util.Random;
+import com.stc.radio.player.contentmodel.ParsedPlaylistItem;
+import com.stc.radio.player.contentmodel.StationsManager;
 
 import timber.log.Timber;
 
@@ -16,40 +14,47 @@ import timber.log.Timber;
 @Table(name = "Stations", id = "_id")
 public class Station extends Model {
 	@Column(name = "Name")
-	private String name;/*
+	protected String name;/*
 	@Column(name = "Url", unique = true, index = true, notNull = true)
-	private String url;*/
+	protected String url;*/
 	@Column(name = "Playlist")
-	private String playlist;
+	protected String playlist;
 	@Column(name = "Key")
-	private String key;
+	protected String key;
 	@Column(name = "Description")
-	private String description;
+	protected String description;
 	@Column(name = "ArtUrl")
-	private String artUrl;
+	protected String artUrl;
 	@Column(name = "Favorite")
-	private boolean favorite;
+	protected boolean favorite;
 	@Column(name = "Active")
-	private boolean active;
+	protected boolean active;
 	@Column(name = "Position")
-	private int position;
+	protected int position;
 
 	protected static int SERVERS_NUM=4;
 
 	public Station() {
 	}
-	public Station(PlaylistContent playlistContent, String playlist) {
-		this.name = playlistContent.getName();
-		this.key = playlistContent.getKey();
-		this.description=playlistContent.getDescription();
-		this.artUrl = trimArtUrl(playlistContent.getImages().getDefault());
-		this.key = playlistContent.getKey();
+	public Station(ParsedPlaylistItem parsedPlaylistItem, String playlist, int position, boolean active) {
+		this.name = parsedPlaylistItem.getName();
+		this.key = parsedPlaylistItem.getKey();
+		this.description= parsedPlaylistItem.getDescription();
+		this.artUrl = trimArtUrl(parsedPlaylistItem.getImages().getDefault());
 		this.playlist = playlist;
 		this.favorite = false;
-		this.position = -1;
+		this.position = position;
 	}
 
-
+	public Station(String name, String key,String description, String artUrl, String playlist, int position, boolean active) {
+		this.name = name;
+		this.key = key;
+		this.description=description;
+		this.artUrl = artUrl;
+		this.playlist = playlist;
+		this.favorite = false;
+		this.position = position;
+	}
 	@Override
 	public String toString() {
 		String res="";
@@ -84,12 +89,7 @@ public class Station extends Model {
 return "null";
 }
 	public String getUrl() {
-
-		int num=new Random().nextInt(SERVERS_NUM-1)+1;
-		String base="";
-		if(playlist.equals("di") ) base+="di.fm";
-		else base+=playlist+".com";
-		return "http://prem"+num+"."+base+"/"+key+"_hi?"+ SettingsProvider.getToken();
+	    return StationsManager.getUrl(playlist,key);
 	}
 	public String getArtUrl(){
 		return artUrl;

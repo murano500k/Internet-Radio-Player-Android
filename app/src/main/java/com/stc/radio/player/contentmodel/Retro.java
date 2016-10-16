@@ -39,7 +39,8 @@ public class Retro {
 				.client(httpClient.build()).build();
 		return retrofit.create(StationsInterface.class);
 	}
-	public static retrofit2.Call<List<PlaylistContent>> getStationsCall(String pls) {
+	public static retrofit2.Call<List<ParsedPlaylistItem>> getStationsCall(String pls) {
+		Timber.w("get stations for pls: %s", pls);
 		return getStationsInterface().getPlaylistContent(pls);
 	}
 

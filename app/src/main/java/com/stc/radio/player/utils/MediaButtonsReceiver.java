@@ -8,6 +8,10 @@ import android.view.KeyEvent;
 
 import com.stc.radio.player.ServiceRadioRx;
 
+import timber.log.Timber;
+
+import static com.stc.radio.player.ServiceRadioRx.EXTRA_WHICH;
+
 public class MediaButtonsReceiver extends BroadcastReceiver {
 
 	public static final String TAG = "MediaButtonsReceiver";
@@ -29,30 +33,32 @@ public class MediaButtonsReceiver extends BroadcastReceiver {
 		int action = event.getAction();
 		Log.d(TAG, "KeyEvent action=" + intentAction);
 		Log.d(TAG, "KeyEvent keycode=" + keycode);
+		if(action == KeyEvent.ACTION_DOWN){
 		if (keycode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
 				|| keycode == KeyEvent.KEYCODE_MEDIA_PLAY
-				|| keycode == KeyEvent.KEYCODE_MEDIA_PAUSE
-				|| keycode == KeyEvent.KEYCODE_HEADSETHOOK) {
-			if (action == KeyEvent.ACTION_DOWN) {
-				btnControlClick(context, ServiceRadioRx.EXTRA_PLAY_PAUSE_PRESSED);
-			}
+				|| keycode == KeyEvent.KEYCODE_MEDIA_PAUSE) {
+			Timber.w("KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE");
+			btnControlClick(context, ServiceRadioRx.EXTRA_WHICH_PLAY_PAUSE);
 		} else if (keycode == KeyEvent.KEYCODE_MEDIA_NEXT) {
-			if (action == KeyEvent.ACTION_DOWN) {
-				btnControlClick(context, ServiceRadioRx.EXTRA_NEXT_PRESSED);
-			}
+			Timber.w("KeyEvent.KEYCODE_MEDIA_PLAY_NEXT");
+			btnControlClick(context, ServiceRadioRx.EXTRA_WHICH_NEXT);
 		} else if (keycode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
-			if (action == KeyEvent.ACTION_DOWN) {
-				btnControlClick(context, ServiceRadioRx.EXTRA_PREV_PRESSED);
-			}
+			Timber.w("KeyEvent.KEYCODE_MEDIA_PLAY_PREV");
+			btnControlClick(context, ServiceRadioRx.EXTRA_WHICH_PREVIOUS);
+		} else if(keycode == KeyEvent.KEYCODE_HEADSETHOOK){
+			Timber.w("KEYCODE_HEADSETHOOK");
 		}
+
+		}
+
 	}
 
 
-	private void btnControlClick(Context context, String extra){
+	private void btnControlClick(Context context, int extra){
 		Log.i(TAG, "KEYCODE_MEDIA: "+extra);
 			Intent intent = new Intent(context, ServiceRadioRx.class);
 			intent.setAction(ServiceRadioRx.INTENT_USER_ACTION);
-			intent.putExtra(extra, extra);
+			intent.putExtra(EXTRA_WHICH, extra);
 			context.startService(intent);
 	}
 }

@@ -20,11 +20,10 @@ import com.mikepenz.fastadapter.adapters.FastItemAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fastadapter_extensions.drag.ItemTouchCallback;
 import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
-import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.Station;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import timber.log.Timber;
@@ -120,8 +119,9 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	private FastItemAdapter<StationListItem> initFastAdapter(){
 
 		fastItemAdapter = new FastItemAdapter<>();
-		fastItemAdapter.withSelectable(true);
+		fastItemAdapter.withSelectable(false);
 		fastItemAdapter.withMultiSelect(false);
+		fastItemAdapter.select(true);
 		fastItemAdapter.withOnClickListener(listItemOnClickListener);
 		fastItemAdapter.withFilterPredicate(new IItemAdapter.Predicate() {
 			@Override
@@ -137,22 +137,6 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			getSupportActionBar().setHomeButtonEnabled(false);
 		}*/
 	}
-	public void replaceAdapter(List <Station> list){
-		Timber.w("newList %d", list.size());
-		fastItemAdapter.clear();
-		fastItemAdapter.notifyAdapterDataSetChanged();
-		DbHelper.resetActiveStations();
-		for(Station s: list) {
-			s.setActive(true);
-			StationListItem stationListItem = new StationListItem()
-					.withIdentifier(s.getId())
-					.withStation(s);
-			fastItemAdapter.add(stationListItem);
-			s.setPosition(fastItemAdapter.getAdapterPosition(stationListItem));
-			s.save();
-		}
-		fastItemAdapter.notifyAdapterDataSetChanged();
-	}
 	@Override
 	public void itemsFiltered() {
 		Timber.v("filtered items count: %d", fastItemAdapter.getItemCount() );
@@ -160,14 +144,16 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 	}
 	@Override
 	public boolean itemTouchOnMove(int oldPosition, int newPosition) {
-		StationListItem item = (StationListItem) fastItemAdapter.getAdapterItem(oldPosition);
-		item.getStation().setPosition(newPosition);
-		item.getStation().save();
-		item =(StationListItem) fastItemAdapter.getAdapterItem(newPosition);
-		item.getStation().setPosition(oldPosition);
-		item.getStation().save();
-		Collections.swap(fastItemAdapter.getAdapterItems(), oldPosition, newPosition); // change position
-		fastItemAdapter.notifyAdapterItemMoved(oldPosition, newPosition);
+		if(newPosition!=oldPosition) {
+			StationListItem item = (StationListItem) fastItemAdapter.getAdapterItem(oldPosition);
+			item.getStation().setPosition(newPosition);
+			item.getStation().save();
+			item = (StationListItem) fastItemAdapter.getAdapterItem(newPosition);
+			item.getStation().setPosition(oldPosition);
+			item.getStation().save();
+			Collections.swap(fastItemAdapter.getAdapterItems(), oldPosition, newPosition); // change position
+			fastItemAdapter.notifyAdapterItemMoved(oldPosition, newPosition);
+		}
 		return true;
 	}
 
@@ -202,7 +188,6 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 			return null;
 		}
 		Set list = fastItemAdapter.getSelectedItems();
-		//if(list!=null)Timber.w("selected listsize=%d list:%s",list.size(), list.toString());
 		StationListItem item=null;
 		if(list!=null && !list.isEmpty()) item=(StationListItem)list.iterator().next();
 		if(item!=null)Timber.d("item=%s", item.station.getName());
@@ -213,12 +198,13 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		@Override
 		public boolean onClick(View v, IAdapter<StationListItem> adapter, StationListItem item, int position) {
 			Timber.v("item %s",item.station.getName());
-			adapter.getFastAdapter().deselect();
+			/*adapter.getFastAdapter().deselect();
 			adapter.getFastAdapter().select(position,false);
+*/
 			//fastItemAdapter.set(position, item.withSetSelected(true));
 			//fastItemAdapter.notifyAdapterItemChanged(position);
 			mListener.onListFragmentInteraction(item);
-			return true;
+			return false;
 		}
 	};/*
 	public void restoreState(int position){
@@ -293,19 +279,22 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 
 
 	public void updateSelection(Station station) {
-
-		if(station!=null && fastItemAdapter!=null){
+		if(station!=null && fastItemAdapter!=null
+				&& (getSelectedItem()==null || !getSelectedItem().getStation().getName().contains(station.getName()))){
 			Timber.w("station %s,pos=%d,", station.getName(),station.getPosition());
-
-			StationListItem item = getSelectedItem();
-			if(item !=null && item.station.getPosition()!=station.getPosition()) {
-				fastItemAdapter.deselect();
-				fastItemAdapter.select(station.getPosition(), false);
+			fastItemAdapter.deselect();
+			while (fastItemAdapter.getAdapterItems().iterator().hasNext()) {
+				StationListItem sli = fastItemAdapter.getAdapterItems().iterator().next();
+				if (sli.getStation().getKey()!=null && Objects.equals(sli.getStation().getKey(), station.getKey())) {
+					fastItemAdapter.select(fastItemAdapter.getAdapterPosition(sli), false);
+					break;
+				}
 			}
 
-			if(recyclerView!=null && station.getPosition()>=0) recyclerView.smoothScrollToPosition(station.getPosition());
 		}
-	}
+
+
+		}
 
 	public interface OnListFragmentInteractionListener {
 		// TODO: Update argument type and name

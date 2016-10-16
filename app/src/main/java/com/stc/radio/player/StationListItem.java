@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.activeandroid.query.Select;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
 import com.mikepenz.fastadapter.IDraggable;
@@ -20,10 +19,6 @@ import com.stc.radio.player.db.Station;
 import com.stc.radio.player.utils.PabloPicasso;
 
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import timber.log.Timber;
 
 import static com.activeandroid.Cache.getContext;
 import static junit.framework.Assert.assertNotNull;
@@ -71,7 +66,9 @@ public class StationListItem
 
 	@Override
 	public long getIdentifier() {
+		if(station==null )return -1;
 		return station.getId();
+
 	}
 
 	public StationListItem withStation(Station station) {
@@ -88,7 +85,8 @@ public class StationListItem
 		super.bindView(viewHolder, payloads);
 		Context ctx = viewHolder.itemView.getContext();
 		assertNotNull(this.station);
-		viewHolder.name.setText(station.getName());
+		assertNotNull(this.station.getName());
+		if(station.getName()!=null && viewHolder.name!=null)viewHolder.name.setText(station.getName());
 		viewHolder.name.setBackgroundColor(ctx.getResources().getColor(isSelected() ? R.color.colorAccent : R.color.cardview_dark_background));
 		viewHolder.name.setTextColor(ctx.getResources().getColor(isSelected() ? R.color.colorPrimary : R.color.md_white_1000));
 		viewHolder.favButton.setOnLikeListener(new OnLikeListener() {
@@ -103,6 +101,7 @@ public class StationListItem
 				station.save();
 			}
 		});
+		viewHolder.favButton.setLiked(station.isFavorite());
 
 		PabloPicasso.with(getContext()).load(station.getArtUrl()).error(R.drawable.default_art).fit().into(viewHolder.icon);
 
@@ -128,37 +127,33 @@ public class StationListItem
 	public ViewHolderFactory<? extends ViewHolder> getFactory() {
 		return FACTORY;
 	}
-	protected static class ViewHolder extends RecyclerView.ViewHolder implements Target {
+	protected static class ViewHolder extends RecyclerView.ViewHolder implements Target
+
+	{
 
 
 		protected View view;
-		@BindView(R.id.name)
 		TextView name;
 
-		@BindView(R.id.icon)
 		ImageView icon;
 
-		@BindView(R.id.fav_button)
 		LikeButton favButton;
 
 
 
 		public ViewHolder(View view) {
 			super(view);
-			ButterKnife.bind(this, view);
 			this.view = view;
+			name=(TextView)view.findViewById(R.id.textName);
+			favButton=(LikeButton) view.findViewById(R.id.fav_button);
+			icon=(ImageView) view.findViewById(R.id.icon_list_item);
 		}
 
 		@Override
 		public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-			icon.setImageBitmap(bitmap);
-			long id =getItemId();
-
-			Station s = new Select().from(Station.class).where("_id = ?", id).executeSingle();
-			assertNotNull(s);
-			Timber.w("onBitmapLoaded %s %s", s.getName(), from.toString());
-
-			//PabloPicasso.saveBitmap(bitmap, new File(s.artPath));
+			if(icon!=null){
+				icon.setImageBitmap(bitmap);
+			}
 		}
 
 		@Override

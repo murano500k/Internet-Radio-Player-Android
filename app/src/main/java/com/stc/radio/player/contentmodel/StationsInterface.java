@@ -12,5 +12,5 @@ import retrofit2.http.Path;
 
 public interface StationsInterface {
 	@GET("/v1/{playlist}/channels.json")
-	Call<List<PlaylistContent>>getPlaylistContent(@Path("playlist") String playlist);
+	Call<List<ParsedPlaylistItem>>getPlaylistContent(@Path("playlist") String playlist);
 }

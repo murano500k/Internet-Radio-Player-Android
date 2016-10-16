@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlaylistContent {
+public class ParsedPlaylistItem {
 
     @SerializedName("ad_channels")
     @Expose

@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.Delete;
-import com.stc.radio.player.contentmodel.PlaylistContent;
+import com.stc.radio.player.contentmodel.ParsedPlaylistItem;
 import com.stc.radio.player.contentmodel.Retro;
 import com.stc.radio.player.db.Station;
 import com.stc.radio.player.utils.PabloPicasso;
@@ -85,14 +85,14 @@ public class LoadingActivity extends AppCompatActivity {
 
 		private void loadPlaylistStations(String pls) {
 			Timber.w("pls=%s",pls);
-			Call<List<PlaylistContent>> loadSizeCall = Retro.getStationsCall(pls);
-			loadSizeCall.enqueue(new Callback<List<PlaylistContent>>() {
+			Call<List<ParsedPlaylistItem>> loadSizeCall = Retro.getStationsCall(pls);
+			loadSizeCall.enqueue(new Callback<List<ParsedPlaylistItem>>() {
 				@Override
-				public void onResponse(Call<List<PlaylistContent>> call, Response<List<PlaylistContent>> response) {
-					for(PlaylistContent item: response.body()) {
+				public void onResponse(Call<List<ParsedPlaylistItem>> call, Response<List<ParsedPlaylistItem>> response) {
+					for(ParsedPlaylistItem item: response.body()) {
 
 						Timber.w("%s",item.getKey());
-						Station s = new Station(item, pls);
+						Station s = new Station(item, pls,1,true);
 						allStations.add(s);
 						if(allStations.size()==50) PabloPicasso.with(getContext()).load(s.getArtUrl()).error(R.drawable.default_art).fit().into(imageView);
 						//progressBar.setVisibility(View.GONE);
@@ -104,7 +104,7 @@ public class LoadingActivity extends AppCompatActivity {
 				}
 
 				@Override
-				public void onFailure(Call<List<PlaylistContent>> call, Throwable t) {
+				public void onFailure(Call<List<ParsedPlaylistItem>> call, Throwable t) {
 					Timber.e("%s",t.toString());
 				}
 			});

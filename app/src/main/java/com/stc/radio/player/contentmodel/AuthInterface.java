@@ -11,3 +11,6 @@ public interface AuthInterface {
 	@GET("/")
 	Call<AuthData> getAuthData();
 }
+
+
+

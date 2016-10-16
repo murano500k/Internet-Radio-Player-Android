@@ -1,7 +1,11 @@
 package com.stc.radio.player.db;
 
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
+import com.stc.radio.player.contentmodel.ParsedPlaylistItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -188,13 +192,50 @@ public class DbHelper {
 				});
 	}*/
 
-	public static void resetActiveStations() {
-		List<Station> stations = new Select().from(Station.class).where("Active = ?", true).execute();
-		if (stations != null) {
-			for (Station station : stations) {
-				station.setActive(false);
+	public static List<Station> trannsformToStations(List <ParsedPlaylistItem> parsedPlaylistItemList, String pls) {
+		List<Station> newlist=new ArrayList<Station>();
+		ActiveAndroid.beginTransaction();
+		try{
+
+			for(int i = 0; i< parsedPlaylistItemList.size(); i++)  {
+				Station station =new Station(parsedPlaylistItemList.get(i), pls, i,true);
 				station.save();
+				newlist.add(station);
 			}
+			ActiveAndroid.setTransactionSuccessful();
+		 }catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			ActiveAndroid.endTransaction();
+		}
+
+		return newlist;
+	}
+
+
+	public static void trannsformToStations(List <Station> stations) {
+		ActiveAndroid.beginTransaction();
+		try{
+			From from=new Select().from(Station.class).where("Active = ?", true);
+			if(from.exists()) {
+				List<Station> stationsOld =from.execute();
+				if (stationsOld != null) {
+					for (Station station : stationsOld) {
+						station.setActive(false);
+						station.save();
+					}
+				}
+			}
+			for(int i = 0;i<stations.size();i++)  {
+				stations.get(i).setActive(true);
+				stations.get(i).setPosition(i);
+				stations.get(i).save();
+			}
+			ActiveAndroid.setTransactionSuccessful();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			ActiveAndroid.endTransaction();
 		}
 	}
 }

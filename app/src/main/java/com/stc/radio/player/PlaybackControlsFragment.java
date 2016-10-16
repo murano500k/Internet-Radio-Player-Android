@@ -151,6 +151,10 @@ public class PlaybackControlsFragment extends Fragment {
     }
 
 	public void updateStation(Station station) {
+		if (getActivity() == null) {
+			Timber.w("onLeftToRightSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
+			return;
+		}
 		//if(this.station==null && station==null) return;
 		//if(this.station!=null && station!=null && this.station.equals(station)) return;
 		assertNotNull(station);
@@ -160,6 +164,10 @@ public class PlaybackControlsFragment extends Fragment {
 	}
 
 	public void updateButtons(int state){
+		if (getActivity() == null) {
+			Timber.w("onLeftToRightSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
+			return;
+		}
 		//if(status!=state){
 			status=state;
 			rootView.setVisibility(View.VISIBLE);
@@ -195,6 +203,10 @@ public class PlaybackControlsFragment extends Fragment {
 
 	public void updateMetadata(Metadata metadata) {
 		//if(this.metadata==null && metadata==null) return;
+		if (getActivity() == null) {
+			Timber.w("onLeftToRightSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
+			return;
+		}
 		if(metadata!=null) {
 			this.metadata=metadata;
 		}else {
