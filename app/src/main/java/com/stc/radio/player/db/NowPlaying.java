@@ -254,8 +254,9 @@ public class NowPlaying extends Model {
 		return baseStatus;
 	}
 
-	public void setStations(List<Station> stations) {
+	public void setStations(List<Station> stations, boolean fireEvent) {
 		this.list=stations;
+		if(fireEvent) bus.post(this);
 	}
 
 	public String getStationKey() {

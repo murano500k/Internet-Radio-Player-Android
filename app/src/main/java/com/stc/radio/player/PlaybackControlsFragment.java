@@ -16,7 +16,6 @@
 package com.stc.radio.player;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -74,12 +73,34 @@ public class PlaybackControlsFragment extends Fragment {
 	String song;
 	String artist;
 	private OnControlsFragmentInteractionListener mListener;
-	Bitmap art;
 	private Metadata metadata;
 	private int status;
 	private Station station;
 	private FrameLayout pacmanIndicator;
 
+	public Metadata getMetadata() {
+		return metadata;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public Station getStation() {
+		return station;
+	}
+
+	public void setMetadata(Metadata metadata) {
+		this.metadata = metadata;
+	}
+
+	public void setStation(Station station) {
+		this.station = station;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
 
 	public PlaybackControlsFragment() {
 	}
@@ -167,7 +188,7 @@ public class PlaybackControlsFragment extends Fragment {
 			return;
 		}
 		//if(this.station==null && station==null) return;
-		if(this.station!=null && station!=null && !this.station.equals(station) ) updateMetadata(null);
+		//if(this.station!=null && station!=null && !this.station.equals(station) ) updateMetadata(null);
 		assertNotNull(station);
 		this.station=station;
 		if(mStation!=null) mStation.setText(station.getName());
@@ -364,6 +385,13 @@ public void onButtonClicked(int which){
 			updateMetadata(metadata);
 		}
 		if(rootView!=null)rootView.setVisibility(View.VISIBLE);
+	}
+
+	public void onContentUpdate() {
+
+		updateButtons(status);
+		updateMetadata(metadata);
+		updateStation(station);
 	}
 
 

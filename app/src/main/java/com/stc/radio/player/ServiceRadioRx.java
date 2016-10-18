@@ -56,7 +56,6 @@ import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_CONNECTIVITY;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_FOCUS;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_UNMUTE;
 import static java.lang.Boolean.TRUE;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
 
@@ -107,6 +106,10 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	private Subscriber<Boolean> startPlayingSubscriber;
 	private Subscriber playbackInterruptedSubscriber;
 
+	public NowPlaying getNowPlaying() {
+		return nowPlaying;
+	}
+
 
 	public class LocalBinder extends Binder {
 		public ServiceRadioRx getService() {
@@ -143,8 +146,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		notificationProviderRx =new NotificationProviderRx(getService(), getService());
 		if(!bus.isRegistered(notificationProviderRx)) bus.register(notificationProviderRx);
 		nowPlaying=NowPlaying.getInstance();
-		assertNotNull(nowPlaying);
-		nowPlaying.withStatus(STATUS_IDLE);
+		if(nowPlaying!=null)nowPlaying.withStatus(STATUS_IDLE);
 		if (audioManager == null) audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 		registerHeadsetPlugReceiver();
 		registerMediaButtonsReciever();
@@ -176,7 +178,14 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		nowPlaying.save();
 	}
 
-
+	@Subscribe()
+	public void onNowPlayingUpdate(NowPlaying nowPlaying) {
+		if (nowPlaying.getStation() == null) Timber.e("NULL STATION");
+		else if (!nowPlaying.getStation().equals(this.nowPlaying.getStation())
+				|| nowPlaying.getStatus() != this.nowPlaying.getStatus()) {
+			this.nowPlaying = nowPlaying;
+		}
+	}
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if(!bus.isRegistered(this))bus.register(this);
