@@ -259,7 +259,12 @@ public class NotificationProviderRx implements Target{
 				mService.getString(R.string.label_next), getServicePendingIntent(1,2));
 
 		String contentText = "";
-		if(metadata!=null)contentText+=metadata.getArtist() + "" + metadata.getSong();
+		if(metadata!=null){
+			if(metadata.getArtist()!=null && metadata.getSong()!=null && !metadata.getSong().contains(" - ") && !metadata.getSong().contains(" - "))
+				contentText+=metadata.getArtist() + " -  " + metadata.getSong();
+			else contentText+=metadata.getArtist() + " -  " + metadata.getSong();
+		}
+
 		String contentTitle = "" + station;
 
 		notificationBuilder

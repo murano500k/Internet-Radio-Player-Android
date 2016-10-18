@@ -59,6 +59,8 @@ import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.DI;
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.FAV;
+import static com.stc.radio.player.db.NowPlaying.STATUS_PLAYING;
 import static junit.framework.Assert.assertNotNull;
 
 public class MainActivity extends AppCompatActivity
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	public void onListFragmentInteraction(StationListItem item) {
 		assertNotNull(item);
-		if(toolbar!=null && item.getStation()!=null ) toolbar.setTitle(item.getStation().getPlaylist());
+		//if(toolbar!=null && item.getStation()!=null ) toolbar.setTitle(item.getStation().getPlaylist());
 		Timber.d("StationListItem clicked %s", item.station.getUrl());
 		KeyboardUtil.hideKeyboard(getActivity());
 		nowPlaying.setStation(item.getStation());
@@ -135,8 +137,9 @@ public class MainActivity extends AppCompatActivity
 			public void onCompleted() {
 				runOnUiThread(() -> {
 					initControlsFragment();
-					if(toolbar!=null && mTitle!=null) toolbar.setTitle(mTitle);
 					updateLoadingState(false);
+					FastItemAdapter<StationListItem> adapter = fragmentList.getAdapter();
+					adapter.notifyAdapterDataSetChanged();
 					checkService();
 				});
 
@@ -174,12 +177,14 @@ public class MainActivity extends AppCompatActivity
 		};
 	}
 	public Subscription observePlsUpdate(String pls){
+		if(!SettingsProvider.getPlaylist().equals(pls)) SettingsProvider.setPlaylist(pls);
 		if (listUpdateObserver == null) {
 			listUpdateObserver = getListObserver();
 		}
 		loadingStarted();
 		Timber.w("pls %s", pls);
-		return Observable.just(Retro.hasValidToken()).observeOn(Schedulers.io()).subscribeOn(Schedulers.newThread()).flatMap(new Func1<Boolean, Observable<String>>() {
+		return Observable.just(Retro.hasValidToken()).observeOn(Schedulers.io())
+				.subscribeOn(Schedulers.newThread()).flatMap(new Func1<Boolean, Observable<String>>() {
 			@Override
 			public Observable<String> call(Boolean aBoolean) {
 				if(aBoolean) return Observable.just(SettingsProvider.getToken());
@@ -201,13 +206,7 @@ public class MainActivity extends AppCompatActivity
 					from=new Select().from(Station.class).where("Favorite = ?", true);
 					if(!from.exists()) {
 						Timber.w("fav selected, but empty");
-						from=new Select().from(Station.class).where("Playlist = ?", StationsManager.PLAYLISTS.DI);
-						getActivity().runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								showToast("No favorites found");
-							}
-						});
+						from = new Select().from(Station.class).where("Playlist = ?", StationsManager.PLAYLISTS.DI);
 					}else {
 						list=from.execute();
 						return Observable.just(list);
@@ -268,8 +267,8 @@ public class MainActivity extends AppCompatActivity
 					if(nowPlaying==null ) nowPlaying=new NowPlaying();
 					if(nowPlaying.getStation()==null && stations.size()>0 && !stations.contains(nowPlaying.getStation()))
 						nowPlaying.setStation(stations.get(0), true);
+					if( stations.size()>0) nowPlaying.setStations(stations);
 					nowPlaying.save();
-					nowPlaying.setStations(stations);
 					runOnUiThread(() -> {
 						if (fragmentList == null) initListFragment();
 						FastItemAdapter<StationListItem> adapter = fragmentList.getAdapter();
@@ -298,10 +297,10 @@ public class MainActivity extends AppCompatActivity
 		}else if(pls==null) {
 			showToast("Please wait");
 			Timber.e(pls);
-		} else if (nowPlaying.getStation().getPlaylist().equals(pls)){
-			if(fragmentDrawer!=null )fragmentDrawer.updateDrawerState(false);
 		}else {
-			nowPlaying.setPlaylist(pls);
+
+			if(fragmentDrawer!=null )fragmentDrawer.updateDrawerState(false);
+			mTitle=pls;
 			updateLoadingState(true);
 			listUpdateSubscription=observePlsUpdate(pls);
 		}
@@ -310,11 +309,12 @@ public class MainActivity extends AppCompatActivity
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onBufferUpdate(BufferUpdate bufferUpdate) {
 		assertNotNull(bufferUpdate);
-		progressBar.setIndeterminate(false);
+		if(nowPlaying!=null &&  nowPlaying.getStatus()!=STATUS_PLAYING){
+			updateLoadingState(false);
+		}
 		progressBar.setProgress(bufferUpdate.getAudioBufferSizeMs() * progressBar.getMax() /
 				bufferUpdate.getAudioBufferCapacityMs());
-		updateLoadingState(false);
-	}
+		}
 
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
@@ -325,46 +325,42 @@ public class MainActivity extends AppCompatActivity
 				else{
 					if(!fragmentControls.isShown()) fragmentControls.show(nowPlaying);
 					else {
-					fragmentControls.updateMetadata(nowPlaying.getMetadata());
-					fragmentControls.updateButtons(nowPlaying.getStatus());
-					fragmentControls.updateStation(nowPlaying.getStation());
+						fragmentControls.updateMetadata(nowPlaying.getMetadata());
+						fragmentControls.updateStation(nowPlaying.getStation());
+						fragmentControls.updateButtons(nowPlaying.getStatus());
 					}
 			}
 			assertNotNull(fragmentList);
 	}
 
 	private void loadingStarted(){
-		updateLoadingState(false);
+		updateLoadingState(true);
 	}
 	public void loadingFinished(){
 		isLoading=false;
-		if(nowPlaying!=null && nowPlaying.getStation()!=null && nowPlaying.getPlaylist()!=null) {
-			setTitle(nowPlaying.getPlaylist());
-		}
 		updateLoadingState(false);
 	}
 
 
 	private void updateLoadingState(boolean isLoading) {
-
 		if (splashScreen == null)
 			splashScreen = (ProgressBar) findViewById(R.id.progress_splash);
 		this.isLoading=isLoading;
-
 		progressBar.setIndeterminate(isLoading);
 		if(isLoading) {
 			Timber.w("Loading started");
 			if(bus.isRegistered(this)) bus.unregister(this);
 			if (fragmentControls!= null) fragmentControls.hide();
 		}else {
+			if(mTitle!=null)toolbar.setTitle(mTitle);
 			Timber.w("Loading finished");
 			hideToast();
 			if(!bus.isRegistered(this)) bus.register(this);
 
 			if(nowPlaying==null) nowPlaying=NowPlaying.getInstance();
 			if(nowPlaying!=null){
-				nowPlaying.setStatus(NowPlaying.STATUS_SWITCHING, false);
-				if(fragmentControls!=null)fragmentControls.show(nowPlaying);
+				//nowPlaying.setStatus(nowPlaying.isPlaying() ? STATUS_PLAYING : NowPlaying.STATUS_IDLE);
+				if(nowPlaying.getStation()!=null) if(fragmentControls!=null)fragmentControls.show(nowPlaying);
 			}
 			restoreActionBar();
 
@@ -384,16 +380,12 @@ public class MainActivity extends AppCompatActivity
 			loadingDialog=b.create();
 			loadingDialog.show();
 		}
-
-
-
-		Timber.w("active pls %s", nowPlaying.getPlaylist());
-		initDrawer();
+		Timber.w("active pls %s", SettingsProvider.getPlaylist());
+		initDrawer(SettingsProvider.getPlaylist());
 		initListFragment();
 		initControlsFragment();
 		SettingsProvider.setDbExistsTrue();
 		if(!bus.isRegistered(this))bus.register(this);
-		restoreActionBar();
 		if(loadingDialog!=null && loadingDialog.isShowing()) loadingDialog.cancel();
 	}
 
@@ -411,28 +403,25 @@ public class MainActivity extends AppCompatActivity
 		connectivityManager=(ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 		ButterKnife.bind(this);
 		new MaterializeBuilder().withActivity(this).build();
-		initDrawer();
 		initListFragment();
-		if(!initNowPlaying()) {
-			Timber.w("DB empty. Now will download");
-			listUpdateSubscription=observePlsUpdate(DI);
-			return;
-		}
-		if(fragmentList.getAdapter()!=null && fragmentList.getAdapter().getAdapterItemCount()<=0){
-
-			String openedPls=nowPlaying.getStation().getPlaylist();
-			Timber.w("list empty. Now will update pls: %s", openedPls);
-
-			listUpdateSubscription=observePlsUpdate(openedPls);
-			return;
-		}
-		checkService();
+		String pls = initNowPlaying();
+		mTitle=pls;
+		listUpdateSubscription=observePlsUpdate(pls);
 	}
-	private boolean initNowPlaying(){
+	private String initNowPlaying(){
+		String pls = SettingsProvider.getPlaylist();
 		nowPlaying=NowPlaying.getInstance();
-		if (nowPlaying==null) return false;
-		Station station = nowPlaying.getStation();
-		return station!=null;
+		if (nowPlaying==null || nowPlaying.getStation()==null){
+			From from;
+			Timber.w("DB empty. Now will download");
+			if(pls==FAV) from = new Select().from(Station.class).where("Favorite = ?", true);
+			else from = new Select().from(Station.class).where("Playlist = ?", pls);
+			if(from.exists()) nowPlaying.setStation(from.executeSingle());
+		}
+
+		if(fragmentDrawer!=null) fragmentDrawer.selectItem(pls);
+		else initDrawer(pls);
+		return pls;
 	}
 
 	private void checkService() {
@@ -507,26 +496,23 @@ public class MainActivity extends AppCompatActivity
 			listUpdateSubscription.unsubscribe();
 			outState.putBoolean(INTERRUPTED_LOADING_PLAYLIST, true);
 		}else 			outState.putBoolean(INTERRUPTED_LOADING_PLAYLIST, false);
-
 		//Timber.i("check");
 		super.onSaveInstanceState(outState);
 	}
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		if(savedInstanceState.containsKey(INTERRUPTED_LOADING_PLAYLIST) && savedInstanceState.getBoolean(INTERRUPTED_LOADING_PLAYLIST)) {
-			Timber.w("INTERRUPTED_LOADING_PLAYLIST");
 
-			if(fragmentList==null || fragmentList.getAdapter()==null || fragmentList.getAdapter().getAdapterItems()==null
+			/*if(fragmentList==null || fragmentList.getAdapter()==null || fragmentList.getAdapter().getAdapterItems()==null
 					|| fragmentList.getAdapter().getAdapterItems().size()==0) {
 
 				listUpdateSubscription.unsubscribe();
-				listUpdateSubscription = observePlsUpdate(NowPlaying.getInstance().getPlaylist());
+				listUpdateSubscription = observePlsUpdate(SettingsProvider.getPlaylist());
 				savedInstanceState.putBoolean(INTERRUPTED_LOADING_PLAYLIST, false);
 			}
 			if(listUpdateSubscription!=null && !listUpdateSubscription.isUnsubscribed()) {
-			}
-		}
+			}*/
+
 		//Timber.i("check");
 	}
 	@Override
@@ -538,7 +524,9 @@ public class MainActivity extends AppCompatActivity
 					.withSong(fragmentControls.getSong())
 					.save();
 		}*/
-
+		if(listUpdateSubscription!=null && !listUpdateSubscription.isUnsubscribed()) {
+			listUpdateSubscription.unsubscribe();
+		}
 		super.onPause();
 	}
 
@@ -546,11 +534,12 @@ public class MainActivity extends AppCompatActivity
 	protected void onResume() {
 		super.onResume();
 		updateLoadingState(false);
-
-		if(isServiceConnected() && NowPlaying.getInstance()!=null){
+		if((fragmentList.getAdapter().getAdapterItems()==null || fragmentList.getAdapter().getAdapterItems().isEmpty()) && isServiceConnected() && (listUpdateSubscription==null || listUpdateSubscription.isUnsubscribed()))
+			listUpdateSubscription=observePlsUpdate(SettingsProvider.getPlaylist());
+		/*if(isServiceConnected() && NowPlaying.getInstance()!=null ){
 		nowPlaying=NowPlaying.getInstance();
 		onNowPlayingUpdate(nowPlaying);
-	}
+		}*/
 	}
 		@Override
 	protected void onStop() {
@@ -609,7 +598,7 @@ public class MainActivity extends AppCompatActivity
 	}
 
 
-	public void initDrawer() {
+	public void initDrawer(String pls) {
 		Timber.w("init drawer pls");
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 		dialogShower = new DialogShower();
@@ -619,10 +608,9 @@ public class MainActivity extends AppCompatActivity
 		if (fragmentDrawer == null) {
 			throw new IllegalStateException("Mising fragment with id 'fragment_naivgation_drawer'. Cannot continue.");
 		}
-
 		fragmentDrawer.setUp(
 				R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout), /*playlist.position*/0);
+				(DrawerLayout) findViewById(R.id.drawer_layout), /*playlist.position*/pls);
 
 		//fragmentDrawer.selectItem(nowPlaying.getPlaylist().position);
 
@@ -632,8 +620,6 @@ public class MainActivity extends AppCompatActivity
 		ActionBar actionBar = getSupportActionBar();
 		if(actionBar!=null){
 			actionBar.setDisplayShowTitleEnabled(true);
-			if(nowPlaying!=null && nowPlaying.getPlaylist()!=null)
-			actionBar.setTitle(nowPlaying.getPlaylist());
 			actionBar.setDisplayHomeAsUpEnabled(true);
 			actionBar.setHomeButtonEnabled(true);
 		}

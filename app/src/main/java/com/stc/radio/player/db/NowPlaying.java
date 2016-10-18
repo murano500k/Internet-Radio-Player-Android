@@ -5,6 +5,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
+import com.stc.radio.player.utils.SettingsProvider;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -123,8 +124,7 @@ public class NowPlaying extends Model {
 
 	}
 	public String getPlaylist() {
-		if(playlist!=null) return playlist;
-		else if(getStation()!=null) return getStation().getPlaylist();
+		 if(getStation()!=null) return getStation().getPlaylist();
 		return null;
 	}
 	public NowPlaying withMetadata(Metadata metadata) {
@@ -145,7 +145,6 @@ public class NowPlaying extends Model {
 		else this.stationKey =  s.getKey();
 		station=getStation();
 
-		if(station.playlist!=null)playlist=station.playlist;
 		this.save();
 		return this;
 	}
@@ -195,27 +194,17 @@ public class NowPlaying extends Model {
 		if(s.getKey()==null )this.stationKey=null;
 		else this.stationKey = s.getKey();
 		station=s;
-		if(station.playlist!=null)playlist=station.playlist;
-
-		setMetadata(null);
 		this.save();
 		if(post) {
-			setMetadata(null);
 			bus.post(this);
 		}
 	}
 	public void setStation(Station s, boolean fireEvent) {
 		boolean post=fireEvent;
 		this.stationKey = s.getKey();
-
 		station=s;
-		if(station.playlist!=null)playlist=station.playlist;
-		setMetadata(null);
-
 		this.save();
 		if(post) {
-			setMetadata(null);
-
 			bus.post(this);
 		}
 	}
@@ -243,18 +232,14 @@ public class NowPlaying extends Model {
 		this.status = status;
 		this.save();
 		if(post) {
-			setMetadata(null);
 			bus.post(this);
 		}
 	}
 
 	public List<Station>getStations(){
 		if(list!=null && list.size()>1) return list;
-		else if (station!=null && station.playlist!=null){
-			From from= new Select().from(Station.class).where("Playlist = ?", station.playlist);
-			if(from.exists()) list=from.execute();
-		}else if (playlist!=null) {
-			From from = new Select().from(Station.class).where("Playlist = ?", playlist);
+		else{
+			From from = new Select().from(Station.class).where("Playlist = ?", SettingsProvider.getPlaylist());
 			if (from.exists()) list = from.execute();
 		}
 		return list;
@@ -271,8 +256,6 @@ public class NowPlaying extends Model {
 
 	public void setStations(List<Station> stations) {
 		this.list=stations;
-		if(list!=null && list.get(0)!=null && list.get(0).getPlaylist()!=null)
-			this.playlist=list.get(0).playlist;
 	}
 
 	public String getStationKey() {

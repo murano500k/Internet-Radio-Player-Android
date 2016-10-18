@@ -135,10 +135,12 @@ public class PlaybackControlsFragment extends Fragment {
         mPlayPrev = (ImageButton) rootView.findViewById(R.id.play_prev);
 		pacmanIndicator = (FrameLayout) rootView.findViewById(R.id.pacman_layout);
 		pacmanIndicator.setVisibility(View.GONE);
+		mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
 
 		mPlayNext= (ImageButton) rootView.findViewById(R.id.play_next);
 		mPlayPause.setOnClickListener(v ->  onButtonClicked(0));
 		pacmanIndicator.setOnClickListener(	v -> onButtonClicked(0));
+		//mAlbumArt.setOnClickListener(	v -> onButtonClicked(0));
 		mPlayNext.setOnClickListener(v -> onButtonClicked(1));
 		mPlayPrev.setOnClickListener(v -> onButtonClicked(-1));
 
@@ -146,7 +148,6 @@ public class PlaybackControlsFragment extends Fragment {
 		mSong = (TextView) rootView.findViewById(R.id.title);
 	    mArtist = (TextView) rootView.findViewById(R.id.artist);
 	    mStation = (TextView) rootView.findViewById(R.id.station);
-        mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
 		rootView.setOnTouchListener(getOnSwipeListener(rootView));
 		rootView.setVisibility(View.GONE);
 		station= NowPlaying.getInstance().getStation();
@@ -166,7 +167,7 @@ public class PlaybackControlsFragment extends Fragment {
 			return;
 		}
 		//if(this.station==null && station==null) return;
-		//if(this.station!=null && station!=null && this.station.equals(station)) return;
+		if(this.station!=null && station!=null && !this.station.equals(station) ) updateMetadata(null);
 		assertNotNull(station);
 		this.station=station;
 		if(mStation!=null) mStation.setText(station.getName());
@@ -197,17 +198,19 @@ public class PlaybackControlsFragment extends Fragment {
 					break;
 				case STATUS_PAUSING:
 					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
-					mArtist.setText("PAUSING");
+					//mArtist.setText("PAUSING");
 					mPlayPause.setImageDrawable(
 							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
 					break;
 				case STATUS_STARTING:
-					pacmanIndicator.setVisibility(View.VISIBLE);
+					if(pacmanIndicator.isShown()) pacmanIndicator.setVisibility(View.GONE);
+					//mArtist.setText("STARTING");
+					mPlayPause.setImageDrawable(
+							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
 					break;
 				case STATUS_SWITCHING:
+					//mArtist.setText("SWITCHING");
 					pacmanIndicator.setVisibility(View.VISIBLE);
-					mArtist.setText("SWITCHING");
-
 					mPlayPause.setImageDrawable(
 							ContextCompat.getDrawable(getActivity(), R.drawable.ic_loading));
 					break;
@@ -297,28 +300,37 @@ public void onButtonClicked(int which){
 		Timber.w("onLeftToRightSwipe called when getActivity null, this should not happen if the callback was properly unregistered. Ignoring.");
 		return;
 	}
-	Timber.w("<");
+	Timber.w("<");/*
 	if(status==STATUS_PLAYING || status==STATUS_STARTING || status==STATUS_SWITCHING) {
 		if (which == 0) updateButtons(STATUS_PAUSING);
 		else updateButtons(STATUS_SWITCHING);
 	}else {
 		if (which == 0) updateButtons(STATUS_STARTING);
 		else updateButtons(STATUS_STARTING);
-	}
+	}*/
 	mListener.onControlsFragmentInteraction(which);
 }
 
 	public OnSwipeListener getOnSwipeListener(View rootView){
 		return new OnSwipeListener(rootView) {
+
+			@Override
+			public void onTopToBottomSwipe() {
+				onButtonClicked(0);
+			}
+
+			@Override
+			public void onBottomToTopSwipe() {
+				onButtonClicked(0);
+			}
+
 			@Override
 			public void onLeftToRightSwipe() {
-				super.onLeftToRightSwipe();
 				onButtonClicked(-1);
 			}
 
 			@Override
 			public void onRightToLeftSwipe() {
-				super.onRightToLeftSwipe();
 
 				onButtonClicked(1);
 			}
@@ -342,14 +354,13 @@ public void onButtonClicked(int which){
 			return;
 		}
 		if(nowPlaying!=null){
+			this.metadata=nowPlaying.getMetadata();
 			if(nowPlaying.getStation()!=null) {
 				this.station=nowPlaying.getStation();
 				updateStation(nowPlaying.getStation());
 			}
 			this.status=nowPlaying.getStatus();
-			this.metadata=nowPlaying.getMetadata();
-			if(status!=STATUS_IDLE || status!=STATUS_PLAYING) updateButtons(status);
-			else updateButtons(STATUS_IDLE);
+			updateButtons(status);
 			updateMetadata(metadata);
 		}
 		if(rootView!=null)rootView.setVisibility(View.VISIBLE);

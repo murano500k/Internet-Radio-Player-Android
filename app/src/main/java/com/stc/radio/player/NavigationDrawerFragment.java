@@ -17,7 +17,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 import timber.log.Timber;
+
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.CLASSIC;
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.DI;
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.FAV;
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.JAZZ;
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.RADIOTUNES;
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.ROCK;
+import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.SOMA;
 
 public class NavigationDrawerFragment extends Fragment {
 
@@ -46,8 +56,10 @@ public class NavigationDrawerFragment extends Fragment {
 	private ListView mDrawerListView;
 	private View mFragmentContainerView;
 
-	private int mCurrentSelectedPosition = 0;
+	private String mCurrentSelectedPls;
 	private boolean mUserLearnedDrawer;
+	public ArrayList<String> items;
+
 
 	public NavigationDrawerFragment() {
 	}
@@ -55,7 +67,14 @@ public class NavigationDrawerFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		items=new ArrayList<>();
+		items.add(DI);
+		items.add(CLASSIC);
+		items.add(JAZZ);
+		items.add(ROCK);
+		items.add(RADIOTUNES);
+		items.add(SOMA);
+		items.add(FAV);
 	}
 
 	@Override
@@ -85,16 +104,16 @@ public class NavigationDrawerFragment extends Fragment {
 				android.R.layout.simple_list_item_activated_1,
 				android.R.id.text1,
 				new String[]{
-						getString(R.string.url_section_di_fm),
-						getString(R.string.url_section_classic),
-						getString(R.string.url_section_jazz),
-						getString(R.string.url_section_rock),
-						getString(R.string.url_section_radiotunes),
-						getString(R.string.url_section_soma),
-						getString(R.string.url_section_favorite)
+						items.get(0),
+						items.get(1),
+						items.get(2),
+						items.get(3),
+						items.get(4),
+						items.get(5),
+						items.get(6),
 				}));
-
-		mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+		if(mCurrentSelectedPls!=null)
+		mDrawerListView.setItemChecked(items.indexOf(mCurrentSelectedPls), true);
 		//selectItem(mCurrentSelectedPosition);
 		return mDrawerListView;
 	}
@@ -114,8 +133,9 @@ public class NavigationDrawerFragment extends Fragment {
 	 * @param fragmentId   The android:id of this fragment in its activity's layout.
 	 * @param drawerLayout The DrawerLayout containing this fragment's UI.
 	 */
-	public void setUp(int fragmentId, DrawerLayout drawerLayout, int selectedPosition) {
-		mCurrentSelectedPosition= selectedPosition;
+	public void setUp(int fragmentId, DrawerLayout drawerLayout, String pls) {
+
+		mCurrentSelectedPls= pls;
 		mFragmentContainerView = getActivity().findViewById(fragmentId);
 		mDrawerLayout = drawerLayout;
 		mDrawerToggle = new ActionBarDrawerToggle(
@@ -172,8 +192,21 @@ public class NavigationDrawerFragment extends Fragment {
 
 	public void selectItem(int position) {
 		Timber.d("pos=%d", position);
-
-		mCurrentSelectedPosition = position;
+		mCurrentSelectedPls = items.get(position);
+		if (mDrawerListView != null) {
+			mDrawerListView.setItemChecked(position, true);
+		}
+		if (mDrawerLayout != null) {
+			mDrawerLayout.closeDrawer(mFragmentContainerView);
+		}
+		if (mCallbacks != null) {
+			mCallbacks.onNavigationDrawerItemSelected((String) mDrawerListView.getAdapter().getItem(position));
+		}
+	}
+	public void selectItem(String pls) {
+		int position=items.indexOf(pls);
+		Timber.d("pos=%d", position);
+		mCurrentSelectedPls = items.get(position);
 		if (mDrawerListView != null) {
 			mDrawerListView.setItemChecked(position, true);
 		}
@@ -223,9 +256,9 @@ public class NavigationDrawerFragment extends Fragment {
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
 		}
-
 		return super.onOptionsItemSelected(item);
-	}
+		}
+
 
 	/**
 	 * Callbacks interface that all activities using this fragment must implement.

@@ -23,7 +23,7 @@ public class StationsManager {
 
 		String base="";
 		if(playlist.equals(DI) ) base+=playlist+"/"+key+"_hi";
-		else if (playlist.equals(RADIOTUNES) || playlist.equals(ROCK))base+=playlist+".com"+"/"+key+"_hi";
+		else if (playlist.equals(RADIOTUNES) || playlist.equals(ROCK))base+="radiotunes.com"+"/"+key+"_hi";
 		else base+=playlist+".com"+"/"+key;
 		return "http://prem"+num+"."+base+"?"+ SettingsProvider.getToken();
 	}

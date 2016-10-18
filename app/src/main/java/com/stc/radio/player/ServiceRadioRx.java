@@ -55,6 +55,7 @@ import static com.stc.radio.player.db.NowPlaying.STATUS_SWITCHING;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_CONNECTIVITY;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_FOCUS;
 import static com.stc.radio.player.db.NowPlaying.STATUS_WAITING_UNMUTE;
+import static java.lang.Boolean.TRUE;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 
@@ -148,7 +149,10 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		registerHeadsetPlugReceiver();
 		registerMediaButtonsReciever();
 	}
-
+	public boolean isPlaying(){
+		if(nowPlaying!=null) return nowPlaying.isPlaying();
+		else return false;
+	}
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -214,7 +218,8 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 			switch (nowPlaying.getStatus()){
 				case STATUS_IDLE:
 					nowPlaying.withStation(station).setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().getUrl());
+					if (requestFocus()) tryToPlayAsync(nowPlaying.getStation().getUrl());
+					else nowPlaying.setStatus(STATUS_IDLE);
 					break;
 				case STATUS_PLAYING:
 					nowPlaying.withStation(station).setStatus(STATUS_SWITCHING);
@@ -233,7 +238,8 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 
 					dontlistenConnectivity();
 					nowPlaying.withStation(station).setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().getUrl());
+					if (requestFocus()) tryToPlayAsync(nowPlaying.getStation().getUrl());
+					else nowPlaying.setStatus(STATUS_IDLE);
 					break;
 				case STATUS_WAITING_UNMUTE:
 					showToast("STATUS_WAITING_UNMUTE");
@@ -241,7 +247,8 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				case STATUS_WAITING_FOCUS:
 					abandonFocus();
 					nowPlaying.withStation(station).setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().getUrl());
+					if (requestFocus()) tryToPlayAsync(nowPlaying.getStation().getUrl());
+					else nowPlaying.setStatus(STATUS_IDLE);
 					break;
 
 			}
@@ -268,7 +275,8 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 					Timber.e("No station selected");
 				}else {
 					nowPlaying.setStatus(STATUS_STARTING);
-					tryToPlayAsync(nowPlaying.getStation().getUrl());
+					if (requestFocus()) tryToPlayAsync(nowPlaying.getStation().getUrl());
+					else nowPlaying.setStatus(STATUS_IDLE);
 				}
 				break;
 			case STATUS_PLAYING:
@@ -309,8 +317,9 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		Timber.e("resetPlayer %d", nowPlaying.getStatus());
 		if(nowPlaying.getStatus()!=STATUS_IDLE){
 			abandonFocus();
-			audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
+			audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,AudioManager.ADJUST_RAISE, AudioManager.FLAG_VIBRATE);
 			getPlayer().stop();
+			mRadioPlayer=null;
 			nowPlaying.setStatus(STATUS_IDLE);
 		}
 	}
@@ -329,8 +338,9 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 				station = iterator.next();
 				if (station.getKey().contains(nowPlaying.getStation().getKey())) {
 					if (which < 0 && lastStation != null) onNewStationToPlay(lastStation);
-					else if (which > 0 && nowPlaying.getShuffle())
-						onNewStationToPlay(iterator.next());
+					else if(which < 0) onNewStationToPlay(list.get(list.size()-1));
+					else if (which > 0 && !iterator.hasNext())
+						onNewStationToPlay(list.get(0));
 					else if (which > 0 && iterator.hasNext())
 						onNewStationToPlay(iterator.next());
 					else if (station != null)
@@ -417,16 +427,18 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 	public void playerException(Throwable throwable) {
 		Timber.w(throwable.getMessage(), "TEST callback playerException");
 		mRadioPlayer=null;
-		nowPlaying.setMetadata(new Metadata(throwable.getMessage(),"isPlaying: "+nowPlaying.isPlaying()));
+		//nowPlaying.setMetadata(new Metadata(throwable.getMessage(),"isPlaying: "+nowPlaying.isPlaying()));
 		nowPlaying.setStatus(STATUS_IDLE, true);
 		showToast("ERROR: "+throwable.getMessage());
 	}
 	@Override
 	public void playerStarted() {
 		Timber.w("callback playerStarted when status was %d", nowPlaying.getStatus());
-		if(nowPlaying.getStatus()==STATUS_WAITING_CONNECTIVITY) dontlistenConnectivity();
+		if(nowPlaying.getStatus()==STATUS_WAITING_CONNECTIVITY) {
+			dontlistenConnectivity();
+		}
 		if(loadingFailedListener != null && !loadingFailedListener.isUnsubscribed()) loadingFailedListener.unsubscribe();
-		nowPlaying.setStatus(STATUS_PLAYING);
+		nowPlaying.setStatus(STATUS_PLAYING, TRUE);
 	}
 
 
@@ -436,6 +448,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		Timber.w("TEST callback playerStopped %d", i);
 		Timber.w("base_status : %b",nowPlaying.isPlaying());
 		nowPlaying.setBaseStatus(false);
+		nowPlaying.setMetadata(null, false);
 
 		if(nowPlaying.getStatus()==STATUS_WAITING_UNMUTE){
 			nowPlaying.setStatus(STATUS_IDLE);
@@ -500,17 +513,16 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		if((s1!=null && s1.equals("StreamTitle")) || (s2!=null && s2.contains("kbps"))) {
 			a = getArtistFromString(s2);
 			s = getTrackFromString(s2);
-
 			post=true;
 		}else if(s1!=null && s1.contains("StreamTitle")) {
-			a = s1.replace("StreamTitle", "");
+			a = s1.replace("StreamTitle=", "");
 			s = "";
 			post=true;
 		}
 		if(post){
 			metadata = new Metadata(a, s);
-			nowPlaying.setMetadata(metadata, false);
-			bus.post(metadata);
+			nowPlaying.setMetadata(metadata, true);
+
 		}
 	}
 
@@ -640,44 +652,30 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 			audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 		if (audioFocusChangeListener == null) {
 			audioFocusChangeListener = focusChange -> {
-				if (focusChange == AudioManager.AUDIOFOCUS_LOSS
+				if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
+						|| focusChange == AudioManager.AUDIOFOCUS_LOSS
 						|| focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-					Log.d(TAG, "focusChange == AudioManager.AUDIOFOCUS_LOSS)");
-					if (nowPlaying.getStatus() == STATUS_PLAYING) {
+					Timber.w("focusChange == AudioManager.AUDIOFOCUS_LOSS)");
+					if (nowPlaying.isPlaying() || nowPlaying.getStatus()==STATUS_PLAYING) {
 						nowPlaying.setStatus(STATUS_WAITING_FOCUS);
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, AudioManager.FLAG_VIBRATE);
+						} else {
+							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_VIBRATE);
+						}
 						getPlayer().stop();
 					}
-				} else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-					Log.d(TAG, "focusChange AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
-					if (nowPlaying.getStatus() == STATUS_PLAYING) {
-						nowPlaying.setStatus(STATUS_WAITING_UNMUTE);
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, AudioManager.FLAG_PLAY_SOUND);
-						} else {
-							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_PLAY_SOUND);
-						}
-					}
-				} else if (focusChange == AudioManager.AUDIOFOCUS_GAIN
-						|| focusChange == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT) {
+				} else {
 					Log.d(TAG, "focusChange AUDIOFOCUS_GAIN");
-					if (nowPlaying.getStatus() == STATUS_WAITING_FOCUS) {
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, AudioManager.FLAG_VIBRATE);
+						} else {
+							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_VIBRATE);
+						}
 						nowPlaying.setStatus(STATUS_STARTING);
 						if (requestFocus()) tryToPlayAsync(nowPlaying.getStation().getUrl());
-						else {
-							nowPlaying.setStatus(STATUS_IDLE);
-						}
+						else nowPlaying.setStatus(STATUS_IDLE);
 					}
-				} else if (focusChange == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK) {
-					if (nowPlaying.getStatus() == STATUS_WAITING_UNMUTE) {
-						nowPlaying.setStatus(STATUS_PLAYING);
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, AudioManager.FLAG_PLAY_SOUND);
-						} else {
-							audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_PLAY_SOUND);
-						}
-					}
-				}
-
 			};
 		}
 		return audioFocusChangeListener;
