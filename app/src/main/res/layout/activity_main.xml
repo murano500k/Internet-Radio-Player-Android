@@ -41,7 +41,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/progress_splash"
             android:indeterminate="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            tools:visibility="gone"/>
 
         <FrameLayout
             android:id="@+id/container_controls"

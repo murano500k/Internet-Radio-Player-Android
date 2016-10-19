@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+
+
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -7,54 +9,62 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="100dp"
-    android:background="@color/colorPrimaryDark"
-    >
-
-    <ImageView
-        android:id="@+id/icon_list_item"
-
-        android:visibility="visible"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitCenter"
-        android:background="@color/colorPrimary"
-        android:cropToPadding="true"/>
-
+    android:layout_margin="4dp"
+    android:clickable="true">
     <pl.bclogic.pulsator4droid.library.PulsatorLayout
         android:id="@+id/pulsator"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:pulse_count="3"
-        app:pulse_duration="3000"
-        app:pulse_repeat="0"
+        app:pulse_count="1"
+        app:pulse_duration="1"
+        app:pulse_repeat="1"
         app:pulse_color="@color/colorAccent"
         app:pulse_startFromScratch="false"
-        app:pulse_interpolator="Linear"
-        android:layout_margin="2dp"
-        android:background="@color/cardview_shadow_start_color">
+        app:pulse_interpolator="Accelerate"
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <com.stc.radio.player.GridItemImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/icon_list_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:clickable="false"
+        android:scaleType="fitXY"
+        android:layout_marginBottom="30dp"/>
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="bottom|center_vertical"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true">
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/textName"
             android:text="drumandbass"
-            android:textSize="@dimen/station_text_size"
-            android:gravity="center_vertical"
+            android:textSize="14sp"
             android:lines="1"
+            android:gravity="center_vertical"
             android:layout_toStartOf="@+id/fav_button"
-            android:layout_alignBottom="@+id/fav_button"
-            android:layout_alignParentTop="true"/>
+            android:paddingStart="8dp"
+            android:layout_alignParentEnd="true"/>
 
         <com.like.LikeButton
             app:icon_type="star"
-            app:icon_size="16dp"
+            app:icon_size="14dp"
             android:id="@+id/fav_button"
             app:is_enabled="true"
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"/>
+            android:layout_alignParentEnd="true"
+            android:layout_margin="4dp"/>
+    </RelativeLayout>
+
+
 
 
     </pl.bclogic.pulsator4droid.library.PulsatorLayout>

@@ -103,10 +103,10 @@ public class MainActivity extends AppCompatActivity
 	public void onListFragmentInteraction(StationListItem item) {
 		assertNotNull(item);
 		//if(toolbar!=null && item.getStation()!=null ) toolbar.setTitle(item.getStation().getPlaylist());
-		Timber.d("StationListItem clicked %s", item.station.getUrl());
 		KeyboardUtil.hideKeyboard(getActivity());
+
 		nowPlaying.setStation(item.getStation());
-		bus.post(item.station);
+		bus.post(nowPlaying.getStation());
 	}
 
 	/*Metadata string: StreamTitle='Pete Seeger - I Celebrate Life (Spoken Word)';StreamUrl='';*/

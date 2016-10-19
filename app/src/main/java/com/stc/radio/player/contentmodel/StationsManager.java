@@ -183,7 +183,7 @@ public class StationsManager {
 				}).observeOn(Schedulers.newThread()).subscribeOn(Schedulers.computation()).flatMap(new Func1<Station, Observable<StationListItem>>() {
 					@Override
 					public Observable<StationListItem> call(Station station) {
-						StationListItem listItem = new StationListItem().withStation(station);
+						StationListItem listItem = new StationListItem(station);
 						return Observable.just(listItem);
 					}
 				});

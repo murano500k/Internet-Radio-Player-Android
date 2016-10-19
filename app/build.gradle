@@ -16,8 +16,8 @@ android {
         applicationId "com.stc.radio.player"
         minSdkVersion 21
         targetSdkVersion 24
-        versionCode 3
-        versionName "2.0.1"
+        versionCode 4
+        versionName "2.0.2"
         multiDexEnabled false
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         jackOptions {
@@ -113,6 +113,8 @@ dependencies {
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     debugCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+
+    compile 'pl.bclogic:pulsator4droid:1.0.3'
 
 
 }
