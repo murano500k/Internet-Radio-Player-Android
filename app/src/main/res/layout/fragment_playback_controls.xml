@@ -6,16 +6,18 @@
                 android:layout_width="match_parent"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/playback_controls_padding"
                 android:background="@drawable/border"
                 android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
                 android:id="@+id/fragment_playback_controls"
                 android:elevation="30dp"
-                tools:context="com.stc.radio.player.MainActivity">
+                tools:context="com.stc.radio.player.MainActivity"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="8dp">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="100dp"
         android:background="@color/colorPrimary"
         android:elevation="16dp"
         android:id="@+id/pacman_layout"
@@ -29,8 +31,8 @@
             app:indicator_color="@color/colorAccent"
             android:layout_centerInParent="true"
             android:layout_alignParentBottom="false"
-            android:layout_width="100dp"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:layout_width="72dp"/>
     </FrameLayout>
 
     <ImageView
@@ -40,20 +42,20 @@
         android:clickable="true"
 
         android:layout_alignParentStart="true"
-        android:layout_height="120dp"
-        android:layout_width="120dp"
         android:layout_centerInParent="true"
-        android:layout_centerVertical="true"/>
+        android:layout_centerVertical="true"
+        android:layout_width="100dp"
+        android:layout_height="100dp"/>
 
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/playback_controls_albumart_horizontal_margin"
         android:orientation="vertical"
         android:layout_toEndOf="@id/album_art"
         android:weightSum="6"
-        android:layout_centerVertical="false">
+        android:layout_centerVertical="false"
+        android:layout_marginStart="12dp">
 
         <TextView
             android:id="@+id/station"
@@ -97,30 +99,29 @@
         <LinearLayout
             android:orientation="horizontal"
             android:weightSum="3"
-            android:layout_weight="3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="4dp">
 
             <ImageButton
                 android:id="@+id/play_prev"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:elevation="15dp"
-                android:src="@drawable/ic_prev"
+                android:src="@android:drawable/ic_media_previous"
                 android:background="?attr/actionBarItemBackground"
                 android:layout_weight="1"/>
             <ImageButton
                 android:id="@+id/play_pause"
                 android:layout_width="wrap_content"
-                android:src="@drawable/ic_play"
+                android:src="@drawable/ic_media_play"
                 android:background="?attr/actionBarItemBackground"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:elevation="15dp"/>
             <ImageButton
                 android:id="@+id/play_next"
-                android:src="@drawable/ic_next"
+                android:src="@android:drawable/ic_media_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:elevation="15dp"

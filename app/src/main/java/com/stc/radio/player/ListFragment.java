@@ -99,7 +99,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		}
 		if (view instanceof RecyclerView) {
 			Context context = view.getContext();
-			recyclerView = (AutoFitGridRecyclerView)view.findViewById(R.id.recyclerView);
+			recyclerView = (AutoFitGridRecyclerView)view.findViewById(R.id.recyclerViewAutoFit);
 
 			/*recyclerView = (RecyclerView) view;
 			recyclerView.setLayoutManager(new LinearLayoutManager(context));

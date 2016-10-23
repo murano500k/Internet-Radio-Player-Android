@@ -22,7 +22,7 @@
 
     <!-- playback controls -->
     <dimen name="playback_controls_albumart_horizontal_margin">8dp</dimen>
-    <dimen name="playback_controls_albumart_size">200dp</dimen>
+    <dimen name="playback_controls_albumart_size">100dp</dimen>
     <dimen name="playback_controls_padding">8dp</dimen>
 
     <!-- navigation drawer -->
@@ -53,4 +53,5 @@
     <dimen name="movie_detail_color_banner_min_height">100dp</dimen>
     <dimen name="movie_detail_medium_text_size">20sp</dimen>
     <dimen name="movie_detail_perimeter_spacing_primary">10dp</dimen>
+
 </resources>

@@ -20,6 +20,9 @@
     <color name="fullscreen_line_color">#E5FFFFFF</color>
     <color name="tv_search_button">#ff0097A7</color>
     <color name="background_gradient_start">#000000</color>
-    <color name="background_gradient_end">#DDDDDD</color>
+    <color name="background_gradient_end">#dddddd</color>
     <color name="default_background">#0096a6</color>
+
+
+
 </resources>

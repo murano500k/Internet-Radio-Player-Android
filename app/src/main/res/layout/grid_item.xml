@@ -14,12 +14,13 @@
     <pl.bclogic.pulsator4droid.library.PulsatorLayout
         android:id="@+id/pulsator"
         app:pulse_count="1"
+        android:background="@color/colorPrimary"
+
         app:pulse_duration="1"
         app:pulse_repeat="1"
         app:pulse_color="@color/colorAccent"
         app:pulse_startFromScratch="false"
         app:pulse_interpolator="Accelerate"
-        android:background="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     <com.stc.radio.player.GridItemImageView

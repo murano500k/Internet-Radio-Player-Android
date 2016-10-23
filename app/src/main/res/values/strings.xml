@@ -7,9 +7,10 @@
     <string name="title_section_rock">Rock Radio</string>
     <string name="title_section_classic">Classical Radio</string>
     <string name="title_section_favorite">Favorite</string>
+    <string name="title_section_soma">SomaFM</string>
 
 
-    <string name="url_section_di.fm">di.fm</string>
+    <string name="url_section_di">difm</string>
     <string name="url_section_soma">somafm</string>
     <string name="url_section_radiotunes">radiotunes</string>
     <string name="url_section_jazz">jazzradio</string>
