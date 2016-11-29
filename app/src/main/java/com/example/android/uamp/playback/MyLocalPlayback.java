@@ -272,16 +272,16 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		LogHelper.d(TAG, "configMediaPlayerState. mAudioFocus=", mAudioFocus);
 		if (mAudioFocus == AUDIO_NO_FOCUS_NO_DUCK) {
 			// If we don't have audio focus and can't duck, we have to pause,
-			if (mState == PlaybackStateCompat.STATE_PLAYING) {
+			if (mMediaPlayer != null && isPlaying) {
 				pause();
 			}
 		} else if (mPlayOnFocusGain) {
 				if (mMediaPlayer != null && !isPlaying) {
 					LogHelper.d(TAG,"configMediaPlayerState startMediaPlayer. seeking to ",
 							mCurrentPosition);
-					mState = PlaybackStateCompat.STATE_BUFFERING;
+					mState = PlaybackStateCompat.STATE_PLAYING;
 					createMediaPlayerIfNeeded();
-					tryToGetAudioFocus();
+					//tryToGetAudioFocus();
 					if(mCurrentSource!=null)tryToPlayAsync(mCurrentSource);
 				}
 				mPlayOnFocusGain = false;
@@ -298,27 +298,20 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 	@Override
 	public void onAudioFocusChange(int focusChange) {
 		LogHelper.d(TAG, "onAudioFocusChange. focusChange=", focusChange);
-		if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-			// We have gained focus:
-			mAudioFocus = AUDIO_FOCUSED;
-
-		} else if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
+		if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
 				focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
 				focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
 			// We have lost focus. If we can duck (low playback volume), we can keep playing.
 			// Otherwise, we need to pause the playback.
-			boolean canDuck = focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK;
-			mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
-
-			// If we are playing, we need to reset media player by calling configMediaPlayerState
-			// with mAudioFocus properly set.
-			if (mState == PlaybackStateCompat.STATE_PLAYING && !canDuck) {
-				// If we don't have audio focus and can't duck, we save the information that
-				// we were playing, so that we can resume playback once we get the focus back.
+			if (isPlaying()) {
 				mPlayOnFocusGain = true;
 			}
-		} else {
-			LogHelper.e(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: ", focusChange);
+		} else if(focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
+				|| focusChange == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+				|| focusChange == AudioManager.AUDIOFOCUS_GAIN
+				|| focusChange == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE){
+			LogHelper.w(TAG, "onAudioFocusChange: ", focusChange);
+			mAudioFocus = AUDIO_FOCUSED;
 		}
 		configMediaPlayerState();
 	}
@@ -341,6 +334,8 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		if (mCallback != null) {
 			mCallback.onCompletion();
 		}
+		EventBus.getDefault().post(new MyMetadata(""));
+
 	}
 
 	@Override

@@ -1,0 +1,1371 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 438829056 bytes for committing reserved memory.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (os_linux.cpp:2627), pid=15085, tid=0x00007f27fabb1700
+#
+# JRE version: OpenJDK Runtime Environment (8.0_76-b03) (build 1.8.0_76-release-b03)
+# Java VM: OpenJDK 64-Bit Server VM (25.76-b03 mixed mode linux-amd64 compressed oops)
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f2818077800):  VMThread [stack: 0x00007f27faab1000,0x00007f27fabb2000] [id=15093]
+
+Stack: [0x00007f27faab1000,0x00007f27fabb2000],  sp=0x00007f27fabb0520,  free space=1021k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0x9d9fcd]  VMError::report_and_die()+0x15d
+V  [libjvm.so+0x4b4d4a]  report_vm_out_of_memory(char const*, int, unsigned long, VMErrorType, char const*)+0x8a
+V  [libjvm.so+0x845190]  os::pd_commit_memory(char*, unsigned long, unsigned long, bool)+0xf0
+V  [libjvm.so+0x83fcbf]  os::commit_memory(char*, unsigned long, unsigned long, bool)+0x1f
+V  [libjvm.so+0x8b4d9b]  PSVirtualSpace::expand_by(unsigned long)+0x5b
+V  [libjvm.so+0x8a5b7b]  PSOldGen::expand_by(unsigned long) [clone .part.109]+0x1b
+V  [libjvm.so+0x8a5d3b]  PSOldGen::expand(unsigned long) [clone .part.111]+0xdb
+V  [libjvm.so+0x8a6618]  PSOldGen::resize(unsigned long)+0x188
+V  [libjvm.so+0x8abc2c]  PSParallelCompact::invoke_no_policy(bool)+0x97c
+V  [libjvm.so+0x8b2d3d]  PSScavenge::invoke()+0x17d
+V  [libjvm.so+0x9dbc25]  VM_ParallelGCSystemGC::doit()+0xf5
+V  [libjvm.so+0x9dfe47]  VM_Operation::evaluate()+0x47
+V  [libjvm.so+0x9de908]  VMThread::evaluate_operation(VM_Operation*)+0x2c8
+V  [libjvm.so+0x9ded89]  VMThread::loop()+0x219
+V  [libjvm.so+0x9df1d2]  VMThread::run()+0x72
+V  [libjvm.so+0x8425b2]  java_start(Thread*)+0xf2
+
+VM_Operation (0x00007f2781c146c0): ParallelGCSystemGC, mode: safepoint, requested by thread 0x00007f2766f50800
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x00007f2766f52800 JavaThread "config-10-worker-3" daemon [_thread_blocked, id=19140, stack(0x00007f274fcc5000,0x00007f274fec6000)]
+  0x00007f2766f51800 JavaThread "config-10-worker-2" daemon [_thread_blocked, id=19139, stack(0x00007f278211c000,0x00007f278231d000)]
+  0x00007f2766f50800 JavaThread "config-10-worker-1" daemon [_thread_blocked, id=19138, stack(0x00007f2781a15000,0x00007f2781c16000)]
+  0x00007f2766f4f800 JavaThread "config-10-worker-0" daemon [_thread_blocked, id=19137, stack(0x00007f274f19e000,0x00007f274f39f000)]
+  0x00007f2774310000 JavaThread "Jack reporter" [_thread_blocked, id=19126, stack(0x00007f27a9b19000,0x00007f27a9c1a000)]
+  0x00007f27b406d800 JavaThread "Task worker Thread 3" [_thread_blocked, id=19123, stack(0x00007f27a9414000,0x00007f27a9515000)]
+  0x00007f27b4015800 JavaThread "Task worker Thread 2" [_thread_blocked, id=19122, stack(0x00007f27a9212000,0x00007f27a9313000)]
+  0x00007f27b4080800 JavaThread "Task worker" [_thread_blocked, id=19121, stack(0x00007f27a9a18000,0x00007f27a9b19000)]
+  0x00007f27b400c800 JavaThread "Stdin handler" [_thread_blocked, id=19114, stack(0x00007f27a9313000,0x00007f27a9414000)]
+  0x00007f27b4012800 JavaThread "Asynchronous log dispatcher for org.gradle.launcher.daemon.server.DefaultDaemonConnection@14a48d53" [_thread_blocked, id=19113, stack(0x00007f27f807b000,0x00007f27f817c000)]
+  0x00007f27c000c800 JavaThread "Cancel handler" [_thread_blocked, id=19112, stack(0x00007f27f837e000,0x00007f27f847f000)]
+  0x00007f27c0008800 JavaThread "Handler for socket connection from /127.0.0.1:35289 to /127.0.0.1:32822" [_thread_in_native, id=19111, stack(0x00007f27f817c000,0x00007f27f827d000)]
+  0x00007f27c0007000 JavaThread "Daemon worker Thread 11" [_thread_blocked, id=18985, stack(0x00007f27f827d000,0x00007f27f837e000)]
+  0x00007f27c803c000 JavaThread "Daemon Thread 11" [_thread_blocked, id=18982, stack(0x00007f27f847f000,0x00007f27f8580000)]
+  0x00007f27ad18c800 JavaThread "File lock request listener" [_thread_in_native, id=15116, stack(0x00007f27ab1c5000,0x00007f27ab2c6000)]
+  0x00007f2818bb0800 JavaThread "pool-1-thread-1" [_thread_blocked, id=15103, stack(0x00007f27f8580000,0x00007f27f8681000)]
+  0x00007f2818b72800 JavaThread "Incoming local TCP Connector on port 35289" [_thread_in_native, id=15102, stack(0x00007f27f8888000,0x00007f27f8989000)]
+  0x00007f28180bf800 JavaThread "Service Thread" daemon [_thread_blocked, id=15100, stack(0x00007f27f9f5b000,0x00007f27fa05c000)]
+  0x00007f28180bc800 JavaThread "C1 CompilerThread2" daemon [_thread_blocked, id=15099, stack(0x00007f27fa05c000,0x00007f27fa15d000)]
+  0x00007f28180bb000 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=15098, stack(0x00007f27fa15d000,0x00007f27fa25e000)]
+  0x00007f28180b8000 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=15097, stack(0x00007f27fa25e000,0x00007f27fa35f000)]
+  0x00007f28180b6800 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=15096, stack(0x00007f27fa35f000,0x00007f27fa460000)]
+  0x00007f2818083800 JavaThread "Finalizer" daemon [_thread_blocked, id=15095, stack(0x00007f27fa8af000,0x00007f27fa9b0000)]
+  0x00007f281807f000 JavaThread "Reference Handler" daemon [_thread_blocked, id=15094, stack(0x00007f27fa9b0000,0x00007f27faab1000)]
+  0x00007f281800a000 JavaThread "main" [_thread_blocked, id=15088, stack(0x00007f28200b3000,0x00007f28201b4000)]
+
+Other Threads:
+=>0x00007f2818077800 VMThread [stack: 0x00007f27faab1000,0x00007f27fabb2000] [id=15093]
+  0x00007f28180c2000 WatcherThread [stack: 0x00007f27f9e5a000,0x00007f27f9f5b000] [id=15101]
+
+VM state:at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x00007f2818005ce0] ExpandHeap_lock - owner thread: 0x00007f2818077800
+[0x00007f2818006360] Threads_lock - owner thread: 0x00007f2818077800
+[0x00007f2818006860] Heap_lock - owner thread: 0x00007f2766f50800
+
+Heap:
+ PSYoungGen      total 1029632K, used 0K [0x000000076ab00000, 0x00000007bf880000, 0x00000007c0000000)
+  eden space 678400K, 0% used [0x000000076ab00000,0x000000076ab00000,0x0000000794180000)
+  from space 351232K, 0% used [0x00000007aa180000,0x00000007aa180000,0x00000007bf880000)
+  to   space 355840K, 0% used [0x0000000794180000,0x0000000794180000,0x00000007a9d00000)
+ ParOldGen       total 1871360K, used 1599689K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 85% used [0x00000006c0000000,0x0000000721a32590,0x0000000732380000)
+ Metaspace       used 80659K, capacity 83798K, committed 84736K, reserved 1124352K
+  class space    used 9761K, capacity 10270K, committed 10496K, reserved 1048576K
+
+Card table byte_map: [0x00007f281c759000,0x00007f281cf5a000] byte_map_base: 0x00007f2819159000
+
+Marking Bits: (ParMarkBitMap*) 0x00007f281f58b1a0
+ Begin Bits: [0x00007f27ec000000, 0x00007f27f0000000)
+ End Bits:   [0x00007f27f0000000, 0x00007f27f4000000)
+
+Polling page: 0x00007f28201db000
+
+CodeCache: size=245760Kb used=75692Kb max_used=75828Kb free=170067Kb
+ bounds [0x00007f2809000000, 0x00007f280daa0000, 0x00007f2818000000]
+ total_blobs=20995 nmethods=20229 adapters=673
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 4452.415 Thread 0x00007f28180b8000 32550       4       com.android.jack.jayce.v0004.nodes.NPrefixNegOperation::readContent (14 bytes)
+Event: 4452.440 Thread 0x00007f28180b8000 nmethod 32550 0x00007f280a5a4bd0 code [0x00007f280a5a4d20, 0x00007f280a5a4e08]
+Event: 4456.556 Thread 0x00007f28180bc800 32551       3       com.android.jack.lookup.JPhantomLookup$PhantomAdapter::getPackage (6 bytes)
+Event: 4456.559 Thread 0x00007f28180bc800 nmethod 32551 0x00007f280a88d5d0 code [0x00007f280a88d740, 0x00007f280a88d8e8]
+Event: 4461.430 Thread 0x00007f28180bc800 32552       1       com.android.jack.jayce.v0004.nodes.NAndOperation::getToken (4 bytes)
+Event: 4461.433 Thread 0x00007f28180bc800 nmethod 32552 0x00007f280da67fd0 code [0x00007f280da68120, 0x00007f280da68230]
+Event: 4472.315 Thread 0x00007f28180bb000 32553       4       com.android.jack.jayce.v0004.nodes.NDoubleLiteral::importFromJast (22 bytes)
+Event: 4472.317 Thread 0x00007f28180bb000 nmethod 32553 0x00007f280da6ab10 code [0x00007f280da6ac60, 0x00007f280da6ad18]
+Event: 4481.620 Thread 0x00007f28180bc800 32554       1       com.android.jack.jayce.v0004.nodes.NModOperation::getToken (4 bytes)
+Event: 4481.622 Thread 0x00007f28180bc800 nmethod 32554 0x00007f280aa681d0 code [0x00007f280aa68320, 0x00007f280aa68430]
+
+GC Heap History (10 events):
+Event: 4474.372 GC heap after
+Heap after GC invocations=302 (full 30):
+ PSYoungGen      total 1036288K, used 223348K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)
+  eden space 697344K, 0% used [0x000000076ab00000,0x000000076ab00000,0x0000000795400000)
+  from space 338944K, 65% used [0x00000007ab500000,0x00000007b8f1d390,0x00000007c0000000)
+  to   space 350208K, 0% used [0x0000000795400000,0x0000000795400000,0x00000007aaa00000)
+ ParOldGen       total 1871360K, used 821051K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 43% used [0x00000006c0000000,0x00000006f21cef40,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+}
+Event: 4476.609 GC heap before
+{Heap before GC invocations=303 (full 30):
+ PSYoungGen      total 1036288K, used 920692K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)
+  eden space 697344K, 100% used [0x000000076ab00000,0x0000000795400000,0x0000000795400000)
+  from space 338944K, 65% used [0x00000007ab500000,0x00000007b8f1d390,0x00000007c0000000)
+  to   space 350208K, 0% used [0x0000000795400000,0x0000000795400000,0x00000007aaa00000)
+ ParOldGen       total 1871360K, used 821078K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 43% used [0x00000006c0000000,0x00000006f21d5948,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+Event: 4477.573 GC heap after
+Heap after GC invocations=303 (full 30):
+ PSYoungGen      total 916992K, used 219426K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)
+  eden space 697344K, 0% used [0x000000076ab00000,0x000000076ab00000,0x0000000795400000)
+  from space 219648K, 99% used [0x0000000795400000,0x00000007a2a48bc0,0x00000007a2a80000)
+  to   space 356352K, 0% used [0x00000007aa400000,0x00000007aa400000,0x00000007c0000000)
+ ParOldGen       total 1871360K, used 1022492K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 54% used [0x00000006c0000000,0x00000006fe687050,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+}
+Event: 4479.670 GC heap before
+{Heap before GC invocations=304 (full 30):
+ PSYoungGen      total 916992K, used 916770K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)
+  eden space 697344K, 100% used [0x000000076ab00000,0x0000000795400000,0x0000000795400000)
+  from space 219648K, 99% used [0x0000000795400000,0x00000007a2a48bc0,0x00000007a2a80000)
+  to   space 356352K, 0% used [0x00000007aa400000,0x00000007aa400000,0x00000007c0000000)
+ ParOldGen       total 1871360K, used 1022493K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 54% used [0x00000006c0000000,0x00000006fe687698,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+Event: 4480.577 GC heap after
+Heap after GC invocations=304 (full 30):
+ PSYoungGen      total 1032192K, used 221351K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)
+  eden space 675840K, 0% used [0x000000076ab00000,0x000000076ab00000,0x0000000793f00000)
+  from space 356352K, 62% used [0x00000007aa400000,0x00000007b7c29e40,0x00000007c0000000)
+  to   space 360960K, 0% used [0x0000000793f00000,0x0000000793f00000,0x00000007a9f80000)
+ ParOldGen       total 1871360K, used 1222095K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 65% used [0x00000006c0000000,0x000000070a973dd0,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+}
+Event: 4482.498 GC heap before
+{Heap before GC invocations=305 (full 30):
+ PSYoungGen      total 1032192K, used 897191K [0x000000076ab00000, 0x00000007c0000000, 0x00000007c0000000)
+  eden space 675840K, 100% used [0x000000076ab00000,0x0000000793f00000,0x0000000793f00000)
+  from space 356352K, 62% used [0x00000007aa400000,0x00000007b7c29e40,0x00000007c0000000)
+  to   space 360960K, 0% used [0x0000000793f00000,0x0000000793f00000,0x00000007a9f80000)
+ ParOldGen       total 1871360K, used 1222095K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 65% used [0x00000006c0000000,0x000000070a973dd0,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+Event: 4483.623 GC heap after
+Heap after GC invocations=305 (full 30):
+ PSYoungGen      total 1036800K, used 208769K [0x000000076ab00000, 0x00000007bff80000, 0x00000007c0000000)
+  eden space 675840K, 0% used [0x000000076ab00000,0x000000076ab00000,0x0000000793f00000)
+  from space 360960K, 57% used [0x0000000793f00000,0x00000007a0ae07e8,0x00000007a9f80000)
+  to   space 358400K, 0% used [0x00000007aa180000,0x00000007aa180000,0x00000007bff80000)
+ ParOldGen       total 1871360K, used 1423023K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 76% used [0x00000006c0000000,0x0000000716dabe10,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+}
+Event: 4485.517 GC heap before
+{Heap before GC invocations=306 (full 30):
+ PSYoungGen      total 1036800K, used 884609K [0x000000076ab00000, 0x00000007bff80000, 0x00000007c0000000)
+  eden space 675840K, 100% used [0x000000076ab00000,0x0000000793f00000,0x0000000793f00000)
+  from space 360960K, 57% used [0x0000000793f00000,0x00000007a0ae07e8,0x00000007a9f80000)
+  to   space 358400K, 0% used [0x00000007aa180000,0x00000007aa180000,0x00000007bff80000)
+ ParOldGen       total 1871360K, used 1423023K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 76% used [0x00000006c0000000,0x0000000716dabe28,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+Event: 4486.524 GC heap after
+Heap after GC invocations=306 (full 30):
+ PSYoungGen      total 1029632K, used 211404K [0x000000076ab00000, 0x00000007bf880000, 0x00000007c0000000)
+  eden space 678400K, 0% used [0x000000076ab00000,0x000000076ab00000,0x0000000794180000)
+  from space 351232K, 60% used [0x00000007aa180000,0x00000007b6ff3230,0x00000007bf880000)
+  to   space 355840K, 0% used [0x0000000794180000,0x0000000794180000,0x00000007a9d00000)
+ ParOldGen       total 1871360K, used 1613779K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 86% used [0x00000006c0000000,0x00000007227f4d30,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+}
+Event: 4486.524 GC heap before
+{Heap before GC invocations=307 (full 31):
+ PSYoungGen      total 1029632K, used 211404K [0x000000076ab00000, 0x00000007bf880000, 0x00000007c0000000)
+  eden space 678400K, 0% used [0x000000076ab00000,0x000000076ab00000,0x0000000794180000)
+  from space 351232K, 60% used [0x00000007aa180000,0x00000007b6ff3230,0x00000007bf880000)
+  to   space 355840K, 0% used [0x0000000794180000,0x0000000794180000,0x00000007a9d00000)
+ ParOldGen       total 1871360K, used 1613779K [0x00000006c0000000, 0x0000000732380000, 0x000000076ab00000)
+  object space 1871360K, 86% used [0x00000006c0000000,0x00000007227f4d30,0x0000000732380000)
+ Metaspace       used 81379K, capacity 84550K, committed 84736K, reserved 1124352K
+  class space    used 9847K, capacity 10374K, committed 10496K, reserved 1048576K
+
+Deoptimization events (10 events):
+Event: 3778.704 Thread 0x00007f26c00cb800 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007f280a6fecd4 method=com.android.sched.util.file.AbstractStreamFile.create(Ljava/io/File;Lcom/android/sched/util/location/Location;)V @ 4
+Event: 3810.760 Thread 0x00007f26c00cb800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f280a930224 method=com.android.jack.cfg.CfgBuilder.removeUnaccessibleNode(Ljava/util/ArrayList;Lcom/android/jack/cfg/BasicBlock;Lcom/android/jack/cfg/BasicBlock;ILcom/android/jack/ir/ast/J
+Event: 3987.726 Thread 0x00007f27c0008800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f280a6ff47c method=sun.reflect.DelegatingConstructorAccessorImpl.newInstance([Ljava/lang/Object;)Ljava/lang/Object; @ 5
+Event: 3987.726 Thread 0x00007f27c0008800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f280a6ff47c method=sun.reflect.DelegatingConstructorAccessorImpl.newInstance([Ljava/lang/Object;)Ljava/lang/Object; @ 5
+Event: 3987.726 Thread 0x00007f27c0008800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f280a6ff47c method=sun.reflect.DelegatingConstructorAccessorImpl.newInstance([Ljava/lang/Object;)Ljava/lang/Object; @ 5
+Event: 3987.726 Thread 0x00007f27c0008800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f280a6ff47c method=sun.reflect.DelegatingConstructorAccessorImpl.newInstance([Ljava/lang/Object;)Ljava/lang/Object; @ 5
+Event: 3995.589 Thread 0x00007f27ad00c000 Uncommon trap: reason=null_check action=make_not_entrant pc=0x00007f280d81b440 method=com.android.builder.internal.packaging.sign.ManifestGenerationExtension.setAttribute(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V @ 55
+Event: 4348.344 Thread 0x00007f26c4352800 Uncommon trap: reason=class_check action=maybe_recompile pc=0x00007f280a930224 method=com.android.jack.cfg.CfgBuilder.removeUnaccessibleNode(Ljava/util/ArrayList;Lcom/android/jack/cfg/BasicBlock;Lcom/android/jack/cfg/BasicBlock;ILcom/android/jack/ir/ast/J
+Event: 4350.538 Thread 0x00007f26c4350800 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007f280d814ae8 method=com.android.jack.dx.rop.code.RegisterSpecSet.equals(Ljava/lang/Object;)Z @ 30
+Event: 4437.703 Thread 0x00007f27c0007000 Uncommon trap: reason=unstable_if action=reinterpret pc=0x00007f280c56b6d0 method=org.gradle.model.internal.core.ModelNode$State.isAtLeast(Lorg/gradle/model/internal/core/ModelNode$State;)Z @ 8
+
+Internal exceptions (10 events):
+Event: 4437.835 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb52e40) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.836 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb556f0) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.836 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb569c0) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.843 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb5cef0) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.843 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb5e1f0) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.848 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb65b68) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.848 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb66e38) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.850 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb69ce8) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4437.850 Thread 0x00007f27c0007000 Exception <a 'sun/nio/fs/UnixException'> (0x000000076fb6af98) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/prims/jni.cpp, line 709]
+Event: 4439.353 Thread 0x00007f27c0007000 Exception <a 'java/lang/NullPointerException'> (0x0000000779ae6418) thrown at [/ssd/Android/AOSP-openjdk/external/jetbrains/jdk/hotspot/src/share/vm/interpreter/linkResolver.cpp, line 1280]
+
+Events (10 events):
+Event: 4478.464 Executing VM operation: RevokeBias done
+Event: 4479.670 Executing VM operation: ParallelGCFailedAllocation
+Event: 4480.577 Executing VM operation: ParallelGCFailedAllocation done
+Event: 4481.242 Executing VM operation: FindDeadlocks
+Event: 4481.244 Executing VM operation: FindDeadlocks done
+Event: 4482.492 Executing VM operation: ParallelGCFailedAllocation
+Event: 4483.623 Executing VM operation: ParallelGCFailedAllocation done
+Event: 4485.516 Executing VM operation: ParallelGCFailedAllocation
+Event: 4485.517 Executing VM operation: ParallelGCFailedAllocation done
+Event: 4485.517 Executing VM operation: ParallelGCSystemGC
+
+
+Dynamic libraries:
+00400000-00401000 r-xp 00000000 08:13 8071029                            /home/artem/bin/astudio/jre/bin/java
+00600000-00601000 r--p 00000000 08:13 8071029                            /home/artem/bin/astudio/jre/bin/java
+00601000-00602000 rw-p 00001000 08:13 8071029                            /home/artem/bin/astudio/jre/bin/java
+015de000-015ff000 rw-p 00000000 00:00 0                                  [heap]
+6c0000000-732380000 rw-p 00000000 00:00 0 
+74c600000-76ab00000 ---p 00000000 00:00 0 
+76ab00000-7bf880000 rw-p 00000000 00:00 0 
+7bf880000-7c0000000 ---p 00000000 00:00 0 
+7c0000000-7c0a40000 rw-p 00000000 00:00 0 
+7c0a40000-800000000 ---p 00000000 00:00 0 
+7f26b0000000-7f26b1a17000 rw-p 00000000 00:00 0 
+7f26b1a17000-7f26b4000000 ---p 00000000 00:00 0 
+7f26b4000000-7f26b67c6000 rw-p 00000000 00:00 0 
+7f26b67c6000-7f26b8000000 ---p 00000000 00:00 0 
+7f26b8000000-7f26bbffa000 rw-p 00000000 00:00 0 
+7f26bbffa000-7f26bc000000 ---p 00000000 00:00 0 
+7f26bc000000-7f26bfffb000 rw-p 00000000 00:00 0 
+7f26bfffb000-7f26c0000000 ---p 00000000 00:00 0 
+7f26c0000000-7f26c3ffa000 rw-p 00000000 00:00 0 
+7f26c3ffa000-7f26c4000000 ---p 00000000 00:00 0 
+7f26c4000000-7f26c4355000 rw-p 00000000 00:00 0 
+7f26c4355000-7f26c8000000 ---p 00000000 00:00 0 
+7f26c8000000-7f26cbff1000 rw-p 00000000 00:00 0 
+7f26cbff1000-7f26cc000000 ---p 00000000 00:00 0 
+7f26d0000000-7f26d3ffa000 rw-p 00000000 00:00 0 
+7f26d3ffa000-7f26d4000000 ---p 00000000 00:00 0 
+7f26d4000000-7f26d7ffe000 rw-p 00000000 00:00 0 
+7f26d7ffe000-7f26d8000000 ---p 00000000 00:00 0 
+7f26d8000000-7f26dbffa000 rw-p 00000000 00:00 0 
+7f26dbffa000-7f26dc000000 ---p 00000000 00:00 0 
+7f26dc000000-7f26dfff9000 rw-p 00000000 00:00 0 
+7f26dfff9000-7f26e0000000 ---p 00000000 00:00 0 
+7f26e4000000-7f26e7ffa000 rw-p 00000000 00:00 0 
+7f26e7ffa000-7f26e8000000 ---p 00000000 00:00 0 
+7f26e8000000-7f26ebff9000 rw-p 00000000 00:00 0 
+7f26ebff9000-7f26ec000000 ---p 00000000 00:00 0 
+7f26ec000000-7f26efffa000 rw-p 00000000 00:00 0 
+7f26efffa000-7f26f0000000 ---p 00000000 00:00 0 
+7f26f0000000-7f26f4000000 rw-p 00000000 00:00 0 
+7f26f4000000-7f26f5ba5000 rw-p 00000000 00:00 0 
+7f26f5ba5000-7f26f8000000 ---p 00000000 00:00 0 
+7f26f8000000-7f26fbfff000 rw-p 00000000 00:00 0 
+7f26fbfff000-7f26fc000000 ---p 00000000 00:00 0 
+7f26fc000000-7f26ffff9000 rw-p 00000000 00:00 0 
+7f26ffff9000-7f2700000000 ---p 00000000 00:00 0 
+7f2700000000-7f2703ffa000 rw-p 00000000 00:00 0 
+7f2703ffa000-7f2704000000 ---p 00000000 00:00 0 
+7f2704000000-7f2707ffe000 rw-p 00000000 00:00 0 
+7f2707ffe000-7f2708000000 ---p 00000000 00:00 0 
+7f2708000000-7f270bff9000 rw-p 00000000 00:00 0 
+7f270bff9000-7f270c000000 ---p 00000000 00:00 0 
+7f270c000000-7f270fffc000 rw-p 00000000 00:00 0 
+7f270fffc000-7f2710000000 ---p 00000000 00:00 0 
+7f2710000000-7f2714000000 rw-p 00000000 00:00 0 
+7f2714000000-7f2717ffc000 rw-p 00000000 00:00 0 
+7f2717ffc000-7f2718000000 ---p 00000000 00:00 0 
+7f2718000000-7f271c000000 rw-p 00000000 00:00 0 
+7f271c000000-7f271fffa000 rw-p 00000000 00:00 0 
+7f271fffa000-7f2720000000 ---p 00000000 00:00 0 
+7f2724000000-7f2727ffc000 rw-p 00000000 00:00 0 
+7f2727ffc000-7f2728000000 ---p 00000000 00:00 0 
+7f272c000000-7f272fff1000 rw-p 00000000 00:00 0 
+7f272fff1000-7f2730000000 ---p 00000000 00:00 0 
+7f2734000000-7f2737ff7000 rw-p 00000000 00:00 0 
+7f2737ff7000-7f2738000000 ---p 00000000 00:00 0 
+7f2738000000-7f273bff4000 rw-p 00000000 00:00 0 
+7f273bff4000-7f273c000000 ---p 00000000 00:00 0 
+7f273c000000-7f2740000000 rw-p 00000000 00:00 0 
+7f2740000000-7f2743fff000 rw-p 00000000 00:00 0 
+7f2743fff000-7f2744000000 ---p 00000000 00:00 0 
+7f2744000000-7f2747ffd000 rw-p 00000000 00:00 0 
+7f2747ffd000-7f2748000000 ---p 00000000 00:00 0 
+7f2748000000-7f274c000000 rw-p 00000000 00:00 0 
+7f274f19e000-7f274f1a1000 ---p 00000000 00:00 0 
+7f274f1a1000-7f274f39f000 rw-p 00000000 00:00 0 
+7f274f39f000-7f274f3a2000 ---p 00000000 00:00 0 
+7f274f3a2000-7f274f3d8000 rw-p 00000000 00:00 0 
+7f274f4d9000-7f274f4dc000 ---p 00000000 00:00 0 
+7f274f4dc000-7f274f5da000 rw-p 00000000 00:00 0 
+7f274f5da000-7f274f5dd000 ---p 00000000 00:00 0 
+7f274f5dd000-7f274f613000 rw-p 00000000 00:00 0 
+7f274f613000-7f274f616000 ---p 00000000 00:00 0 
+7f274f616000-7f274f714000 rw-p 00000000 00:00 0 
+7f274f815000-7f274f818000 ---p 00000000 00:00 0 
+7f274f818000-7f274f84e000 rw-p 00000000 00:00 0 
+7f274f84e000-7f274f851000 ---p 00000000 00:00 0 
+7f274f851000-7f274f94f000 rw-p 00000000 00:00 0 
+7f274fa50000-7f274fa53000 ---p 00000000 00:00 0 
+7f274fa53000-7f274fa89000 rw-p 00000000 00:00 0 
+7f274fc8b000-7f274fc8e000 ---p 00000000 00:00 0 
+7f274fc8e000-7f274fcc4000 rw-p 00000000 00:00 0 
+7f274fcc5000-7f274fcc8000 ---p 00000000 00:00 0 
+7f274fcc8000-7f274fec6000 rw-p 00000000 00:00 0 
+7f274fec6000-7f274fec9000 ---p 00000000 00:00 0 
+7f274fec9000-7f274feff000 rw-p 00000000 00:00 0 
+7f2750000000-7f2754000000 rw-p 00000000 00:00 0 
+7f2754000000-7f2758000000 rw-p 00000000 00:00 0 
+7f2758000000-7f275bffe000 rw-p 00000000 00:00 0 
+7f275bffe000-7f275c000000 ---p 00000000 00:00 0 
+7f275c000000-7f275fff3000 rw-p 00000000 00:00 0 
+7f275fff3000-7f2760000000 ---p 00000000 00:00 0 
+7f2760000000-7f2763ff9000 rw-p 00000000 00:00 0 
+7f2763ff9000-7f2764000000 ---p 00000000 00:00 0 
+7f2764000000-7f2766f59000 rw-p 00000000 00:00 0 
+7f2766f59000-7f2768000000 ---p 00000000 00:00 0 
+7f2768000000-7f276bffa000 rw-p 00000000 00:00 0 
+7f276bffa000-7f276c000000 ---p 00000000 00:00 0 
+7f276c000000-7f276fff9000 rw-p 00000000 00:00 0 
+7f276fff9000-7f2770000000 ---p 00000000 00:00 0 
+7f2770000000-7f2773ffa000 rw-p 00000000 00:00 0 
+7f2773ffa000-7f2774000000 ---p 00000000 00:00 0 
+7f2774000000-7f2777ff9000 rw-p 00000000 00:00 0 
+7f2777ff9000-7f2778000000 ---p 00000000 00:00 0 
+7f2778000000-7f277bfff000 rw-p 00000000 00:00 0 
+7f277bfff000-7f277c000000 ---p 00000000 00:00 0 
+7f277c000000-7f277fff9000 rw-p 00000000 00:00 0 
+7f277fff9000-7f2780000000 ---p 00000000 00:00 0 
+7f2780118000-7f278011b000 ---p 00000000 00:00 0 
+7f278011b000-7f2780151000 rw-p 00000000 00:00 0 
+7f2780353000-7f2780356000 ---p 00000000 00:00 0 
+7f2780356000-7f278038c000 rw-p 00000000 00:00 0 
+7f278058e000-7f2780591000 ---p 00000000 00:00 0 
+7f2780591000-7f27805c7000 rw-p 00000000 00:00 0 
+7f27807c9000-7f27807cc000 ---p 00000000 00:00 0 
+7f27807cc000-7f27808ca000 rw-p 00000000 00:00 0 
+7f27809cb000-7f27809ce000 ---p 00000000 00:00 0 
+7f27809ce000-7f2780acc000 rw-p 00000000 00:00 0 
+7f2780acc000-7f2780acf000 ---p 00000000 00:00 0 
+7f2780acf000-7f2780b05000 rw-p 00000000 00:00 0 
+7f2780b05000-7f2780b08000 ---p 00000000 00:00 0 
+7f2780b08000-7f2780c06000 rw-p 00000000 00:00 0 
+7f2780c06000-7f2780c09000 ---p 00000000 00:00 0 
+7f2780c09000-7f2780d07000 rw-p 00000000 00:00 0 
+7f278140e000-7f2781411000 ---p 00000000 00:00 0 
+7f2781411000-7f278150f000 rw-p 00000000 00:00 0 
+7f2781a15000-7f2781a18000 ---p 00000000 00:00 0 
+7f2781a18000-7f2781c16000 rw-p 00000000 00:00 0 
+7f2781f1c000-7f2781f9c000 rw-p 00000000 00:00 0 
+7f2781f9c000-7f278211c000 ---p 00000000 00:00 0 
+7f278211c000-7f278211f000 ---p 00000000 00:00 0 
+7f278211f000-7f278231d000 rw-p 00000000 00:00 0 
+7f278231d000-7f2782320000 ---p 00000000 00:00 0 
+7f2782320000-7f278241e000 rw-p 00000000 00:00 0 
+7f278241e000-7f2782421000 ---p 00000000 00:00 0 
+7f2782421000-7f278251f000 rw-p 00000000 00:00 0 
+7f2782620000-7f2782623000 ---p 00000000 00:00 0 
+7f2782623000-7f2782921000 rw-p 00000000 00:00 0 
+7f2782921000-7f2782b21000 rw-p 00000000 00:00 0 
+7f2782b4f000-7f2782b52000 ---p 00000000 00:00 0 
+7f2782b52000-7f2782b88000 rw-p 00000000 00:00 0 
+7f2782b88000-7f2782b8b000 ---p 00000000 00:00 0 
+7f2782b8b000-7f2782bc1000 rw-p 00000000 00:00 0 
+7f2782bc1000-7f2782bc4000 ---p 00000000 00:00 0 
+7f2782bc4000-7f2782bfa000 rw-p 00000000 00:00 0 
+7f2782bfa000-7f2782bfd000 ---p 00000000 00:00 0 
+7f2782bfd000-7f2782cfb000 rw-p 00000000 00:00 0 
+7f2782dfc000-7f2782ffc000 rw-p 00000000 00:00 0 
+7f278313d000-7f278313f000 r--s 00021000 08:13 6424225                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-fragment/24.2.0/support-fragment-24.2.0.aar
+7f278313f000-7f2783141000 r--s 0003d000 08:13 6426655                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-media-compat/24.2.0/support-media-compat-24.2.0.aar
+7f2783141000-7f2783142000 r--s 00016000 08:13 6438111                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-core-utils/24.2.0/support-core-utils-24.2.0.aar
+7f2783142000-7f2783143000 r--s 00000000 08:13 6437970                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-v4/24.2.0/support-v4-24.2.0.aar
+7f2783143000-7f2783148000 r--s 00034000 08:13 6313174                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.code.gson/gson/2.7/751f548c85fa49f330cecbb1875893f971b33c4e/gson-2.7.jar
+7f2783148000-7f278314a000 r--s 00010000 08:13 6313152                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.8.0/5ea7af56cc7c567ed9856d99efb30740e9b17ff/okio-1.8.0.jar
+7f278314a000-7f278314f000 r--s 0004f000 08:13 6313151                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/3.3.0/2b802460eea20f8f2ad9c08c74e0f14718e88aa9/okhttp-3.3.0.jar
+7f278314f000-7f2783151000 r--s 00004000 08:13 6426135                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-annotations/24.2.0/support-annotations-24.2.0.jar
+7f2783151000-7f2783152000 r--s 0003b000 08:13 6437228                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-core-ui/24.2.0/support-core-ui-24.2.0.aar
+7f2783152000-7f2783154000 r--s 0004a000 08:13 6423526                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/recyclerview-v7/24.2.0/recyclerview-v7-24.2.0.aar
+7f2783154000-7f2783155000 r--s 00096000 08:13 6437735                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-compat/24.2.0/support-compat-24.2.0.aar
+7f2783155000-7f2783156000 r--s 00002000 08:13 6424999                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/animated-vector-drawable/24.2.0/animated-vector-drawable-24.2.0.aar
+7f2783156000-7f2783157000 r--s 00009000 08:13 6437323                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-vector-drawable/24.2.0/support-vector-drawable-24.2.0.aar
+7f2783157000-7f2783164000 r--s 000df000 08:13 6436960                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/appcompat-v7/24.2.0/appcompat-v7-24.2.0.aar
+7f2783164000-7f278316d000 r--s 00054000 08:13 6208883                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.haha/haha/2.0.2/fd65b84d12d6adc77ec0e4fcaca623fc391d8679/haha-2.0.2.jar
+7f278316d000-7f278316f000 r--s 00003000 08:13 6208882                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.leakcanary/leakcanary-watcher/1.4-beta2/6a920fb0d14e5e3b36e37cf33b1eeef2bcce4c92/leakcanary-watcher-1.4-beta2.jar
+7f278316f000-7f2783171000 r--s 00005000 08:13 6208870                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.leakcanary/leakcanary-analyzer/1.4-beta2/449777cd466ac0a16f7e8d0dc508e70e2cdd13a9/leakcanary-analyzer-1.4-beta2.jar
+7f2783171000-7f2783172000 r--s 00034000 08:13 269588                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-wearable/9.4.0/play-services-wearable-9.4.0.aar
+7f2783172000-7f2783176000 r--s 0002a000 08:13 268529                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-wallet/9.4.0/play-services-wallet-9.4.0.aar
+7f2783176000-7f2783177000 r--s 00018000 08:13 269052                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-vision/9.4.0/play-services-vision-9.4.0.aar
+7f2783177000-7f2783179000 r--s 00004000 08:13 267058                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-tasks/9.4.0/play-services-tasks-9.4.0.aar
+7f2783179000-7f278317a000 r--s 00037000 08:13 267503                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-tagmanager/9.4.0/play-services-tagmanager-9.4.0.aar
+7f278317a000-7f278317b000 r--s 00006000 08:13 269780                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-tagmanager-api/9.4.0/play-services-tagmanager-api-9.4.0.aar
+7f278317b000-7f278317c000 r--s 00008000 08:13 268155                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-safetynet/9.4.0/play-services-safetynet-9.4.0.aar
+7f278317c000-7f278317e000 r--s 00018000 08:13 269453                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-plus/9.4.0/play-services-plus-9.4.0.aar
+7f278317e000-7f2783182000 r--s 0002f000 08:13 268249                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-places/9.4.0/play-services-places-9.4.0.aar
+7f2783182000-7f2783183000 r--s 00003000 08:13 268047                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-panorama/9.4.0/play-services-panorama-9.4.0.aar
+7f2783183000-7f2783184000 r--s 00038000 08:13 267426                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-nearby/9.4.0/play-services-nearby-9.4.0.aar
+7f2783184000-7f2783185000 r--s 00026000 08:13 270621                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-analytics-impl/9.4.0/firebase-analytics-impl-9.4.0.aar
+7f2783185000-7f2783186000 r--s 00000000 08:13 270381                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-analytics/9.4.0/firebase-analytics-9.4.0.aar
+7f2783186000-7f2783187000 r--s 0003c000 08:13 268388                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-maps/9.4.0/play-services-maps-9.4.0.aar
+7f2783187000-7f2783188000 r--s 00016000 08:13 269702                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-location/9.4.0/play-services-location-9.4.0.aar
+7f2783188000-7f2783189000 r--s 00004000 08:13 267641                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-iid/9.4.0/play-services-iid-9.4.0.aar
+7f2783189000-7f278318a000 r--s 00004000 08:13 267933                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-identity/9.4.0/play-services-identity-9.4.0.aar
+7f278318a000-7f278318b000 r--s 00011000 08:13 269217                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-appindexing/9.4.0/play-services-appindexing-9.4.0.aar
+7f278318b000-7f278318c000 r--s 00008000 08:13 268640                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-gcm/9.4.0/play-services-gcm-9.4.0.aar
+7f278318c000-7f278318d000 r--s 00002000 08:13 267099                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-gass/9.4.0/play-services-gass-9.4.0.aar
+7f278318d000-7f278318e000 r--s 00088000 08:13 267202                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-games/9.4.0/play-services-games-9.4.0.aar
+7f278318e000-7f278318f000 r--s 0004c000 08:13 269336                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-fitness/9.4.0/play-services-fitness-9.4.0.aar
+7f278318f000-7f2783190000 r--s 00004000 08:13 271224                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-common/9.4.0/firebase-common-9.4.0.aar
+7f2783190000-7f2783192000 r--s 00001000 08:13 270684                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-storage-common/9.4.0/firebase-storage-common-9.4.0.aar
+7f2783192000-7f2783193000 r--s 0000e000 08:13 271046                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-storage/9.4.0/firebase-storage-9.4.0.aar
+7f2783193000-7f2783194000 r--s 00004000 08:13 271104                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-messaging/9.4.0/firebase-messaging-9.4.0.aar
+7f2783194000-7f2783195000 r--s 00006000 08:13 270321                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-iid/9.4.0/firebase-iid-9.4.0.aar
+7f2783195000-7f2783196000 r--s 00041000 08:13 270923                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-database/9.4.0/firebase-database-9.4.0.aar
+7f2783196000-7f2783197000 r--s 00017000 08:13 270983                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-database-connection/9.4.0/firebase-database-connection-9.4.0.aar
+7f2783197000-7f2783198000 r--s 00005000 08:13 270501                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-auth-module/9.4.0/firebase-auth-module-9.4.0.aar
+7f2783198000-7f2783199000 r--s 00002000 08:13 270746                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-auth-common/9.4.0/firebase-auth-common-9.4.0.aar
+7f2783199000-7f278319a000 r--s 0000b000 08:13 270443                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-auth/9.4.0/firebase-auth-9.4.0.aar
+7f278319a000-7f278319b000 r--s 0005b000 08:13 268753                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-drive/9.4.0/play-services-drive-9.4.0.aar
+7f278319b000-7f278319c000 r--s 00004000 08:13 270801                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-crash/9.4.0/firebase-crash-9.4.0.aar
+7f278319c000-7f278319d000 r--s 0002a000 08:13 268977                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-contextmanager/9.4.0/play-services-contextmanager-9.4.0.aar
+7f278319d000-7f278319e000 r--s 0000c000 08:13 270866                     /home/artem/bin/sdk/extras/google/m2repository/com/google/firebase/firebase-config/9.4.0/firebase-config-9.4.0.aar
+7f278319e000-7f27831a1000 r--s 00081000 08:13 267820                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-basement/9.4.0/play-services-basement-9.4.0.aar
+7f27831a1000-7f27831a2000 r--s 00009000 08:13 268289                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-clearcut/9.4.0/play-services-clearcut-9.4.0.aar
+7f27831a2000-7f27831a6000 r--s 00039000 08:13 267319                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-cast/9.4.0/play-services-cast-9.4.0.aar
+7f27831a6000-7f27831b0000 r--s 00083000 08:13 268209                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-cast-framework/9.4.0/play-services-cast-framework-9.4.0.aar
+7f27831b0000-7f27831b8000 r--s 0008a000 08:13 269882                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-base/9.4.0/play-services-base-9.4.0.aar
+7f27831b8000-7f27831b9000 r--s 0000d000 08:13 267561                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-auth-base/9.4.0/play-services-auth-base-9.4.0.aar
+7f27831b9000-7f27831ba000 r--s 00011000 08:13 266994                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-auth/9.4.0/play-services-auth-9.4.0.aar
+7f27831ba000-7f27831bb000 r--s 00005000 08:13 266801                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-appinvite/9.4.0/play-services-appinvite-9.4.0.aar
+7f27831bb000-7f27831bc000 r--s 0004c000 08:13 268828                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-analytics-impl/9.4.0/play-services-analytics-impl-9.4.0.aar
+7f27831bc000-7f27831bd000 r--s 00000000 08:13 267731                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-analytics/9.4.0/play-services-analytics-9.4.0.aar
+7f27831bd000-7f27831be000 r--s 00047000 08:13 269116                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-ads-lite/9.4.0/play-services-ads-lite-9.4.0.aar
+7f27831be000-7f27831bf000 r--s 000b2000 08:13 266910                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services-ads/9.4.0/play-services-ads-9.4.0.aar
+7f27831bf000-7f27831c1000 r--s 00009000 08:13 11413173                   /home/artem/.gradle/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar
+7f27831c1000-7f27831c2000 r--s 00001000 08:13 7220763                    /home/artem/.gradle/caches/modules-2/files-2.1/com.trello/rxlifecycle-android/0.7.0/a278650eb4f6088241fe52ea734f89bf40526aaf/rxlifecycle-android-0.7.0.aar
+7f27831c2000-7f27831c4000 r--s 00003000 08:13 7220761                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/f7be08ec23c21485b9b5a1cf1654c2ec8c58168d/jsr305-3.0.1.jar
+7f27831c4000-7f27831c8000 r--s 00018000 08:13 7230929                    /home/artem/.gradle/caches/modules-2/files-2.1/com.nineoldandroids/library/2.4.0/e9b63380f3a242dbdbf103a2355ad7e43bad17cb/library-2.4.0.jar
+7f27831c8000-7f27831c9000 r--s 00000000 08:13 6304953                    /home/artem/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar
+7f27831c9000-7f27831ca000 r--s 00003000 08:13 1184018                    /home/artem/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife-annotations/8.1.0/d6854f42bfb4098d3d2358d93201307b9f1cc95d/butterknife-annotations-8.1.0.jar
+7f27831ca000-7f27831cc000 r--s 00014000 08:13 8398543                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup/javapoet/1.7.0/4fdcf1fc27c1a8f55d1109df986c923152f07759/javapoet-1.7.0.jar
+7f27831cc000-7f27831cf000 r--s 0000f000 08:13 6826337                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.auto/auto-common/0.6/cf7212b0f8bfef12657b942df8f4f2cf032d3f41/auto-common-0.6.jar
+7f27831cf000-7f27831d2000 r--s 0000f000 08:13 6969007                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.dagger/dagger-producers/2.6/8ace2ee58523b3cb73d9c59996a360faae66b4d7/dagger-producers-2.6.jar
+7f27831d2000-7f27831d3000 r--s 00000000 08:13 6208913                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.leakcanary/leakcanary-android-no-op/1.4-beta2/2c4d6f39d383357e3958e88c1db9908a5466c4f7/leakcanary-android-no-op-1.4-beta2.aar
+7f27831d3000-7f27831d5000 r--s 0001c000 08:13 6208864                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.leakcanary/leakcanary-android/1.4-beta2/e5f4a6a1ada86aa68d4998b35edcbcdb68802aac/leakcanary-android-1.4-beta2.aar
+7f27831d5000-7f27831d6000 r--s 00000000 08:13 270066                     /home/artem/bin/sdk/extras/google/m2repository/com/google/android/gms/play-services/9.4.0/play-services-9.4.0.aar
+7f27831d6000-7f27831d7000 r--s 00007000 08:13 6438318                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/support-v13/24.0.0/support-v13-24.0.0.aar
+7f27831d7000-7f27831d8000 r--s 00005000 08:13 6437580                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/palette-v7/24.0.0/palette-v7-24.0.0.aar
+7f27831d8000-7f27831e4000 r--s 0007c000 08:13 6424006                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/mediarouter-v7/24.0.0/mediarouter-v7-24.0.0.aar
+7f27831e4000-7f27831ec000 r--s 0010f000 08:13 6436625                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/leanback-v17/24.0.0/leanback-v17-24.0.0.aar
+7f27831ec000-7f27831ed000 r--s 0000a000 08:13 6425232                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/gridlayout-v7/24.0.0/gridlayout-v7-24.0.0.aar
+7f27831ed000-7f27831ef000 r--s 0004a000 08:13 6426521                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/design/24.0.0/design-24.0.0.aar
+7f27831ef000-7f27831f0000 r--s 00005000 08:13 6431711                    /home/artem/bin/sdk/extras/android/m2repository/com/android/support/cardview-v7/24.0.0/cardview-v7-24.0.0.aar
+7f27831f0000-7f27831f2000 r--s 00001000 08:13 9451127                    /home/artem/.gradle/caches/modules-2/files-2.1/pl.bclogic/pulsator4droid/1.0.3/a403883fb4d84b0d008d6bf7f3c2efbb305fa7e8/pulsator4droid-1.0.3.aar
+7f27831f2000-7f27831fa000 r--s 00045000 08:13 6304959                    /home/artem/.gradle/caches/modules-2/files-2.1/junit/junit/4.12/2973d150c0dc1fefe998f834810d68f278ea58ec/junit-4.12.jar
+7f27831fa000-7f27831fb000 r--s 00001000 08:13 6313173                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/converter-gson/2.1.0/aa557d71ead91cbf26e0c316a0f593d168303309/converter-gson-2.1.0.jar
+7f27831fb000-7f27831fc000 r--s 00004000 08:13 7220760                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/adapter-rxjava/2.1.0/693eddc23e87ab13f9cf5001707ce8e7e1d1ff01/adapter-rxjava-2.1.0.jar
+7f27831fc000-7f27831ff000 r--s 00013000 08:13 6217299                    /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/retrofit/2.1.0/2de7cd8b95b7021b1d597f049bcb422055119f2c/retrofit-2.1.0.jar
+7f27831ff000-7f2783200000 r--s 00006000 08:13 7220764                    /home/artem/.gradle/caches/modules-2/files-2.1/com.trello/rxlifecycle-components/0.7.0/8971239bc83a77770ed1e776314aa83ff9567eb/rxlifecycle-components-0.7.0.aar
+7f2783200000-7f2783202000 r--s 00004000 08:13 7220762                    /home/artem/.gradle/caches/modules-2/files-2.1/com.trello/rxlifecycle/0.7.0/5de44b87f5056914391a0223403e930acbef0220/rxlifecycle-0.7.0.jar
+7f2783202000-7f2783203000 r--s 00004000 08:13 7756685                    /home/artem/.gradle/caches/modules-2/files-2.1/com.cantrowitz/rxbroadcast/1.0.0/8579948ba2bc8099c46711a7e4ee6093c36302ee/rxbroadcast-1.0.0.aar
+7f2783203000-7f2783204000 r--s 00027000 08:13 7098385                    /home/artem/.gradle/caches/modules-2/files-2.1/com.jakewharton.rxbinding/rxbinding/0.4.0/3e0541ea1825e3a52a0cc51bbdb4861958629e2f/rxbinding-0.4.0.aar
+7f2783204000-7f2783206000 r--s 00003000 08:13 6222038                    /home/artem/.gradle/caches/modules-2/files-2.1/com.github.pwittchen/reactivenetwork/0.5.1/b81115177b02ab550d5a94671dce1ac1da7b07fd/reactivenetwork-0.5.1.aar
+7f2783206000-7f278321f000 r--s 000fa000 08:13 7220759                    /home/artem/.gradle/caches/modules-2/files-2.1/io.reactivex/rxjava/1.1.9/e4362e62f1ba92e360b197d6d7ffae67e5ecae9a/rxjava-1.1.9.jar
+7f278321f000-7f2783220000 r--s 00002000 08:13 7101874                    /home/artem/.gradle/caches/modules-2/files-2.1/io.reactivex/rxandroid/1.2.1/78179b876174994f66432947fa15338ba13747a4/rxandroid-1.2.1.aar
+7f2783220000-7f2783223000 r--s 0000b000 08:13 6222053                    /home/artem/.gradle/caches/modules-2/files-2.1/org.greenrobot/eventbus/3.0.0/ddd99896e9569eaababbe81b35d80e1b91c4ad85/eventbus-3.0.0.jar
+7f2783223000-7f2783225000 r--s 00014000 08:13 7230928                    /home/artem/.gradle/caches/modules-2/files-2.1/com.wang.avi/library/1.0.5/dca04dc79dee4589909c0904ce70bc0f1f418e04/library-1.0.5.aar
+7f2783225000-7f2783226000 r--s 00001000 08:13 1182994                    /home/artem/.gradle/caches/modules-2/files-2.1/com.jakewharton.picasso/picasso2-okhttp3-downloader/1.0.2/74a586d03a233d356290983d1ef23a64c1d122b2/picasso2-okhttp3-downloader-1.0.2.jar
+7f2783226000-7f2783229000 r--s 0001b000 08:13 10497562                   /home/artem/.gradle/caches/modules-2/files-2.1/com.squareup.picasso/picasso/2.5.2/7446d06ec8d4f7ffcc53f1da37c95f200dcb9387/picasso-2.5.2.jar
+7f2783229000-7f278322b000 r--s 0000e000 08:13 6300850                    /home/artem/.gradle/caches/modules-2/files-2.1/com.michaelpardo/activeandroid/3.1.0-SNAPSHOT/4ab7b0182975bc57c49efc5e0b3baa4a10e4ec08/activeandroid-3.1.0-SNAPSHOT.jar
+7f278322b000-7f278322d000 r--s 00010000 08:13 6425742                    /home/artem/.gradle/caches/modules-2/files-2.1/com.mikepenz/fastadapter-extensions/1.8.0/c6ece8328809b4869bf5b0a57b9fa5370068c5ac/fastadapter-extensions-1.8.0.aar
+7f278322d000-7f278322f000 r--s 00013000 08:13 8148608                    /home/artem/.gradle/caches/modules-2/files-2.1/com.mikepenz/materialize/1.0.0/bcca540655268d32fbd605c9b2736ca0ddd0e3e6/materialize-1.0.0.aar
+7f278322f000-7f2783230000 r--s 00004000 08:13 6557517                    /home/artem/.gradle/caches/modules-2/files-2.1/com.jakewharton.timber/timber/4.3.1/f36b254d7a3a4a8543ccf044c850103102c47718/timber-4.3.1.aar
+7f2783230000-7f2783231000 r--s 00003000 08:13 1184020                    /home/artem/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife/8.1.0/2e8c974f42161ab6aa1b8807031d90263c8ee56e/butterknife-8.1.0.aar
+7f2783231000-7f2783233000 r--s 00005000 08:13 1183889                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.dagger/dagger/2.6/a2e0fb833ba928689fb8b8d9cc92a81298da7c37/dagger-2.6.jar
+7f2783233000-7f2783235000 r--s 0000a000 08:13 6826982                    /home/artem/.gradle/caches/modules-2/files-2.1/com.github.jd-alexander/LikeButton/0.2.0/6fd6bb3711cc4b84cdcbe1a21b2c3b69fc9fd0a5/LikeButton-0.2.0.aar
+7f2783235000-7f2783237000 r--s 00011000 08:13 8134460                    /home/artem/.gradle/caches/modules-2/files-2.1/com.mikepenz/fastadapter/1.8.2/ad768294111af84e276633104682d467c376b1d1/fastadapter-1.8.2.aar
+7f2783237000-7f2783238000 r--s 00002000 08:13 7231493                    /home/artem/.gradle/caches/modules-2/files-2.1/com.github.ozodrukh/CircularReveal/2.0.0/d595fc7469cceeaab300fef031178d7f48d925e9/CircularReveal-2.0.0.aar
+7f2783238000-7f2783239000 r--s 00007000 08:13 7755746                    /home/artem/projects/InternetRadioPlayer/app/libs/aacdecoder-android-0.8.jar
+7f2783239000-7f278323c000 r--s 00045000 08:13 8261356                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/okio-1.8.0-4b18c1cc4796dc221ea86e6e8763c1fcaad5542b.jar
+7f278323c000-7f278323f000 r--s 0000d000 08:13 8261335                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/internal_impl-24.0.0-135e024e2afe6306efe9654133314999dad5c50c.jar
+7f278323f000-7f278324b000 r--s 000eb000 08:13 8261291                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-094d8f22bc6d1838acda9c9c4799b46e47153b76.jar
+7f278324b000-7f278324c000 r--s 00007000 08:13 8261293                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-6badfa975592dbe0ccf576a37442b555279bde35.jar
+7f278324c000-7f2783280000 r--s 001f3000 08:13 8261355                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-62b8e54955a651697afe1a595aa0fac6b7c6c0e5.jar
+7f2783280000-7f2783286000 r--s 00047000 08:13 8261299                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-4c12fe3490e3469c00dd1d199e8e402ac80835ad.jar
+7f2783286000-7f2783290000 r--s 0011d000 08:13 8261311                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/okhttp-3.3.0-e3e723b7963e6860e15463b663faf6b42fac5df8.jar
+7f2783290000-7f2783291000 r--s 00009000 08:13 8261298                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-fb20d1be7cd0204b2a80664412a94db770d52653.jar
+7f2783291000-7f2783292000 r--s 00000000 08:13 8261286                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-190f7b22ed2606ad44832ce8060c416816241199.jar
+7f2783292000-7f27832a4000 r--s 00114000 08:13 8261322                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/haha-2.0.2-96327205f045fd57c264eb9074cb85d6efcf1241.jar
+7f27832a4000-7f27832a7000 r--s 00010000 08:13 8261273                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/dagger-2.6-26747a4e0c332323ffd916e5561cfb2ec8fdc297.jar
+7f27832a7000-7f27832d9000 r--s 00322000 08:13 8261334                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/rxjava-1.1.9-224f70eb3284c570099ad6262b47ba519f7bce65.jar
+7f27832d9000-7f27832db000 r--s 00015000 08:13 8261370                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-3c076cfcc4434c5cb904dc9d6e2490fd82bbd1e8.jar
+7f27832db000-7f27832dc000 r--s 00001000 08:13 8261365                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-756355ec5135ad4e2bce3b88900444a6a9bbb299.jar
+7f27832dc000-7f27832e4000 r--s 000a6000 08:13 8261362                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-1663c31ff16a7a76036f5c93e57ee3eb17fdddf6.jar
+7f27832e4000-7f27832f1000 r--s 0007f000 08:13 8261327                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-0060be80a2b178614a869dcc27a67975724655b2.jar
+7f27832f1000-7f27832f4000 r--s 00013000 08:13 8261304                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-437f5380b5f7ab95753f234b6baf65dd863541df.jar
+7f27832f4000-7f27832f6000 r--s 00026000 08:13 8261290                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-28a7c7b968d437260b4cad4165bb3cf1fcbe0439.jar
+7f27832f6000-7f27832f8000 r--s 00011000 08:13 8261344                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-8ef18f87b0f9210b92818806e15151c2cd4e2c14.jar
+7f27832f8000-7f2783308000 r--s 000b3000 08:13 8261358                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-2bd8edb395bb954872cb92af07ec10732a0710c0.jar
+7f2783308000-7f278330a000 r--s 0000e000 08:13 8261332                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/rxlifecycle-0.7.0-c0f7794410821b4cb5d63fdfcc0c5eeb101d9843.jar
+7f278330a000-7f278330c000 r--s 0001c000 08:13 8261259                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/aacdecoder-android-0.8-b8c0417c1597c770cafd48633cbb8f981e4f0360.jar
+7f278330c000-7f2783311000 r--s 0005b000 08:13 8261281                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/picasso-2.5.2-f9100ef2183081da15093b78aafa01e4a8a37f81.jar
+7f2783311000-7f2783314000 r--s 0000c000 08:13 8261349                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/support-annotations-24.2.0-a3662e808ad8a0f778304e1650de9f3ae9f62084.jar
+7f2783314000-7f278331a000 r--s 0003a000 08:13 8261342                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-6730372ceb42118b70a5c2e055a3ecd4297f162d.jar
+7f278331a000-7f278331e000 r--s 0002f000 08:13 8261353                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-14e8da0946d33bfc164dac92c406861659930d4a.jar
+7f278331e000-7f2783321000 r--s 00027000 08:13 8261309                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/eventbus-3.0.0-bf0ab60b4a76a97acba85b817a1e3f17e5aa1653.jar
+7f2783321000-7f2783323000 r--s 0000c000 08:13 8261263                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-9930e45ee9e489e1b1c1a7b8cf25c01eb81fa70f.jar
+7f2783323000-7f278332a000 r--s 00082000 08:13 8261282                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-6c98f75a146e1c5ab390c1907617705c65647204.jar
+7f278332a000-7f278332f000 r--s 0002c000 08:13 8261267                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-cfdd106408bf504d85b7ea32ee89ff80f3e4a76b.jar
+7f278332f000-7f2783340000 r--s 000de000 08:13 8261336                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-bcbe40a0bfa6492510a204678bc42f06e2ab58db.jar
+7f2783340000-7f2783351000 r--s 000be000 08:13 8261326                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-b81d9201c81269856fbeef6d7fd00454b24b9983.jar
+7f2783351000-7f2783366000 r--s 000f7000 08:13 8261295                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-1daba5f5644378d9cf5e31d650b9cd1bf0c5a5f3.jar
+7f2783366000-7f278336b000 r--s 00039000 08:13 8261337                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-da00110a20649c522f6337456d6e2f13fe913ab8.jar
+7f278336b000-7f2783374000 r--s 000a1000 08:13 8261369                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-5907ff35f0430bebed0d6b9f2d486bc99593f011.jar
+7f2783374000-7f2783375000 r--s 0000e000 08:13 8261366                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-f59c9110b5a390f802be5066e44a21be3f3311c3.jar
+7f2783375000-7f2783376000 r--s 00002000 08:13 8261324                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/javax.inject-1-3d377322114f98abf4f14c34286d69abeffa62e2.jar
+7f2783376000-7f2783392000 r--s 00176000 08:13 8261360                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-a435dac994d9699400bee49a0323837426ce1a20.jar
+7f2783392000-7f2783394000 r--s 0000e000 08:13 8261314                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-850990ae4b8c1441f1f8351eba2afa74e8c1ef01.jar
+7f2783394000-7f2783397000 r--s 0001a000 08:13 8261368                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-a3eaa887401bc2eef5ad90a99e421793d5247410.jar
+7f2783397000-7f278339a000 r--s 00020000 08:13 8261316                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/hamcrest-core-1.3-902112242d0d651fbf4b89f69456bdf9d00f6f50.jar
+7f278339a000-7f27833b5000 r--s 00197000 08:13 8261294                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-82b3654d8b5d74938b4f09a635ea554c69bc538b.jar
+7f27833b5000-7f27833bb000 r--s 0004d000 08:13 8261372                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-e4267e6d8b9ae0096a4da694c49fac33a64f8a1e.jar
+7f27833bb000-7f27833bd000 r--s 0000b000 08:13 8261367                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/internal_impl-24.2.0-99f67f31ea39892303c5463102f9ac90b752baa5.jar
+7f27833bd000-7f27833be000 r--s 00005000 08:13 8261312                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-a2338bd3c9e38b3883cb3b52231e756c540765ae.jar
+7f27833be000-7f27833bf000 r--s 00011000 08:13 8261315                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-898788b76e3c74c17321319435daef28d94b6a23.jar
+7f27833bf000-7f27833c0000 r--s 00016000 08:13 8261268                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/internal_impl-24.2.0-6324aa853c34e9982dba0852400e7a88074b41bb.jar
+7f27833c0000-7f27833c7000 r--s 00050000 08:13 8261269                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-a7909764bf9c810f63af279b37caa2c6e3f6ba57.jar
+7f27833c7000-7f27833d9000 r--s 000f9000 08:13 8261305                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-7f4c88582a81510dfe5517f47671f88ce4a530b6.jar
+7f27833d9000-7f27833fc000 r--s 0023e000 08:13 8261321                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-a669a26b6684177c9f3889ab4aca19d64f6b3f00.jar
+7f27833fc000-7f27833ff000 ---p 00000000 00:00 0 
+7f27833ff000-7f27834fd000 rw-p 00000000 00:00 0 
+7f27834fd000-7f27834ff000 r--s 00016000 08:13 8261278                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-ba844a10d88a3008cf9f2aa58d7cefae5648859e.jar
+7f27834ff000-7f2783501000 r--s 00009000 08:13 8261320                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-54058901ed45b0e3cc492f61287d0f5f13003cb9.jar
+7f2783501000-7f2783503000 r--s 0001a000 08:13 8261363                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-f625dba08a05589fe763bf8205da2897862c5928.jar
+7f2783503000-7f2783507000 r--s 00028000 08:13 8261329                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-b4e16b8615c2e5ddc30d8a02a4ab52e3e9212882.jar
+7f2783507000-7f278350a000 r--s 00009000 08:13 8261313                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/butterknife-annotations-8.1.0-5268673b52484e5574f2cd9080d5f512a8fa3cd2.jar
+7f278350a000-7f278350c000 r--s 00012000 08:13 8261354                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/leakcanary-analyzer-1.4-beta2-c85f6b9b1c60394f7394c36c2e9728f79eb4c145.jar
+7f278350c000-7f278350e000 r--s 0000b000 08:13 8261307                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/leakcanary-watcher-1.4-beta2-ba9d9a581b1356abd8245a519d5d226cbf4951df.jar
+7f278350e000-7f278351c000 r--s 000c3000 08:13 8261271                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-392f253e83ad1fe3dcf7bb54a3399c7c5c6b12a2.jar
+7f278351c000-7f278351d000 r--s 00014000 08:13 8261292                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-b82c231de35cc0be56dbc5c33d10359b929c7786.jar
+7f278351d000-7f2783528000 r--s 0009a000 08:13 8261306                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-da68f624ab8721fdf52ab269d9ffb67cf4a3795d.jar
+7f2783528000-7f278352b000 r--s 0000c000 08:13 8261287                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-07b812bce512d24d6a8283a4e5ff9f7c777f5359.jar
+7f278352b000-7f278352c000 r--s 0000a000 08:13 8261297                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-a2b66ff3a4713f9ed39c6589f64954be867aec4b.jar
+7f278352c000-7f278352d000 r--s 00002000 08:13 8261288                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-ac2562c28617cdd311661fedeed9f9095f8c8d12.jar
+7f278352d000-7f278352e000 r--s 00002000 08:13 8261333                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/picasso2-okhttp3-downloader-1.0.2-365df746c61830fddfbdfad7ae804ef4e58e1fb2.jar
+7f278352e000-7f2783532000 r--s 00028000 08:13 8261280                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-afae31b375f470e683c409c519d86ce60dc8afbd.jar
+7f2783532000-7f278353a000 r--s 0005d000 08:13 8261285                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-e669de8ab29bbbe930fa47ef0c3afdb376bf928d.jar
+7f278353a000-7f278353d000 r--s 0000e000 08:13 8261265                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-3201283c8c30af081abf63329eb6d987ee5ca239.jar
+7f278353d000-7f278353f000 r--s 00013000 08:13 8261296                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-472ac620036f88bfc821cc80caf3b3ace69db7a5.jar
+7f278353f000-7f2783549000 r--s 000b0000 08:13 8261289                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/gson-2.7-9f6a4eaaa9a1fb99bc8f276c31618f17cb2ffdde.jar
+7f2783549000-7f2783551000 r--s 000e0000 08:13 8261308                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-c44521ffc0c50138c766180acb0afe25962ec3dd.jar
+7f2783551000-7f2783553000 r--s 0000e000 08:13 8261318                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-2a10008b65be7063de352110b6a7cdc11435cbab.jar
+7f2783553000-7f2783555000 r--s 00001000 08:13 8261343                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-4f49646e26b418a7ca0d70965e0e6063b9df60e4.jar
+7f2783555000-7f2783562000 r--s 000b5000 08:13 8261274                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-3beddaaf49b96625eddc659abec59de3fd55cc81.jar
+7f2783562000-7f2783589000 r--s 002c4000 08:13 8261319                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-baeb5b584e4f2dc05bf5d1b11a3cb762b6f5f32e.jar
+7f2783589000-7f278358b000 r--s 00005000 08:13 8261361                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-1b2c2c389a7bc35493c05512324c91ae91ffeb86.jar
+7f278358b000-7f2783590000 r--s 0002e000 08:13 8261331                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/internal_impl-24.2.0-7451deb0b8530104b5b678c9e56ccdd0152dd3b5.jar
+7f2783590000-7f2783592000 r--s 00007000 08:13 8261277                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-4eb8e6a249fa3ae3ca7ea6c1554313e52aab0e5a.jar
+7f2783592000-7f2783596000 r--s 00039000 08:13 8261359                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-6532a40e17de7b498fe4303a7ee0d02bf61d175f.jar
+7f2783596000-7f2783598000 r--s 00010000 08:13 8261283                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-2f2d1c1968c25f93ba9c81d2f0e1c96d0745bab7.jar
+7f2783598000-7f27835a7000 r--s 000e5000 08:13 8261275                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-96a114611b58608538449dda5962c6ec24c51552.jar
+7f27835a7000-7f27835aa000 r--s 00034000 08:13 8261338                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-a73c1019c45dece642de5d473c5dbd6438e4307d.jar
+7f27835aa000-7f27835b6000 r--s 00091000 08:13 8261310                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-6d6005df248c5f4e5a99827cb911e1ccc28d0be2.jar
+7f27835b6000-7f27835ba000 r--s 00041000 08:13 8261272                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/retrofit-2.1.0-82003fd4e1ed96566adfbdb78cfad61e30e005e4.jar
+7f27835ba000-7f27835bc000 r--s 0000c000 08:13 8261339                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/adapter-rxjava-2.1.0-e9047e0cde657692748d0be32ade3c311347a851.jar
+7f27835bc000-7f27835d5000 r--s 00135000 08:13 8261341                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-8dd76942410a73225b6fd4d566463c90f7493209.jar
+7f27835d5000-7f27835de000 r--s 0012e000 08:13 8261330                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-1e9203ebaa7d1795a714a3860dc516e9e260745e.jar
+7f27835de000-7f27835e2000 r--s 0007b000 08:13 8261276                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-1f65e375219b10a152faae5adb49177b9d4dfd9b.jar
+7f27835e2000-7f27835ed000 r--s 00076000 08:13 8261351                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-d35281665ccba56a9832c6d47178d3d0e763025b.jar
+7f27835ed000-7f27835f1000 r--s 00034000 08:13 8261323                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-96bdecb38d32acf7ea401fbc56338068bc0184c6.jar
+7f27835f1000-7f2783600000 r--s 000e0000 08:13 8261346                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/junit-4.12-095f15612e9496ab2f0461fb60193d9b192b6479.jar
+7f2783600000-7f2783800000 rw-p 00000000 00:00 0 
+7f2783800000-7f2783a00000 rw-p 00000000 00:00 0 
+7f2783a00000-7f2783c00000 rw-p 00000000 00:00 0 
+7f2783c00000-7f2783e00000 rw-p 00000000 00:00 0 
+7f2783e00000-7f2784000000 rw-p 00000000 00:00 0 
+7f2784000000-7f2787ff8000 rw-p 00000000 00:00 0 
+7f2787ff8000-7f2788000000 ---p 00000000 00:00 0 
+7f2788000000-7f278bff3000 rw-p 00000000 00:00 0 
+7f278bff3000-7f278c000000 ---p 00000000 00:00 0 
+7f278c000000-7f278fffa000 rw-p 00000000 00:00 0 
+7f278fffa000-7f2790000000 ---p 00000000 00:00 0 
+7f2790000000-7f2793ffd000 rw-p 00000000 00:00 0 
+7f2793ffd000-7f2794000000 ---p 00000000 00:00 0 
+7f2794000000-7f2797fff000 rw-p 00000000 00:00 0 
+7f2797fff000-7f2798000000 ---p 00000000 00:00 0 
+7f2798000000-7f279bffb000 rw-p 00000000 00:00 0 
+7f279bffb000-7f279c000000 ---p 00000000 00:00 0 
+7f279c000000-7f279fffb000 rw-p 00000000 00:00 0 
+7f279fffb000-7f27a0000000 ---p 00000000 00:00 0 
+7f27a0000000-7f27a0021000 rw-p 00000000 00:00 0 
+7f27a0021000-7f27a4000000 ---p 00000000 00:00 0 
+7f27a4000000-7f27a7ff6000 rw-p 00000000 00:00 0 
+7f27a7ff6000-7f27a8000000 ---p 00000000 00:00 0 
+7f27a8000000-7f27a8005000 r--s 00040000 08:13 8261262                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-3a239a5343df8600415de7fdac7b49ec54e4ac77.jar
+7f27a8005000-7f27a8008000 ---p 00000000 00:00 0 
+7f27a8008000-7f27a803e000 rw-p 00000000 00:00 0 
+7f27a803e000-7f27a8041000 ---p 00000000 00:00 0 
+7f27a8041000-7f27a8077000 rw-p 00000000 00:00 0 
+7f27a8077000-7f27a807a000 ---p 00000000 00:00 0 
+7f27a807a000-7f27a80b0000 rw-p 00000000 00:00 0 
+7f27a80b0000-7f27a80b3000 ---p 00000000 00:00 0 
+7f27a80b3000-7f27a80e9000 rw-p 00000000 00:00 0 
+7f27a80e9000-7f27a80ec000 ---p 00000000 00:00 0 
+7f27a80ec000-7f27a8122000 rw-p 00000000 00:00 0 
+7f27a8122000-7f27a8123000 r--s 00002000 08:13 6719962                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.auto.service/auto-service/1.0-rc2/51033a5b8fcf7039159e35b6878f106ccd5fb35f/auto-service-1.0-rc2.jar
+7f27a8123000-7f27a8124000 r--s 00001000 08:13 8261260                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-59503b6f176f5477886f5a4aa5b7eeaa8138f205.jar
+7f27a8124000-7f27a8125000 r--s 00003000 08:13 8261340                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/internal_impl-24.0.0-e5d6fbc156370c115a554c6800f3afedd97c013d.jar
+7f27a8125000-7f27a8127000 r--s 00007000 08:13 8261364                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-31863a9a65a5e6a80b5f4e4e6df40566b8684e90.jar
+7f27a8127000-7f27a8129000 r--s 00011000 08:13 8261302                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-de284d6b87aff93c036a2de69d7ee54496b2e1b0.jar
+7f27a8129000-7f27a812c000 r--s 00024000 08:13 8261266                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-b6526a42689c17fedc906af3c133c430ca79e8d9.jar
+7f27a812c000-7f27a813b000 r--s 0009d000 08:13 8261284                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/internal_impl-24.2.0-a22480aa424e4183bf6ce6a0ef939f63fdbe362b.jar
+7f27a813b000-7f27a8140000 r--s 0003b000 08:13 8261350                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-4ead74a736e29b309b72c9f18a2ffb22ee1a93fd.jar
+7f27a8140000-7f27a8144000 r--s 00025000 08:13 8261371                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-83f59f3e1f45a8e2c5264e489a0bc7072cb5570a.jar
+7f27a8144000-7f27a8156000 r--s 000fc000 08:13 8261264                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-3e030869993bad07655ada99993469fb3adffdff.jar
+7f27a8156000-7f27a8159000 ---p 00000000 00:00 0 
+7f27a8159000-7f27a818f000 rw-p 00000000 00:00 0 
+7f27a818f000-7f27a8191000 r--s 00008000 08:13 6969009                    /home/artem/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife-compiler/8.1.0/1738ff5263b279bb0c99bf4be595b8480314d4ec/butterknife-compiler-8.1.0.jar
+7f27a8191000-7f27a81eb000 r--s 007c5000 08:13 1183894                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.dagger/dagger-compiler/2.6/48060762f66865e4518fc837a20d48623f7f1141/dagger-compiler-2.6.jar
+7f27a81eb000-7f27a81ec000 r--s 00003000 08:13 8261317                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/converter-gson-2.1.0-1dbf51cedc3b8e448392a69989c75e0b2aaededb.jar
+7f27a81ec000-7f27a81ef000 ---p 00000000 00:00 0 
+7f27a81ef000-7f27a84ed000 rw-p 00000000 00:00 0 
+7f27a84ed000-7f27a86ed000 rw-p 00000000 00:00 0 
+7f27a86ed000-7f27a86ef000 r--s 00006000 08:13 8261328                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-5313ade52bdeecc63a8d397ff7546bd7ec4f4e14.jar
+7f27a86ef000-7f27a86f0000 r--s 00005000 08:13 8261300                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-01f53bcf996f7dc1f48181a986fec0834596d5f8.jar
+7f27a86f0000-7f27a88f0000 rw-p 00000000 00:00 0 
+7f27a88f0000-7f27a8af0000 rw-p 00000000 00:00 0 
+7f27a8af0000-7f27a8cf0000 rw-p 00000000 00:00 0 
+7f27a8cf0000-7f27a8cf6000 r--s 0003a000 08:13 8071143                    /home/artem/bin/astudio/jre/jre/lib/ext/sunjce_provider.jar
+7f27a8cf6000-7f27a8d2c000 r-xp 00000000 08:13 8071118                    /home/artem/bin/astudio/jre/jre/lib/amd64/libsunec.so
+7f27a8d2c000-7f27a8f2b000 ---p 00036000 08:13 8071118                    /home/artem/bin/astudio/jre/jre/lib/amd64/libsunec.so
+7f27a8f2b000-7f27a8f30000 r--p 00035000 08:13 8071118                    /home/artem/bin/astudio/jre/jre/lib/amd64/libsunec.so
+7f27a8f30000-7f27a8f32000 rw-p 0003a000 08:13 8071118                    /home/artem/bin/astudio/jre/jre/lib/amd64/libsunec.so
+7f27a8f32000-7f27a8f43000 rw-p 00000000 00:00 0 
+7f27a8f43000-7f27a8f44000 r--s 00008000 08:13 8071141                    /home/artem/bin/astudio/jre/jre/lib/ext/sunec.jar
+7f27a8f44000-7f27a8f47000 r--s 00015000 08:13 8071059                    /home/artem/bin/astudio/jre/jre/lib/jce.jar
+7f27a8f47000-7f27a9147000 rw-p 00000000 00:00 0 
+7f27a9147000-7f27a9212000 r--s 00abc000 08:13 275934                     /home/artem/bin/sdk/build-tools/24.0.3/jack.jar
+7f27a9212000-7f27a9215000 ---p 00000000 00:00 0 
+7f27a9215000-7f27a9313000 rw-p 00000000 00:00 0 
+7f27a9313000-7f27a9316000 ---p 00000000 00:00 0 
+7f27a9316000-7f27a9414000 rw-p 00000000 00:00 0 
+7f27a9414000-7f27a9417000 ---p 00000000 00:00 0 
+7f27a9417000-7f27a9515000 rw-p 00000000 00:00 0 
+7f27a9515000-7f27a9518000 ---p 00000000 00:00 0 
+7f27a9518000-7f27a9616000 rw-p 00000000 00:00 0 
+7f27a9616000-7f27a9619000 ---p 00000000 00:00 0 
+7f27a9619000-7f27a9917000 rw-p 00000000 00:00 0 
+7f27a9917000-7f27a991a000 ---p 00000000 00:00 0 
+7f27a991a000-7f27a9a18000 rw-p 00000000 00:00 0 
+7f27a9a18000-7f27a9a1b000 ---p 00000000 00:00 0 
+7f27a9a1b000-7f27a9b19000 rw-p 00000000 00:00 0 
+7f27a9b19000-7f27a9b1c000 ---p 00000000 00:00 0 
+7f27a9b1c000-7f27a9e1a000 rw-p 00000000 00:00 0 
+7f27a9e1a000-7f27aa01a000 rw-p 00000000 00:00 0 
+7f27aa01a000-7f27aa21a000 rw-p 00000000 00:00 0 
+7f27aa21a000-7f27aa41a000 rw-p 00000000 00:00 0 
+7f27aa41a000-7f27aa42d000 r--s 00344000 08:13 8071124                    /home/artem/bin/astudio/jre/jre/lib/resources.jar
+7f27aa42d000-7f27aa62d000 rw-p 00000000 00:00 0 
+7f27aa62d000-7f27aa82d000 rw-p 00000000 00:00 0 
+7f27aa82d000-7f27aaa2d000 rw-p 00000000 00:00 0 
+7f27aaa2d000-7f27aac2d000 rw-p 00000000 00:00 0 
+7f27aac2d000-7f27aac2e000 r--s 00001000 08:13 1705754                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/annotations/25.2.2/annotations-25.2.2.jar
+7f27aac2e000-7f27aac40000 r--s 000b3000 08:13 7918349                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/external/com-intellij/uast/145.597.3/uast-145.597.3.jar
+7f27aac40000-7f27aac48000 r--s 000a8000 08:13 7918339                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/external/lombok/lombok-ast/0.2.3/lombok-ast-0.2.3.jar
+7f27aac48000-7f27aac4a000 r--s 0000d000 08:13 6423966                    /home/artem/bin/astudio/gradle/m2repository/commons-codec/commons-codec/1.4/commons-codec-1.4.jar
+7f27aac4a000-7f27aac4c000 r--s 0000d000 08:13 7538015                    /home/artem/bin/astudio/gradle/m2repository/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar
+7f27aac4c000-7f27aac51000 r--s 00028000 08:13 7365948                    /home/artem/bin/astudio/gradle/m2repository/org/apache/httpcomponents/httpcore/4.1/httpcore-4.1.jar
+7f27aac51000-7f27aac55000 r--s 0002f000 08:13 7631314                    /home/artem/bin/astudio/gradle/m2repository/com/google/jimfs/jimfs/1.1/jimfs-1.1.jar
+7f27aac55000-7f27aac56000 r--s 00004000 08:13 7761584                    /home/artem/bin/astudio/gradle/m2repository/com/intellij/annotations/12.0/annotations-12.0.jar
+7f27aac56000-7f27aac57000 r--s 00004000 08:13 7237086                    /home/artem/bin/astudio/gradle/m2repository/org/ow2/asm/asm-analysis/5.0.4/asm-analysis-5.0.4.jar
+7f27aac57000-7f27aac5b000 r--s 0003b000 08:13 1706043                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/lint/lint-api/25.2.2/lint-api-25.2.2.jar
+7f27aac5b000-7f27aac5c000 r--s 0000a000 08:13 7538019                    /home/artem/bin/astudio/gradle/m2repository/net/sf/kxml/kxml2/2.3.0/kxml2-2.3.0.jar
+7f27aac5c000-7f27aac5e000 r--s 00005000 08:13 7365943                    /home/artem/bin/astudio/gradle/m2repository/org/apache/httpcomponents/httpmime/4.1/httpmime-4.1.jar
+7f27aac5e000-7f27aac66000 r--s 0004e000 08:13 7365937                    /home/artem/bin/astudio/gradle/m2repository/org/apache/httpcomponents/httpclient/4.1.1/httpclient-4.1.1.jar
+7f27aac66000-7f27aac6d000 r--s 00053000 08:13 7365918                    /home/artem/bin/astudio/gradle/m2repository/org/apache/commons/commons-compress/1.8.1/commons-compress-1.8.1.jar
+7f27aac6d000-7f27aac72000 r--s 0002a000 08:13 7631317                    /home/artem/bin/astudio/gradle/m2repository/com/google/code/gson/gson/2.2.4/gson-2.2.4.jar
+7f27aac72000-7f27aac77000 r--s 0002d000 08:13 1706007                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/repository/25.2.2/repository-25.2.2.jar
+7f27aac77000-7f27aac78000 r--s 00005000 08:13 1706001                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/dvlib/25.2.2/dvlib-25.2.2.jar
+7f27aac78000-7f27aac7b000 r--s 00014000 08:13 1705982                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/layoutlib/layoutlib-api/25.2.2/layoutlib-api-25.2.2.jar
+7f27aac7b000-7f27aac80000 r--s 00058000 08:13 7099135                    /home/artem/bin/astudio/gradle/m2repository/org/ow2/asm/asm-debug-all/5.0.1/asm-debug-all-5.0.1.jar
+7f27aac80000-7f27aac90000 r--s 000d6000 08:13 7538030                    /home/artem/bin/astudio/gradle/m2repository/net/sf/proguard/proguard-base/5.2.1/proguard-base-5.2.1.jar
+7f27aac90000-7f27aac93000 r--s 00033000 08:13 7761564                    /home/artem/bin/astudio/gradle/m2repository/com/googlecode/juniversalchardet/juniversalchardet/1.0.3/juniversalchardet-1.0.3.jar
+7f27aac93000-7f27aac97000 r--s 0002a000 08:13 6315851                    /home/artem/bin/astudio/gradle/m2repository/commons-io/commons-io/2.4/commons-io-2.4.jar
+7f27aac97000-7f27aacae000 r--s 00154000 08:13 7237102                    /home/artem/bin/astudio/gradle/m2repository/org/antlr/antlr4/4.5.3/antlr4-4.5.3.jar
+7f27aacae000-7f27aacaf000 r--s 00002000 08:13 1705740                    /home/artem/bin/astudio/gradle/m2repository/com/android/databinding/baseLibrary/2.2.2/baseLibrary-2.2.2.jar
+7f27aacaf000-7f27aacc2000 r--s 00236000 08:13 7365908                    /home/artem/bin/astudio/gradle/m2repository/org/eclipse/jdt/core/compiler/ecj/4.5.1/ecj-4.5.1.jar
+7f27aacc2000-7f27aacc9000 r--s 000c3000 08:13 1706030                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/lint/lint-checks/25.2.2/lint-checks-25.2.2.jar
+7f27aacc9000-7f27aaccb000 r--s 00006000 08:13 7099122                    /home/artem/bin/astudio/gradle/m2repository/org/ow2/asm/asm-tree/5.0.4/asm-tree-5.0.4.jar
+7f27aaccb000-7f27aacfe000 r--s 00203000 08:13 7365914                    /home/artem/bin/astudio/gradle/m2repository/org/bouncycastle/bcprov-jdk15on/1.48/bcprov-jdk15on-1.48.jar
+7f27aacfe000-7f27aad0c000 r--s 00081000 08:13 7365911                    /home/artem/bin/astudio/gradle/m2repository/org/bouncycastle/bcpkix-jdk15on/1.48/bcpkix-jdk15on-1.48.jar
+7f27aad0c000-7f27aad0e000 r--s 00002000 08:13 7631339                    /home/artem/bin/astudio/gradle/m2repository/com/squareup/javawriter/2.5.0/javawriter-2.5.0.jar
+7f27aad0e000-7f27aad0f000 r--s 00002000 08:13 1706013                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/analytics-library/tracker/25.2.2/tracker-25.2.2.jar
+7f27aad0f000-7f27aad11000 r--s 00003000 08:13 1706024                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/analytics-library/shared/25.2.2/shared-25.2.2.jar
+7f27aad11000-7f27aad1e000 r--s 000ed000 08:13 1706018                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/analytics-library/protos/25.2.2/protos-25.2.2.jar
+7f27aad1e000-7f27aad1f000 r--s 00001000 08:13 7870025                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/jill/jill-api/0.10.0/jill-api-0.10.0.jar
+7f27aad1f000-7f27aad21000 r--s 00003000 08:13 7996850                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/jack/jack-api/0.11.0/jack-api-0.11.0.jar
+7f27aad21000-7f27aad26000 r--s 0004a000 08:13 1705995                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/ddms/ddmlib/25.2.2/ddmlib-25.2.2.jar
+7f27aad26000-7f27aad29000 r--s 00021000 08:13 1705785                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/manifest-merger/25.2.2/manifest-merger-25.2.2.jar
+7f27aad29000-7f27aad2b000 r--s 0001c000 08:13 1706055                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/common/25.2.2/common-25.2.2.jar
+7f27aad2b000-7f27aad34000 r--s 00083000 08:13 1705989                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/sdk-common/25.2.2/sdk-common-25.2.2.jar
+7f27aad34000-7f27aad3f000 r--s 0008e000 08:13 1706048                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/sdklib/25.2.2/sdklib-25.2.2.jar
+7f27aad3f000-7f27aad40000 r--s 00002000 08:13 1705775                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/builder-test-api/2.2.2/builder-test-api-2.2.2.jar
+7f27aad40000-7f27aad43000 r--s 00005000 08:13 1705974                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/builder-model/2.2.2/builder-model-2.2.2.jar
+7f27aad43000-7f27aad4b000 r--s 0007b000 08:13 7631309                    /home/artem/bin/astudio/gradle/m2repository/com/google/protobuf/protobuf-java/2.5.0/protobuf-java-2.5.0.jar
+7f27aad4b000-7f27aad4d000 r--s 0000f000 08:13 7538023                    /home/artem/bin/astudio/gradle/m2repository/net/sf/jopt-simple/jopt-simple/4.9/jopt-simple-4.9.jar
+7f27aad4d000-7f27aad51000 r--s 0001f000 08:13 7237113                    /home/artem/bin/astudio/gradle/m2repository/org/jacoco/org.jacoco.report/0.7.5.201505241946/org.jacoco.report-0.7.5.201505241946.jar
+7f27aad51000-7f27aad55000 r--s 0001d000 08:13 7237124                    /home/artem/bin/astudio/gradle/m2repository/org/jacoco/org.jacoco.core/0.7.5.201505241946/org.jacoco.core-0.7.5.201505241946.jar
+7f27aad55000-7f27aad56000 r--s 00002000 08:13 7538039                    /home/artem/bin/astudio/gradle/m2repository/net/sf/proguard/proguard-gradle/5.2.1/proguard-gradle-5.2.1.jar
+7f27aad56000-7f27aad58000 r--s 00009000 08:13 7099139                    /home/artem/bin/astudio/gradle/m2repository/org/ow2/asm/asm-commons/5.0.4/asm-commons-5.0.4.jar
+7f27aad58000-7f27aad5a000 r--s 0000c000 08:13 7086311                    /home/artem/bin/astudio/gradle/m2repository/org/ow2/asm/asm/5.0.4/asm-5.0.4.jar
+7f27aad5a000-7f27aad5e000 r--s 0002b000 08:13 1705751                    /home/artem/bin/astudio/gradle/m2repository/com/android/databinding/compilerCommon/2.2.2/compilerCommon-2.2.2.jar
+7f27aad5e000-7f27aad5f000 r--s 00002000 08:13 1705782                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/gradle-api/2.2.2/gradle-api-2.2.2.jar
+7f27aad5f000-7f27aad64000 r--s 00053000 08:13 1706037                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/lint/lint/25.2.2/lint-25.2.2.jar
+7f27aad64000-7f27aad7b000 r--s 0015d000 08:13 1705769                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/builder/2.2.2/builder-2.2.2.jar
+7f27aad7b000-7f27aad97000 r--s 0019d000 08:13 1705968                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/gradle-core/2.2.2/gradle-core-2.2.2.jar
+7f27aad97000-7f27aad99000 r--s 0000d000 08:13 1705979                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/gradle/2.2.2/gradle-2.2.2.jar
+7f27aad99000-7f27aadc5000 r--s 00208000 08:13 1183742                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/19.0/6ce200f6b23222af3d8abb6b6459e6c44f4bb0e9/guava-19.0.jar
+7f27aadc5000-7f27aafc5000 rw-p 00000000 00:00 0 
+7f27aafc5000-7f27ab1c5000 rw-p 00000000 00:00 0 
+7f27ab1c5000-7f27ab1c8000 ---p 00000000 00:00 0 
+7f27ab1c8000-7f27ab4c6000 rw-p 00000000 00:00 0 
+7f27ab4c6000-7f27ab4c9000 ---p 00000000 00:00 0 
+7f27ab4c9000-7f27ab6ff000 rw-p 00000000 00:00 0 
+7f27ab6ff000-7f27ab8ff000 rw-p 00000000 00:00 0 
+7f27ab8ff000-7f27abaff000 rw-p 00000000 00:00 0 
+7f27abaff000-7f27abcff000 rw-p 00000000 00:00 0 
+7f27abcff000-7f27abeff000 rw-p 00000000 00:00 0 
+7f27abeff000-7f27abf02000 r--s 0000a000 08:13 8261352                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/jsr305-3.0.1-8f58d6075a8c8aeaafd60d0914024c2f5bc6769a.jar
+7f27abf02000-7f27abf06000 r--s 0005b000 08:13 8261279                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/library-2.4.0-79bb31d926a644c8778d8b8f6022f8ccf81acfbf.jar
+7f27abf06000-7f27abf09000 r--s 0001f000 08:13 8261345                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-4b4cbcfa9a5c7dc6bf2885e637e3360dea24effe.jar
+7f27abf09000-7f27abf18000 r--s 000b8000 08:13 8261303                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-e2bf328512cdfeb140494b6089417a34d6c92ccd.jar
+7f27abf18000-7f27abf2d000 r--s 00217000 08:13 8261348                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-6004cee7e3a3df899712749b92999ac7dd6d6931.jar
+7f27abf2d000-7f27abf34000 r--s 00052000 08:13 8261325                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-574b41cd9a1af34478ec6b5ca693827b0e65cac3.jar
+7f27abf34000-7f27abf35000 r--s 00006000 08:13 8261347                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/internal_impl-24.2.0-fdf6f2f436ae1f6f4e23561a1f6e7001ebd621e2.jar
+7f27abf35000-7f27abf36000 r--s 0000d000 08:13 8261261                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-f7612223afcb96c49ec0a07b66818139793b05bc.jar
+7f27abf36000-7f27abf39000 r--s 00032000 08:13 8261270                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/activeandroid-3.1.0-SNAPSHOT-2cf833253042e2fe5c45757932e6ce5bee851018.jar
+7f27abf39000-7f27abf3a000 r--s 0000a000 08:13 8261357                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-be486630b94c28a38668537547ecd311cdf7246e.jar
+7f27abf3a000-7f27abf3c000 r--s 00008000 08:13 8261301                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackPackagedLibraries/debug/jars/8000/1f/classes-ef1a4ad4d826054c5c9527385e38a9760f2ca1b5.jar
+7f27abf3c000-7f27abfea000 r--s 00a2a000 08:13 8261378                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackRuntimeLibraries/debug/jars/8000/40/android-de223f600d1fe21b30891b5b3dab94da07943eb6.jar
+7f27abfea000-7f27ac000000 r--s 000d7000 08:13 8261379                    /home/artem/projects/InternetRadioPlayer/app/build/intermediates/transforms/preJackRuntimeLibraries/debug/jars/8000/40/org.apache.http.legacy-3adf132ae6618be4e6956db557cb7a7aa565d3ce.jar
+7f27ac000000-7f27afffd000 rw-p 00000000 00:00 0 
+7f27afffd000-7f27b0000000 ---p 00000000 00:00 0 
+7f27b0000000-7f27b4000000 rw-p 00000000 00:00 0 
+7f27b4000000-7f27b40b7000 rw-p 00000000 00:00 0 
+7f27b40b7000-7f27b8000000 ---p 00000000 00:00 0 
+7f27b8000000-7f27bbfff000 rw-p 00000000 00:00 0 
+7f27bbfff000-7f27bc000000 ---p 00000000 00:00 0 
+7f27bc000000-7f27bc040000 rw-p 00000000 00:00 0 
+7f27bc040000-7f27c0000000 ---p 00000000 00:00 0 
+7f27c0000000-7f27c0061000 rw-p 00000000 00:00 0 
+7f27c0061000-7f27c4000000 ---p 00000000 00:00 0 
+7f27c4000000-7f27c4021000 rw-p 00000000 00:00 0 
+7f27c4021000-7f27c8000000 ---p 00000000 00:00 0 
+7f27c8000000-7f27c8071000 rw-p 00000000 00:00 0 
+7f27c8071000-7f27cc000000 ---p 00000000 00:00 0 
+7f27cc000000-7f27cffff000 rw-p 00000000 00:00 0 
+7f27cffff000-7f27d0000000 ---p 00000000 00:00 0 
+7f27d0000000-7f27d0021000 rw-p 00000000 00:00 0 
+7f27d0021000-7f27d4000000 ---p 00000000 00:00 0 
+7f27d4000000-7f27d66b8000 rw-p 00000000 00:00 0 
+7f27d66b8000-7f27d8000000 ---p 00000000 00:00 0 
+7f27d8000000-7f27dbffe000 rw-p 00000000 00:00 0 
+7f27dbffe000-7f27dc000000 ---p 00000000 00:00 0 
+7f27dc000000-7f27dc021000 rw-p 00000000 00:00 0 
+7f27dc021000-7f27e0000000 ---p 00000000 00:00 0 
+7f27e0000000-7f27e0021000 rw-p 00000000 00:00 0 
+7f27e0021000-7f27e4000000 ---p 00000000 00:00 0 
+7f27e4000000-7f27e45fb000 rw-p 00000000 00:00 0 
+7f27e45fb000-7f27e8000000 ---p 00000000 00:00 0 
+7f27e8000000-7f27e8023000 rw-p 00000000 00:00 0 
+7f27e8023000-7f27ec000000 ---p 00000000 00:00 0 
+7f27ec000000-7f27f4000000 rw-p 00000000 00:00 0 
+7f27f4000000-7f27f7ffa000 rw-p 00000000 00:00 0 
+7f27f7ffa000-7f27f8000000 ---p 00000000 00:00 0 
+7f27f8000000-7f27f8001000 r--s 00000000 08:13 7996843                    /home/artem/bin/astudio/gradle/m2repository/com/android/tools/build/transform-api/2.0.0-deprecated-use-gradle-api/transform-api-2.0.0-deprecated-use-gradle-api.jar
+7f27f8001000-7f27f8002000 r--s 00006000 08:13 6206650                    /home/artem/.gradle/caches/modules-2/files-2.1/com.google.gms/google-services/3.0.0/ee538ce9cf4148485e43017c5542202b8c78ff8e/google-services-3.0.0.jar
+7f27f8002000-7f27f8003000 r--p 00000000 00:00 0 
+7f27f8003000-7f27f807b000 r--s 010eb000 08:13 8071038                    /home/artem/bin/astudio/jre/lib/tools.jar
+7f27f807b000-7f27f807e000 ---p 00000000 00:00 0 
+7f27f807e000-7f27f817c000 rw-p 00000000 00:00 0 
+7f27f817c000-7f27f817f000 ---p 00000000 00:00 0 
+7f27f817f000-7f27f827d000 rw-p 00000000 00:00 0 
+7f27f827d000-7f27f8280000 ---p 00000000 00:00 0 
+7f27f8280000-7f27f837e000 rw-p 00000000 00:00 0 
+7f27f837e000-7f27f8381000 ---p 00000000 00:00 0 
+7f27f8381000-7f27f847f000 rw-p 00000000 00:00 0 
+7f27f847f000-7f27f8482000 ---p 00000000 00:00 0 
+7f27f8482000-7f27f8580000 rw-p 00000000 00:00 0 
+7f27f8580000-7f27f8583000 ---p 00000000 00:00 0 
+7f27f8583000-7f27f8881000 rw-p 00000000 00:00 0 
+7f27f8881000-7f27f8888000 r--s 00000000 08:12 1052974                    /usr/lib/x86_64-linux-gnu/gconv/gconv-modules.cache
+7f27f8888000-7f27f888b000 ---p 00000000 00:00 0 
+7f27f888b000-7f27f8989000 rw-p 00000000 00:00 0 
+7f27f8989000-7f27f8992000 r-xp 00000000 08:13 8071114                    /home/artem/bin/astudio/jre/jre/lib/amd64/libmanagement.so
+7f27f8992000-7f27f8b91000 ---p 00009000 08:13 8071114                    /home/artem/bin/astudio/jre/jre/lib/amd64/libmanagement.so
+7f27f8b91000-7f27f8b92000 r--p 00008000 08:13 8071114                    /home/artem/bin/astudio/jre/jre/lib/amd64/libmanagement.so
+7f27f8b92000-7f27f8b93000 rw-p 00009000 08:13 8071114                    /home/artem/bin/astudio/jre/jre/lib/amd64/libmanagement.so
+7f27f8b93000-7f27f8b97000 r--s 00097000 08:13 8071078                    /home/artem/bin/astudio/jre/jre/lib/jsse.jar
+7f27f8b97000-7f27f8b99000 r--s 00007000 08:13 6757633                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-tooling-api-builders-2.14.1.jar
+7f27f8b99000-7f27f8b9c000 r--s 00008000 08:13 6757626                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-testing-native-2.14.1.jar
+7f27f8b9c000-7f27f8b9e000 r--s 00009000 08:13 6757705                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/hamcrest-core-1.3.jar
+7f27f8b9e000-7f27f8ba4000 r--s 00033000 08:13 6757699                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/snakeyaml-1.6.jar
+7f27f8ba4000-7f27f8ba6000 r--s 00006000 08:13 6757698                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jcommander-1.12.jar
+7f27f8ba6000-7f27f8bab000 r--s 00040000 08:13 6757697                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/bsh-2.0b4.jar
+7f27f8bab000-7f27f8bb4000 r--s 00089000 08:13 6757656                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/testng-6.3.1.jar
+7f27f8bb4000-7f27f8bbc000 r--s 00045000 08:13 6757655                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/junit-4.12.jar
+7f27f8bbc000-7f27f8bc2000 r--s 0002e000 08:13 6757627                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-testing-jvm-2.14.1.jar
+7f27f8bc2000-7f27f8bc7000 r--s 00015000 08:13 6757625                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-testing-base-2.14.1.jar
+7f27f8bc7000-7f27f8bc8000 r--s 00002000 08:13 6757649                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/sonar-batch-bootstrapper-2.9.jar
+7f27f8bc8000-7f27f8bcb000 r--s 00015000 08:13 6757603                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-sonar-2.14.1.jar
+7f27f8bcb000-7f27f8bd2000 r--s 00038000 08:13 6757650                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/bcpg-jdk15on-1.51.jar
+7f27f8bd2000-7f27f8bd4000 r--s 0000d000 08:13 6757604                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-signing-2.14.1.jar
+7f27f8bd4000-7f27f8bd7000 r--s 00009000 08:13 6757602                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-scala-2.14.1.jar
+7f27f8bd7000-7f27f8bd8000 r--s 00004000 08:13 6757631                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-resources-sftp-2.14.1.jar
+7f27f8bd8000-7f27f8be8000 r--s 00088000 08:13 6757666                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/joda-time-2.8.2.jar
+7f27f8be8000-7f27f8bf9000 r--s 000cf000 08:13 6757665                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jackson-databind-2.3.2.jar
+7f27f8bf9000-7f27f8bfb000 r--s 00007000 08:13 6757664                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jackson-annotations-2.3.2.jar
+7f27f8bfb000-7f27f8bfe000 r--s 0002e000 08:13 6757663                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jackson-core-2.3.2.jar
+7f27f8bfe000-7f27f8c09000 r--s 0006b000 08:13 6757662                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aws-java-sdk-core-1.9.19.jar
+7f27f8c09000-7f27f8c0f000 r--s 00036000 08:13 6757661                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aws-java-sdk-kms-1.9.19.jar
+7f27f8c0f000-7f27f8c1a000 r--s 00079000 08:13 6757660                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aws-java-sdk-s3-1.9.19.jar
+7f27f8c1a000-7f27f8c1b000 r--s 00003000 08:13 6757632                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-resources-s3-2.14.1.jar
+7f27f8c1b000-7f27f8c1d000 r--s 00005000 08:13 6757654                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jatl-0.2.2.jar
+7f27f8c1d000-7f27f8c1f000 r--s 0000f000 08:13 6757609                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-reporting-2.14.1.jar
+7f27f8c1f000-7f27f8c21000 r--s 00002000 08:13 6757610                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-publish-2.14.1.jar
+7f27f8c21000-7f27f8c23000 r--s 00009000 08:13 6757636                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/commons-cli-1.2.jar
+7f27f8c23000-7f27f8c29000 r--s 00033000 08:13 6757594                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-plugins-2.14.1.jar
+7f27f8c29000-7f27f8c2b000 r--s 00007000 08:13 6757628                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-plugin-development-2.14.1.jar
+7f27f8c2b000-7f27f8c31000 r--s 0002a000 08:13 6757621                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-platform-play-2.14.1.jar
+7f27f8c31000-7f27f8c3e000 r--s 0004d000 08:13 6757620                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-platform-native-2.14.1.jar
+7f27f8c3e000-7f27f8c42000 r--s 0001a000 08:13 6757615                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-platform-jvm-2.14.1.jar
+7f27f8c42000-7f27f8c49000 r--s 00029000 08:13 6757614                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-platform-base-2.14.1.jar
+7f27f8c49000-7f27f8c6a000 r--s 001c3000 08:13 6757644                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/bndlib-2.4.0.jar
+7f27f8c6a000-7f27f8c6c000 r--s 00003000 08:13 6757598                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-osgi-2.14.1.jar
+7f27f8c6c000-7f27f8c6f000 r--s 0000c000 08:13 6757647                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/pmaven-groovy-0.8-20100325.jar
+7f27f8c6f000-7f27f8c70000 r--s 00004000 08:13 6757646                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/pmaven-common-0.8-20100325.jar
+7f27f8c70000-7f27f8c76000 r--s 00022000 08:13 6757599                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-maven-2.14.1.jar
+7f27f8c76000-7f27f8c78000 r--s 0000a000 08:13 6757619                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-language-scala-2.14.1.jar
+7f27f8c78000-7f27f8c7e000 r--s 0001a000 08:13 6757623                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-language-native-2.14.1.jar
+7f27f8c7e000-7f27f8c80000 r--s 00008000 08:13 6757616                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-language-jvm-2.14.1.jar
+7f27f8c80000-7f27f8c86000 r--s 00024000 08:13 6757617                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-language-java-2.14.1.jar
+7f27f8c86000-7f27f8c88000 r--s 0000a000 08:13 6757618                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-language-groovy-2.14.1.jar
+7f27f8c88000-7f27f8c8b000 r--s 0001e000 08:13 6757672                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jsp-api-2.1-6.1.14.jar
+7f27f8c8b000-7f27f8cae000 r--s 00344000 08:13 6757671                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/core-3.1.1.jar
+7f27f8cae000-7f27f8caf000 r--s 00006000 08:13 6757670                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jetty-naming-6.1.25.jar
+7f27f8caf000-7f27f8cb0000 r--s 00002000 08:13 6757643                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/geronimo-annotation_1.0_spec-1.0.jar
+7f27f8cb0000-7f27f8cb2000 r--s 00002000 08:13 6757642                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jetty-annotations-6.1.25.jar
+7f27f8cb2000-7f27f8cc3000 r--s 000ea000 08:13 6757641                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jsp-2.1-6.1.14.jar
+7f27f8cc3000-7f27f8cc5000 r--s 0000d000 08:13 6757640                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jetty-plus-6.1.25.jar
+7f27f8cc5000-7f27f8cc7000 r--s 0001f000 08:13 6757639                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/servlet-api-2.5-20081211.jar
+7f27f8cc7000-7f27f8ccb000 r--s 00028000 08:13 6757638                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jetty-util-6.1.25.jar
+7f27f8ccb000-7f27f8cd2000 r--s 0007d000 08:13 6757637                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jetty-6.1.25.jar
+7f27f8cd2000-7f27f8cd4000 r--s 00009000 08:13 6757596                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-jetty-2.14.1.jar
+7f27f8cd4000-7f27f8cdb000 r--s 00035000 08:13 6757653                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/simple-4.1.21.jar
+7f27f8cdb000-7f27f8ce7000 r--s 00100000 08:13 6757651                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/rhino-1.7R3.jar
+7f27f8ce7000-7f27f8ceb000 r--s 00011000 08:13 6757606                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-javascript-2.14.1.jar
+7f27f8ceb000-7f27f8ced000 r--s 0000c000 08:13 6757612                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-jacoco-2.14.1.jar
+7f27f8ced000-7f27f8cf0000 r--s 0000e000 08:13 6757611                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-ivy-2.14.1.jar
+7f27f8cf0000-7f27f8cf1000 r--s 00002000 08:13 6757622                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-ide-play-2.14.1.jar
+7f27f8cf1000-7f27f8cf6000 r--s 0002b000 08:13 6757624                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-ide-native-2.14.1.jar
+7f27f8cf6000-7f27f8d01000 r--s 00066000 08:13 6757600                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-ide-2.14.1.jar
+7f27f8d01000-7f27f8d02000 r--s 00008000 08:13 6757605                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-ear-2.14.1.jar
+7f27f8d02000-7f27f8d08000 r--s 00032000 08:13 6757608                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-diagnostics-2.14.1.jar
+7f27f8d08000-7f27f8d0c000 r--s 00021000 08:13 6757595                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-code-quality-2.14.1.jar
+7f27f8d0c000-7f27f8d10000 r--s 0001f000 08:13 6757613                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-build-init-2.14.1.jar
+7f27f8d10000-7f27f8d17000 r--s 0008e000 08:13 6757607                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-build-comparison-2.14.1.jar
+7f27f8d17000-7f27f8d19000 r--s 00008000 08:13 6757597                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-antlr-2.14.1.jar
+7f27f8d19000-7f27f8d1b000 r--s 00004000 08:13 6757601                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-announce-2.14.1.jar
+7f27f8d1b000-7f27f8d33000 r--s 00115000 08:13 6757702                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/xercesImpl-2.9.1.jar
+7f27f8d33000-7f27f8d3b000 r--s 00028000 08:13 6757703                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/xml-apis-1.3.04.jar
+7f27f8d3b000-7f27f8d41000 r--s 0005b000 08:13 6757701                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jcifs-1.3.17.jar
+7f27f8d41000-7f27f8d48000 r--s 00049000 08:13 6757700                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/httpcore-4.4.4.jar
+7f27f8d48000-7f27f8d4e000 r--s 00033000 08:13 6757648                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/commons-codec-1.6.jar
+7f27f8d4e000-7f27f8d51000 r--s 0001c000 08:13 6757658                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/nekohtml-1.9.14.jar
+7f27f8d51000-7f27f8d5e000 r--s 000a4000 08:13 6757657                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/httpclient-4.4.1.jar
+7f27f8d5e000-7f27f8d60000 r--s 0000a000 08:13 6757630                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-resources-http-2.14.1.jar
+7f27f8d60000-7f27f8d64000 r--s 00014000 08:13 6757629                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-plugin-use-2.14.1.jar
+7f27f8d64000-7f27f8d65000 r--s 00000000 08:13 6757546                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-installation-beacon-2.14.1.jar
+7f27f8d65000-7f27f8d66000 r--s 00007000 08:13 6757696                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/wagon-http-shared4-2.4.jar
+7f27f8d66000-7f27f8d6a000 r--s 00033000 08:13 6757695                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/plexus-utils-2.0.6.jar
+7f27f8d6a000-7f27f8d6e000 r--s 00021000 08:13 6757694                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-model-builder-3.0.4.jar
+7f27f8d6e000-7f27f8d6f000 r--s 00002000 08:13 6757693                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/wagon-file-2.4.jar
+7f27f8d6f000-7f27f8d71000 r--s 00002000 08:13 6757692                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/plexus-cipher-1.7.jar
+7f27f8d71000-7f27f8d74000 r--s 00013000 08:13 6757691                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aether-api-1.13.1.jar
+7f27f8d74000-7f27f8d76000 r--s 0000a000 08:13 6757690                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-settings-3.0.4.jar
+7f27f8d76000-7f27f8d78000 r--s 0000d000 08:13 6757689                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/plexus-interpolation-1.14.jar
+7f27f8d78000-7f27f8d7a000 r--s 0000b000 08:13 6757688                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-artifact-3.0.4.jar
+7f27f8d7a000-7f27f8d81000 r--s 0002e000 08:13 6757687                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/plexus-container-default-1.5.5.jar
+7f27f8d81000-7f27f8d83000 r--s 0000b000 08:13 6757686                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-plugin-api-3.0.4.jar
+7f27f8d83000-7f27f8d85000 r--s 00000000 08:13 6757704                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/plexus-component-annotations-1.5.5.jar
+7f27f8d85000-7f27f8d8b000 r--s 0003f000 08:13 6757685                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-compat-3.0.4.jar
+7f27f8d8b000-7f27f8d8e000 r--s 00008000 08:13 6757684                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-settings-builder-3.0.4.jar
+7f27f8d8e000-7f27f8d90000 r--s 00026000 08:13 6757682                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-model-3.0.4.jar
+7f27f8d90000-7f27f8d92000 r--s 00006000 08:13 6757681                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aether-connector-wagon-1.13.1.jar
+7f27f8d92000-7f27f8d94000 r--s 0000a000 08:13 6757680                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/plexus-classworlds-2.4.jar
+7f27f8d94000-7f27f8d96000 r--s 00006000 08:13 6757679                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-repository-metadata-3.0.4.jar
+7f27f8d96000-7f27f8d98000 r--s 0000c000 08:13 6757678                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-aether-provider-3.0.4.jar
+7f27f8d98000-7f27f8d9a000 r--s 0000b000 08:13 6757677                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/wagon-provider-api-2.4.jar
+7f27f8d9a000-7f27f8d9e000 r--s 0001c000 08:13 6757675                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aether-util-1.13.1.jar
+7f27f8d9e000-7f27f8da1000 r--s 0001d000 08:13 6757674                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aether-impl-1.13.1.jar
+7f27f8da1000-7f27f8da6000 r--s 00040000 08:13 6757659                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/jsch-0.1.53.jar
+7f27f8da6000-7f27f8de6000 r--s 00277000 08:13 6757669                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/bcprov-jdk15on-1.51.jar
+7f27f8de6000-7f27f8dea000 r--s 0001d000 08:13 6757668                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/xbean-reflect-3.4.jar
+7f27f8dea000-7f27f8df6000 r--s 0007d000 08:13 6757645                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/maven-core-3.0.4.jar
+7f27f8df6000-7f27f8e05000 r--s 000d9000 08:13 6757667                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/ivy-2.2.0.jar
+7f27f8e05000-7f27f8e1b000 r-xp 00000000 08:12 1185226                    /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f27f8e1b000-7f27f901a000 ---p 00016000 08:12 1185226                    /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f27f901a000-7f27f901b000 rw-p 00015000 08:12 1185226                    /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f27f901b000-7f27f918d000 r-xp 00000000 08:12 919594                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21
+7f27f918d000-7f27f938d000 ---p 00172000 08:12 919594                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21
+7f27f938d000-7f27f9397000 r--p 00172000 08:12 919594                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21
+7f27f9397000-7f27f9399000 rw-p 0017c000 08:12 919594                     /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.21
+7f27f9399000-7f27f939d000 rw-p 00000000 00:00 0 
+7f27f939d000-7f27f939e000 r--s 00002000 08:13 6757683                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/wagon-http-2.4.jar
+7f27f939e000-7f27f939f000 r--s 00003000 08:13 6757676                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/aether-spi-1.13.1.jar
+7f27f939f000-7f27f93a0000 r--s 00006000 08:13 6757673                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/plexus-sec-dispatcher-1.3.jar
+7f27f93a0000-7f27f93a5000 r--s 0002a000 08:13 6757652                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gson-2.2.4.jar
+7f27f93a5000-7f27f93c1000 r--s 000d3000 08:13 6757634                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/plugins/gradle-dependency-management-2.14.1.jar
+7f27f93c1000-7f27f93c5000 r-xp 00000000 08:13 6306394                    /home/artem/.gradle/native/19/linux-amd64/libnative-platform.so
+7f27f93c5000-7f27f95c4000 ---p 00004000 08:13 6306394                    /home/artem/.gradle/native/19/linux-amd64/libnative-platform.so
+7f27f95c4000-7f27f95c5000 rw-p 00003000 08:13 6306394                    /home/artem/.gradle/native/19/linux-amd64/libnative-platform.so
+7f27f95c5000-7f27f95d6000 r-xp 00000000 08:13 8071111                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnio.so
+7f27f95d6000-7f27f97d5000 ---p 00011000 08:13 8071111                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnio.so
+7f27f97d5000-7f27f97d6000 r--p 00010000 08:13 8071111                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnio.so
+7f27f97d6000-7f27f97d7000 rw-p 00011000 08:13 8071111                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnio.so
+7f27f97d7000-7f27f9ad8000 rw-p 00000000 00:00 0 
+7f27f9ad8000-7f27f9aef000 r-xp 00000000 08:13 8071110                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnet.so
+7f27f9aef000-7f27f9cee000 ---p 00017000 08:13 8071110                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnet.so
+7f27f9cee000-7f27f9cef000 r--p 00016000 08:13 8071110                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnet.so
+7f27f9cef000-7f27f9cf0000 rw-p 00017000 08:13 8071110                    /home/artem/bin/astudio/jre/jre/lib/amd64/libnet.so
+7f27f9cf0000-7f27f9cf2000 r--s 00005000 08:13 6757545                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-wrapper-2.14.1.jar
+7f27f9cf2000-7f27f9d00000 r--s 0004f000 08:13 6757552                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-tooling-api-2.14.1.jar
+7f27f9d00000-7f27f9d02000 r--s 00002000 08:13 6757572                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-open-api-2.14.1.jar
+7f27f9d02000-7f27f9d08000 r--s 00032000 08:13 6757574                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/jaxen-1.1.jar
+7f27f9d08000-7f27f9d0d000 r--s 00048000 08:13 6757573                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/dom4j-1.6.1.jar
+7f27f9d0d000-7f27f9d18000 r--s 00059000 08:13 6757551                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-ui-2.14.1.jar
+7f27f9d18000-7f27f9d1b000 r--s 0000b000 08:13 6757570                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-resources-2.14.1.jar
+7f27f9d1b000-7f27f9d1d000 r--s 00003000 08:13 6757582                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/jcl-over-slf4j-1.7.10.jar
+7f27f9d1d000-7f27f9d1e000 r--s 00005000 08:13 6757581                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/log4j-over-slf4j-1.7.10.jar
+7f27f9d1e000-7f27f9d20000 r--s 00000000 08:13 6757580                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/jul-to-slf4j-1.7.10.jar
+7f27f9d20000-7f27f9d25000 r--s 0001c000 08:13 6757569                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-logging-2.14.1.jar
+7f27f9d25000-7f27f9d27000 r--s 00007000 08:13 6757593                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/objenesis-1.2.jar
+7f27f9d27000-7f27f9d29000 r--s 00000000 08:13 6757592                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/minlog-1.2.jar
+7f27f9d29000-7f27f9d2b000 r--s 0000f000 08:13 6757591                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/reflectasm-1.07-shaded.jar
+7f27f9d2b000-7f27f9d2f000 r--s 00026000 08:13 6757579                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/kryo-2.20.jar
+7f27f9d2f000-7f27f9d35000 r--s 00025000 08:13 6757568                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-messaging-2.14.1.jar
+7f27f9d35000-7f27f9d36000 r--s 00003000 08:13 6757590                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-freebsd-amd64-0.10.jar
+7f27f9d36000-7f27f9d37000 r--s 00003000 08:13 6757589                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-freebsd-i386-0.10.jar
+7f27f9d37000-7f27f9d38000 r--s 00005000 08:13 6757588                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-windows-i386-0.10.jar
+7f27f9d38000-7f27f9d39000 r--s 00005000 08:13 6757587                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-windows-amd64-0.10.jar
+7f27f9d39000-7f27f9d3a000 r--s 00003000 08:13 6757586                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-linux-i386-0.10.jar
+7f27f9d3a000-7f27f9d3b000 r--s 00003000 08:13 6757585                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-linux-amd64-0.10.jar
+7f27f9d3b000-7f27f9d3c000 r--s 00002000 08:13 6757584                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-osx-amd64-0.10.jar
+7f27f9d3c000-7f27f9d3d000 r--s 00002000 08:13 6757583                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-osx-i386-0.10.jar
+7f27f9d3d000-7f27f9d3f000 r--s 00008000 08:13 6757577                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/jansi-1.2.1.jar
+7f27f9d3f000-7f27f9d42000 r--s 0000d000 08:13 6757576                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/native-platform-0.10.jar
+7f27f9d42000-7f27f9d46000 r--s 000e4000 08:13 6757575                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/jna-3.2.7.jar
+7f27f9d46000-7f27f9d48000 r--s 00009000 08:13 6757553                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-native-2.14.1.jar
+7f27f9d48000-7f27f9d4a000 r--s 00005000 08:13 6757550                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-cli-2.14.1.jar
+7f27f9d4a000-7f27f9d4c000 r--s 00007000 08:13 6757560                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-model-groovy-2.14.1.jar
+7f27f9d4c000-7f27f9d4d000 r--s 00006000 08:13 6757567                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-base-services-groovy-2.14.1.jar
+7f27f9d4d000-7f27f9d5c000 r--s 00080000 08:13 6757559                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-model-core-2.14.1.jar
+7f27f9d5c000-7f27f9d60000 r--s 00027000 08:13 6757564                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/commons-io-2.2.jar
+7f27f9d60000-7f27f9d6d000 r--s 00083000 08:13 6757563                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/commons-collections-3.2.2.jar
+7f27f9d6d000-7f27f9ddc000 r--s 0063e000 08:13 6757558                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/groovy-all-2.4.4.jar
+7f27f9ddc000-7f27f9e04000 r--s 001cf000 08:13 6757555                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/guava-jdk5-17.0.jar
+7f27f9e04000-7f27f9e23000 r--s 001d1000 08:13 6757562                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/ant-1.9.6.jar
+7f27f9e23000-7f27f9e5a000 r--s 001bd000 08:13 6757549                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-core-2.14.1.jar
+7f27f9e5a000-7f27f9e5b000 ---p 00000000 00:00 0 
+7f27f9e5b000-7f27f9f5b000 rw-p 00000000 00:00 0 
+7f27f9f5b000-7f27f9f5e000 ---p 00000000 00:00 0 
+7f27f9f5e000-7f27fa05c000 rw-p 00000000 00:00 0 
+7f27fa05c000-7f27fa05f000 ---p 00000000 00:00 0 
+7f27fa05f000-7f27fa15d000 rw-p 00000000 00:00 0 
+7f27fa15d000-7f27fa160000 ---p 00000000 00:00 0 
+7f27fa160000-7f27fa25e000 rw-p 00000000 00:00 0 
+7f27fa25e000-7f27fa261000 ---p 00000000 00:00 0 
+7f27fa261000-7f27fa35f000 rw-p 00000000 00:00 0 
+7f27fa35f000-7f27fa362000 ---p 00000000 00:00 0 
+7f27fa362000-7f27fa460000 rw-p 00000000 00:00 0 
+7f27fa460000-7f27fa8af000 r--p 00000000 08:12 951409                     /usr/lib/locale/locale-archive
+7f27fa8af000-7f27fa8b2000 ---p 00000000 00:00 0 
+7f27fa8b2000-7f27fa9b0000 rw-p 00000000 00:00 0 
+7f27fa9b0000-7f27fa9b3000 ---p 00000000 00:00 0 
+7f27fa9b3000-7f27faab1000 rw-p 00000000 00:00 0 
+7f27faab1000-7f27faab2000 ---p 00000000 00:00 0 
+7f27faab2000-7f27fc000000 rw-p 00000000 00:00 0 
+7f27fc000000-7f27ffff7000 rw-p 00000000 00:00 0 
+7f27ffff7000-7f2800000000 ---p 00000000 00:00 0 
+7f2800000000-7f2800034000 rw-p 00000000 00:00 0 
+7f2800034000-7f2804000000 ---p 00000000 00:00 0 
+7f2804000000-7f280413d000 rw-p 00000000 00:00 0 
+7f280413d000-7f2808000000 ---p 00000000 00:00 0 
+7f2808000000-7f2808001000 r--s 00002000 08:13 6757571                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-docs-2.14.1.jar
+7f2808001000-7f2808002000 r--s 00000000 08:13 6757566                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/javax.inject-1.jar
+7f2808002000-7f2808003000 r--s 00000000 08:13 6757565                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/jcip-annotations-1.0.jar
+7f2808003000-7f2808008000 r--s 00038000 08:13 6757561                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/asm-all-5.1.jar
+7f2808008000-7f28083bb000 rw-p 00000000 00:00 0 
+7f28083bb000-7f2808588000 r--s 03bec000 08:13 8071081                    /home/artem/bin/astudio/jre/jre/lib/rt.jar
+7f2808588000-7f2808dfe000 rw-p 00000000 00:00 0 
+7f2808dfe000-7f2808dff000 ---p 00000000 00:00 0 
+7f2808dff000-7f2808eff000 rw-p 00000000 00:00 0 
+7f2808eff000-7f2808f00000 ---p 00000000 00:00 0 
+7f2808f00000-7f2809000000 rw-p 00000000 00:00 0 
+7f2809000000-7f280daa0000 rwxp 00000000 00:00 0 
+7f280daa0000-7f2818000000 ---p 00000000 00:00 0 
+7f2818000000-7f2818bb9000 rw-p 00000000 00:00 0 
+7f2818bb9000-7f281c000000 ---p 00000000 00:00 0 
+7f281c000000-7f281c001000 r--s 00001000 08:13 6757557                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-process-services-2.14.1.jar
+7f281c001000-7f281c002000 ---p 00000000 00:00 0 
+7f281c002000-7f281c102000 rw-p 00000000 00:00 0 
+7f281c102000-7f281c103000 ---p 00000000 00:00 0 
+7f281c103000-7f281c595000 rw-p 00000000 00:00 0 
+7f281c595000-7f281c759000 ---p 00000000 00:00 0 
+7f281c759000-7f281caeb000 rw-p 00000000 00:00 0 
+7f281caeb000-7f281ccae000 ---p 00000000 00:00 0 
+7f281ccae000-7f281cf56000 rw-p 00000000 00:00 0 
+7f281cf56000-7f281cf59000 ---p 00000000 00:00 0 
+7f281cf59000-7f281d085000 rw-p 00000000 00:00 0 
+7f281d085000-7f281d31a000 ---p 00000000 00:00 0 
+7f281d31a000-7f281d334000 r-xp 00000000 08:13 8071096                    /home/artem/bin/astudio/jre/jre/lib/amd64/libzip.so
+7f281d334000-7f281d534000 ---p 0001a000 08:13 8071096                    /home/artem/bin/astudio/jre/jre/lib/amd64/libzip.so
+7f281d534000-7f281d535000 r--p 0001a000 08:13 8071096                    /home/artem/bin/astudio/jre/jre/lib/amd64/libzip.so
+7f281d535000-7f281d536000 rw-p 0001b000 08:13 8071096                    /home/artem/bin/astudio/jre/jre/lib/amd64/libzip.so
+7f281d536000-7f281d541000 r-xp 00000000 08:12 1185287                    /lib/x86_64-linux-gnu/libnss_files-2.23.so
+7f281d541000-7f281d740000 ---p 0000b000 08:12 1185287                    /lib/x86_64-linux-gnu/libnss_files-2.23.so
+7f281d740000-7f281d741000 r--p 0000a000 08:12 1185287                    /lib/x86_64-linux-gnu/libnss_files-2.23.so
+7f281d741000-7f281d742000 rw-p 0000b000 08:12 1185287                    /lib/x86_64-linux-gnu/libnss_files-2.23.so
+7f281d742000-7f281d748000 rw-p 00000000 00:00 0 
+7f281d748000-7f281d753000 r-xp 00000000 08:12 1185297                    /lib/x86_64-linux-gnu/libnss_nis-2.23.so
+7f281d753000-7f281d952000 ---p 0000b000 08:12 1185297                    /lib/x86_64-linux-gnu/libnss_nis-2.23.so
+7f281d952000-7f281d953000 r--p 0000a000 08:12 1185297                    /lib/x86_64-linux-gnu/libnss_nis-2.23.so
+7f281d953000-7f281d954000 rw-p 0000b000 08:12 1185297                    /lib/x86_64-linux-gnu/libnss_nis-2.23.so
+7f281d954000-7f281d96a000 r-xp 00000000 08:12 1185281                    /lib/x86_64-linux-gnu/libnsl-2.23.so
+7f281d96a000-7f281db69000 ---p 00016000 08:12 1185281                    /lib/x86_64-linux-gnu/libnsl-2.23.so
+7f281db69000-7f281db6a000 r--p 00015000 08:12 1185281                    /lib/x86_64-linux-gnu/libnsl-2.23.so
+7f281db6a000-7f281db6b000 rw-p 00016000 08:12 1185281                    /lib/x86_64-linux-gnu/libnsl-2.23.so
+7f281db6b000-7f281db6d000 rw-p 00000000 00:00 0 
+7f281db6d000-7f281db75000 r-xp 00000000 08:12 1185283                    /lib/x86_64-linux-gnu/libnss_compat-2.23.so
+7f281db75000-7f281dd74000 ---p 00008000 08:12 1185283                    /lib/x86_64-linux-gnu/libnss_compat-2.23.so
+7f281dd74000-7f281dd75000 r--p 00007000 08:12 1185283                    /lib/x86_64-linux-gnu/libnss_compat-2.23.so
+7f281dd75000-7f281dd76000 rw-p 00008000 08:12 1185283                    /lib/x86_64-linux-gnu/libnss_compat-2.23.so
+7f281dd76000-7f281dda3000 r-xp 00000000 08:13 8071113                    /home/artem/bin/astudio/jre/jre/lib/amd64/libjava.so
+7f281dda3000-7f281dfa2000 ---p 0002d000 08:13 8071113                    /home/artem/bin/astudio/jre/jre/lib/amd64/libjava.so
+7f281dfa2000-7f281dfa3000 r--p 0002c000 08:13 8071113                    /home/artem/bin/astudio/jre/jre/lib/amd64/libjava.so
+7f281dfa3000-7f281dfa5000 rw-p 0002d000 08:13 8071113                    /home/artem/bin/astudio/jre/jre/lib/amd64/libjava.so
+7f281dfa5000-7f281dfb5000 r-xp 00000000 08:13 8071086                    /home/artem/bin/astudio/jre/jre/lib/amd64/libverify.so
+7f281dfb5000-7f281e1b4000 ---p 00010000 08:13 8071086                    /home/artem/bin/astudio/jre/jre/lib/amd64/libverify.so
+7f281e1b4000-7f281e1b6000 r--p 0000f000 08:13 8071086                    /home/artem/bin/astudio/jre/jre/lib/amd64/libverify.so
+7f281e1b6000-7f281e1b7000 rw-p 00011000 08:13 8071086                    /home/artem/bin/astudio/jre/jre/lib/amd64/libverify.so
+7f281e1b7000-7f281e1be000 r-xp 00000000 08:12 1185342                    /lib/x86_64-linux-gnu/librt-2.23.so
+7f281e1be000-7f281e3bd000 ---p 00007000 08:12 1185342                    /lib/x86_64-linux-gnu/librt-2.23.so
+7f281e3bd000-7f281e3be000 r--p 00006000 08:12 1185342                    /lib/x86_64-linux-gnu/librt-2.23.so
+7f281e3be000-7f281e3bf000 rw-p 00007000 08:12 1185342                    /lib/x86_64-linux-gnu/librt-2.23.so
+7f281e3bf000-7f281e4c7000 r-xp 00000000 08:12 1185258                    /lib/x86_64-linux-gnu/libm-2.23.so
+7f281e4c7000-7f281e6c6000 ---p 00108000 08:12 1185258                    /lib/x86_64-linux-gnu/libm-2.23.so
+7f281e6c6000-7f281e6c7000 r--p 00107000 08:12 1185258                    /lib/x86_64-linux-gnu/libm-2.23.so
+7f281e6c7000-7f281e6c8000 rw-p 00108000 08:12 1185258                    /lib/x86_64-linux-gnu/libm-2.23.so
+7f281e6c8000-7f281f2ae000 r-xp 00000000 08:13 8071094                    /home/artem/bin/astudio/jre/jre/lib/amd64/server/libjvm.so
+7f281f2ae000-7f281f4ae000 ---p 00be6000 08:13 8071094                    /home/artem/bin/astudio/jre/jre/lib/amd64/server/libjvm.so
+7f281f4ae000-7f281f54d000 r--p 00be6000 08:13 8071094                    /home/artem/bin/astudio/jre/jre/lib/amd64/server/libjvm.so
+7f281f54d000-7f281f576000 rw-p 00c85000 08:13 8071094                    /home/artem/bin/astudio/jre/jre/lib/amd64/server/libjvm.so
+7f281f576000-7f281f5b8000 rw-p 00000000 00:00 0 
+7f281f5b8000-7f281f5d0000 r-xp 00000000 08:12 1185334                    /lib/x86_64-linux-gnu/libpthread-2.23.so
+7f281f5d0000-7f281f7cf000 ---p 00018000 08:12 1185334                    /lib/x86_64-linux-gnu/libpthread-2.23.so
+7f281f7cf000-7f281f7d0000 r--p 00017000 08:12 1185334                    /lib/x86_64-linux-gnu/libpthread-2.23.so
+7f281f7d0000-7f281f7d1000 rw-p 00018000 08:12 1185334                    /lib/x86_64-linux-gnu/libpthread-2.23.so
+7f281f7d1000-7f281f7d5000 rw-p 00000000 00:00 0 
+7f281f7d5000-7f281f7d8000 r-xp 00000000 08:12 1185212                    /lib/x86_64-linux-gnu/libdl-2.23.so
+7f281f7d8000-7f281f9d7000 ---p 00003000 08:12 1185212                    /lib/x86_64-linux-gnu/libdl-2.23.so
+7f281f9d7000-7f281f9d8000 r--p 00002000 08:12 1185212                    /lib/x86_64-linux-gnu/libdl-2.23.so
+7f281f9d8000-7f281f9d9000 rw-p 00003000 08:12 1185212                    /lib/x86_64-linux-gnu/libdl-2.23.so
+7f281f9d9000-7f281fb99000 r-xp 00000000 08:12 1185188                    /lib/x86_64-linux-gnu/libc-2.23.so
+7f281fb99000-7f281fd98000 ---p 001c0000 08:12 1185188                    /lib/x86_64-linux-gnu/libc-2.23.so
+7f281fd98000-7f281fd9c000 r--p 001bf000 08:12 1185188                    /lib/x86_64-linux-gnu/libc-2.23.so
+7f281fd9c000-7f281fd9e000 rw-p 001c3000 08:12 1185188                    /lib/x86_64-linux-gnu/libc-2.23.so
+7f281fd9e000-7f281fda2000 rw-p 00000000 00:00 0 
+7f281fda2000-7f281fdb8000 r-xp 00000000 08:13 8071042                    /home/artem/bin/astudio/jre/lib/amd64/jli/libjli.so
+7f281fdb8000-7f281ffb7000 ---p 00016000 08:13 8071042                    /home/artem/bin/astudio/jre/lib/amd64/jli/libjli.so
+7f281ffb7000-7f281ffb8000 r--p 00015000 08:13 8071042                    /home/artem/bin/astudio/jre/lib/amd64/jli/libjli.so
+7f281ffb8000-7f281ffb9000 rw-p 00016000 08:13 8071042                    /home/artem/bin/astudio/jre/lib/amd64/jli/libjli.so
+7f281ffb9000-7f281ffdf000 r-xp 00000000 08:12 1185160                    /lib/x86_64-linux-gnu/ld-2.23.so
+7f281ffdf000-7f281ffe0000 r--s 00000000 08:13 6757548                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-jvm-services-2.14.1.jar
+7f281ffe0000-7f28200b3000 rw-p 00000000 00:00 0 
+7f28200b3000-7f28200b6000 ---p 00000000 00:00 0 
+7f28200b6000-7f28201b8000 rw-p 00000000 00:00 0 
+7f28201b8000-7f28201bd000 r--s 00041000 08:13 6757556                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/commons-lang-2.6.jar
+7f28201bd000-7f28201be000 r--s 00007000 08:13 6757554                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/slf4j-api-1.7.10.jar
+7f28201be000-7f28201bf000 r--s 00004000 08:13 6757578                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/ant-launcher-1.9.6.jar
+7f28201bf000-7f28201c7000 r--s 0003a000 08:13 6757547                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-base-services-2.14.1.jar
+7f28201c7000-7f28201d2000 r--s 00051000 08:13 6757544                    /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-launcher-2.14.1.jar
+7f28201d2000-7f28201da000 rw-s 00000000 08:12 530082                     /tmp/hsperfdata_artem/15085
+7f28201da000-7f28201db000 rw-p 00000000 00:00 0 
+7f28201db000-7f28201dc000 ---p 00000000 00:00 0 
+7f28201dc000-7f28201de000 rw-p 00000000 00:00 0 
+7f28201de000-7f28201df000 r--p 00025000 08:12 1185160                    /lib/x86_64-linux-gnu/ld-2.23.so
+7f28201df000-7f28201e0000 rw-p 00026000 08:12 1185160                    /lib/x86_64-linux-gnu/ld-2.23.so
+7f28201e0000-7f28201e1000 rw-p 00000000 00:00 0 
+7ffc78324000-7ffc78346000 rw-p 00000000 00:00 0                          [stack]
+7ffc7837e000-7ffc78380000 r--p 00000000 00:00 0                          [vvar]
+7ffc78380000-7ffc78382000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+
+VM Arguments:
+jvm_args: -XX:MaxPermSize=1g -XX:+HeapDumpOnOutOfMemoryError -Xmx4g -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant 
+java_command: org.gradle.launcher.daemon.bootstrap.GradleDaemon 2.14.1
+java_class_path (initial): /home/artem/.gradle/wrapper/dists/gradle-2.14.1-all/8bnwg5hd3w55iofp58khbp6yv/gradle-2.14.1/lib/gradle-launcher-2.14.1.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+PATH=/home/artem/bin/sdk:/usr/lib/jvm/java-8-openjdk-amd64:/home/artem/bin/sdk/ndk-bundle:/home/artem/bin/sdk/build-tools/23.0.3:/home/artem/bin/sdk/platform-tools:/home/artem/bin/sdk/tools:/home/artem/bin/astudio/bin:/home/artem/bin:/home/artem/.sdkman/candidates/gradle/current/bin:/home/artem/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/artem/renesas/automation/scripts:/home/artem/bin/pycharm/bin:/home/artem/bin/bin/
+LD_LIBRARY_PATH=/home/artem/bin/astudio/bin:
+SHELL=/bin/bash
+DISPLAY=:0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0x9daac0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGBUS: [libjvm.so+0x9daac0], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGFPE: [libjvm.so+0x840d90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGPIPE: [libjvm.so+0x840d90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGXFSZ: [libjvm.so+0x840d90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGILL: [libjvm.so+0x840d90], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGUSR1: SIG_DFL, sa_mask[0]=00000000000000000000000000000000, sa_flags=none
+SIGUSR2: [libjvm.so+0x840c60], sa_mask[0]=00100000000000000000000000000000, sa_flags=SA_RESTART|SA_SIGINFO
+SIGHUP: [libjvm.so+0x840e50], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGINT: [libjvm.so+0x840e50], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGTERM: [libjvm.so+0x840e50], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+SIGQUIT: [libjvm.so+0x840e50], sa_mask[0]=11111111011111111101111111111110, sa_flags=SA_RESTART|SA_SIGINFO
+
+
+---------------  S Y S T E M  ---------------
+
+OS:DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=16.04
+DISTRIB_CODENAME=xenial
+DISTRIB_DESCRIPTION="Ubuntu 16.04.1 LTS"
+
+uname:Linux 4.4.0-42-generic #62-Ubuntu SMP Fri Oct 7 23:11:45 UTC 2016 x86_64
+libc:glibc 2.23 NPTL 2.23 
+rlimit: STACK 8192k, CORE 0k, NPROC 31370, NOFILE 65536, AS infinity
+load average:4.90 4.07 3.33
+
+/proc/meminfo:
+MemTotal:        8069732 kB
+MemFree:          154724 kB
+MemAvailable:     144124 kB
+Buffers:           10004 kB
+Cached:           688896 kB
+SwapCached:        46408 kB
+Active:          6255656 kB
+Inactive:        1279540 kB
+Active(anon):    6174932 kB
+Inactive(anon):  1216240 kB
+Active(file):      80724 kB
+Inactive(file):    63300 kB
+Unevictable:        1680 kB
+Mlocked:            1680 kB
+SwapTotal:       8388604 kB
+SwapFree:           7788 kB
+Dirty:              3960 kB
+Writeback:             0 kB
+AnonPages:       6793976 kB
+Mapped:            78232 kB
+Shmem:            554420 kB
+Slab:             178344 kB
+SReclaimable:     108696 kB
+SUnreclaim:        69648 kB
+KernelStack:       16912 kB
+PageTables:       101032 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:    12423468 kB
+Committed_AS:   23760916 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:           0 kB
+VmallocChunk:          0 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:    501760 kB
+CmaTotal:              0 kB
+CmaFree:               0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:      660992 kB
+DirectMap2M:     7622656 kB
+DirectMap1G:           0 kB
+
+
+CPU:total 4 (2 cores per cpu, 2 threads per core) family 6 model 60 stepping 3, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, erms, lzcnt, ht, tsc, tscinvbit, bmi1, bmi2
+
+/proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i5-4300M CPU @ 2.60GHz
+stepping	: 3
+microcode	: 0x1e
+cpu MHz		: 2837.859
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 2
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt dtherm ida arat pln pts
+bugs		:
+bogomips	: 5188.31
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i5-4300M CPU @ 2.60GHz
+stepping	: 3
+microcode	: 0x1e
+cpu MHz		: 2817.242
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 0
+cpu cores	: 2
+apicid		: 1
+initial apicid	: 1
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt dtherm ida arat pln pts
+bugs		:
+bogomips	: 5188.31
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i5-4300M CPU @ 2.60GHz
+stepping	: 3
+microcode	: 0x1e
+cpu MHz		: 2791.242
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 1
+cpu cores	: 2
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt dtherm ida arat pln pts
+bugs		:
+bogomips	: 5188.31
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 60
+model name	: Intel(R) Core(TM) i5-4300M CPU @ 2.60GHz
+stepping	: 3
+microcode	: 0x1e
+cpu MHz		: 2758.437
+cache size	: 3072 KB
+physical id	: 0
+siblings	: 4
+core id		: 1
+cpu cores	: 2
+apicid		: 3
+initial apicid	: 3
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf eagerfpu pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm epb tpr_shadow vnmi flexpriority ept vpid fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid xsaveopt dtherm ida arat pln pts
+bugs		:
+bogomips	: 5188.31
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 39 bits physical, 48 bits virtual
+power management:
+
+
+
+Memory: 4k page, physical 8069732k(154724k free), swap 8388604k(7788k free)
+
+vm_info: OpenJDK 64-Bit Server VM (25.76-b03) for linux-amd64 JRE (1.8.0_76-release-b03), built on Jun 29 2016 09:39:19 by "builder" with gcc 4.8.4
+
+time: Fri Oct 21 18:09:36 2016
+elapsed time: 4496 seconds (0d 1h 14m 56s)
+

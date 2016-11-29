@@ -8,6 +8,8 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -39,7 +41,8 @@ import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 import static com.example.android.uamp.playback.PlaybackManager.CUSTOM_ACTION_THUMBS_UP;
 
 public class MediaListItem
-		extends AbstractItem<MediaListItem, MediaListItem.ViewHolder>/* implements IDraggable<MediaListItem, MediaListItem>*/
+		extends AbstractItem<MediaListItem, MediaListItem.ViewHolder> implements Parcelable
+		/* implements IDraggable<MediaListItem, MediaListItem>*/
 {
 
 	public static final ViewHolderFactory<? extends MediaListItem.ViewHolder> FACTORY = new MediaListItem.ItemFactory();
@@ -89,6 +92,17 @@ public class MediaListItem
 		}else this.favorite=0;
 
 																						}
+
+	public MediaListItem(Parcel in) {
+		String mediaId=in.readString();
+		if(mediaId!=null) {
+			From from = new Select().from(DBMediaItem.class).where("MediaId = ?", mediaItem.getMediaId());
+			if(from.exists()){
+				DBMediaItem dbMediaItem=from.executeSingle();
+
+			}
+		}
+	}
 /*	@Override
 	public int describeContents() {
 		return 0;
@@ -271,6 +285,31 @@ public class MediaListItem
 
 		return mediaItem;
 	}
+
+
+	@Override
+	public int describeContents() {
+		return 1933;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mediaItem.getMediaId());
+
+	}
+
+	public static final Creator<MediaListItem> CREATOR = new Creator<MediaListItem>() {
+		@Override
+		public MediaListItem createFromParcel(Parcel in) {
+
+			return new MediaListItem(in);
+		}
+
+		@Override
+		public MediaListItem[] newArray(int size) {
+			return new MediaListItem[size];
+		}
+	};
 
 
 	protected static class ItemFactory implements ViewHolderFactory<ViewHolder> {

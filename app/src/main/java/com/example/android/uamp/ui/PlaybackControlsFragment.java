@@ -46,8 +46,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import static com.example.android.uamp.playback.PlaybackManager.CUSTOM_ACTION_THUMBS_UP;
-
 /**
  * A class that shows the Media Queue to the user.
  */
@@ -146,6 +144,8 @@ public class PlaybackControlsFragment extends Fragment {
 		LogHelper.d(TAG, "fragment.onStart");
 		MediaControllerCompat controller = ((FragmentActivity) getActivity())
 				.getSupportMediaController();
+		if(!bus.isRegistered(this))bus.register(this);
+
 		if (controller != null) {
 			onConnected();
 		}
@@ -162,6 +162,11 @@ public class PlaybackControlsFragment extends Fragment {
 		}
 		if(bus.isRegistered(this))bus.unregister(this);
 
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 	}
 
 	public void onConnected() {
@@ -197,8 +202,8 @@ public class PlaybackControlsFragment extends Fragment {
 			artUrl = metadata.getDescription().getIconUri().toString();
 		}
 
-		if (!TextUtils.equals(artUrl, this.artUrl)) {
-			onMyMetadataUpdate(new MyMetadata(""));
+		if (true || !TextUtils.equals(artUrl, this.artUrl)) {
+
 
 			this.artUrl = artUrl;
 			Bitmap art = metadata.getDescription().getIconBitmap();
@@ -212,11 +217,14 @@ public class PlaybackControlsFragment extends Fragment {
 				cache.fetch(artUrl, new AlbumArtCache.FetchListener() {
 							@Override
 							public void onFetched(String artUrl, Bitmap bitmap, Bitmap icon) {
+
 								if (icon != null) {
 									LogHelper.d(TAG, "album art icon of w=", icon.getWidth(),
 											" h=", icon.getHeight());
 									if (isAdded()) {
+
 										mAlbumArt.setImageBitmap(icon);
+										//onMyMetadataUpdate(new MyMetadata(""));
 									}
 								}
 							}

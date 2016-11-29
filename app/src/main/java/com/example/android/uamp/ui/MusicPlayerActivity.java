@@ -15,13 +15,20 @@
  */
 package com.example.android.uamp.ui;
 
+import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.WindowManager;
 
 import com.example.android.uamp.utils.LogHelper;
 import com.stc.radio.player.R;
@@ -57,6 +64,8 @@ public class MusicPlayerActivity extends BaseActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+	    if(isTablet()) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+	    else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         LogHelper.d(TAG, "Activity onCreate");
 
         setContentView(R.layout.activity_player);
@@ -186,4 +195,36 @@ public class MusicPlayerActivity extends BaseActivity
         }
         getBrowseFragment().onConnected();
     }
+	public boolean isTablet() {
+		return (checkDimension(this)>=7);
+	}
+	private static double checkDimension(Context context) {
+
+		WindowManager windowManager = ((Activity)context).getWindowManager();
+		Display display = windowManager.getDefaultDisplay();
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		display.getMetrics(displayMetrics);
+
+		// since SDK_INT = 1;
+		int mWidthPixels = displayMetrics.widthPixels;
+		int mHeightPixels = displayMetrics.heightPixels;
+
+		// includes window decorations (statusbar bar/menu bar)
+		try
+		{
+			Point realSize = new Point();
+			Display.class.getMethod("getRealSize", Point.class).invoke(display, realSize);
+			mWidthPixels = realSize.x;
+			mHeightPixels = realSize.y;
+		}
+		catch (Exception ignored) {}
+
+		DisplayMetrics dm = new DisplayMetrics();
+		windowManager.getDefaultDisplay().getMetrics(dm);
+		double x = Math.pow(mWidthPixels/dm.xdpi,2);
+		double y = Math.pow(mHeightPixels/dm.ydpi,2);
+		double screenInches = Math.sqrt(x+y);
+		//Timber.d("Screen inches : %d", screenInches);
+		return screenInches;
+	}
 }
