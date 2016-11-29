@@ -84,7 +84,6 @@
 
             <TextView
                 android:id="@+id/extra_info"
-                tools:text="casting to MyCast"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:layout_width="wrap_content"
@@ -99,7 +98,6 @@
 
             <TextView
                 android:id="@+id/title"
-                tools:text="The Best Music EVAH1111 THE BEST"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:layout_width="wrap_content"
@@ -109,7 +107,6 @@
                 android:textSize="12sp"/>
             <TextView
                 android:id="@+id/artist"
-                tools:text="John Doe and Band"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:layout_width="wrap_content"

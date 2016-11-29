@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.stc.radio.player.PlaylistManager;
 import com.stc.radio.player.R;
 import com.stc.radio.player.ServiceRadioRx;
 
@@ -27,7 +26,6 @@ public class DialogShower {
 public static final String TAG="DialogShower";
 	MenuItem sleepTimerMenuItem;
 	private AlertDialog dialogSetBufferSize;
-	PlaylistManager playlistManager;
 	private int sizeBuffer, sizeDecode;
 
 	public DialogShower() {

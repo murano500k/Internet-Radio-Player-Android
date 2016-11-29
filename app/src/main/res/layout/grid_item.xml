@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="100dp"
+    android:layout_margin="4dp"
+    android:clickable="true">
+    <pl.bclogic.pulsator4droid.library.PulsatorLayout
+        android:id="@+id/pulsator"
+        app:pulse_count="1"
+        android:background="@color/colorPrimary"
+
+        app:pulse_duration="1"
+        app:pulse_repeat="1"
+        app:pulse_color="@color/colorAccent"
+        app:pulse_startFromScratch="false"
+        app:pulse_interpolator="Accelerate"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <com.stc.radio.player.GridItemImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/icon_list_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false"
+        android:clickable="false"
+        android:scaleType="fitXY"
+        android:layout_marginBottom="30dp"/>
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="bottom|center_vertical"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/textName"
+            android:text="drumandbass"
+            android:textSize="14sp"
+            android:lines="1"
+            android:gravity="center_vertical"
+            android:layout_toStartOf="@+id/fav_button"
+            android:paddingStart="8dp"
+            android:layout_alignParentEnd="true"/>
+
+        <com.like.LikeButton
+            app:icon_type="star"
+            app:icon_size="14dp"
+            android:id="@+id/fav_button"
+            app:is_enabled="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="4dp"/>
+    </RelativeLayout>
+
+
+
+
+    </pl.bclogic.pulsator4droid.library.PulsatorLayout>
+
+</android.support.v7.widget.CardView>
+    <!--<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:clickable="true"
+    android:background="@color/cardview_dark_background"
+    android:layout_height="wrap_content"
+    android:layout_centerVertical="false"
+    android:layout_centerHorizontal="false"
+    android:layout_centerInParent="false"
+    android:layout_margin="@dimen/activity_vertical_margin">
+
+    <ImageView
+        android:id="@+id/icon_list_item"
+        android:clickable="false"
+        android:scaleType="center"
+        android:src="@drawable/ic_checked"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentStart="false"
+        android:adjustViewBounds="true"
+        android:cropToPadding="true"
+        android:layout_width="100dp"
+        android:layout_height="100dp"/>
+
+    <com.like.LikeButton
+        app:icon_type="star"
+        app:icon_size="16dp"
+        android:id="@+id/fav_button"
+        android:layout_gravity="center_vertical|end"
+        app:is_enabled="true"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
+
+    <TextView
+        android:id="@+id/textName"
+        android:layout_width="match_parent"
+        android:textColor="@color/md_white_1000"
+        android:textSize="@dimen/station_text_size"
+        android:hint="station name"
+
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_vertical_margin"/>
+
+</android.support.v7.widget.CardView>-->

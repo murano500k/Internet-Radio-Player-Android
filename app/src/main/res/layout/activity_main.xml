@@ -4,7 +4,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.stc.radio.player.ui.MainActivity"
+    tools:context="com.stc.radio.player.MainActivity"
     >
 
     <RelativeLayout
@@ -41,7 +41,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/progress_splash"
             android:indeterminate="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            tools:visibility="gone"/>
 
         <FrameLayout
             android:id="@+id/container_controls"
@@ -49,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"/>
 
-        <!--<fragment android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
+        <!--<fragment android:name="com.stc.radio.player.PlaybackControlsFragment"
                   android:id="@+id/fragment_playback_controls"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
@@ -60,7 +61,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_gravity="start"
-              android:name="com.stc.radio.player.ui.NavigationDrawerFragment"
+              android:name="com.stc.radio.player.NavigationDrawerFragment"
               tools:layout="@layout/fragment_navigation_drawer" />
 
 

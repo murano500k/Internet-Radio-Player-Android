@@ -6,13 +6,16 @@
     <string name="title_section_jazz">Jazz Radio</string>
     <string name="title_section_rock">Rock Radio</string>
     <string name="title_section_classic">Classical Radio</string>
-    <string name="title_section_custom">Custom playlist</string>
+    <string name="title_section_favorite">Favorite</string>
+    <string name="title_section_soma">SomaFM</string>
 
-    <string name="url_section_di">di</string>
-    <string name="url_section_radiotunes">rt</string>
-    <string name="url_section_jazz">jr</string>
-    <string name="url_section_rock">rr</string>
-    <string name="url_section_classic">cr</string>
+
+    <string name="url_section_di">difm</string>
+    <string name="url_section_soma">somafm</string>
+    <string name="url_section_radiotunes">radiotunes</string>
+    <string name="url_section_jazz">jazzradio</string>
+    <string name="url_section_rock">rockradio</string>
+    <string name="url_section_classic">classicalradio</string>
 
 
     <string name="title_section_shuffle">Shuffle</string>
@@ -62,6 +65,12 @@
     <string name="no_search_results">No search results.</string>
     <string name="loading">Loading…</string>
     <string name="media_route_menu_title">Play on…</string>
-    <string name="navigation_drawer_open">open</string>
-    <string name="navigation_drawer_close">close</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+    <string name="label_previous">Prev</string>
+    <string name="label_pause">Pause</string>
+    <string name="label_play">Play</string>
+    <string name="label_loading">Loading</string>
+    <string name="label_next">Next</string>
+    <string name="url_section_favorite">favorite</string>
 </resources>

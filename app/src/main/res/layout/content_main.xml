@@ -45,7 +45,7 @@ app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
 
         android:fitsSystemWindows="true"/>
 
-    <fragment android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
+    <fragment android:name="com.stc.radio.player.PlaybackControlsFragment"
               android:id="@+id/fragment_playback_controls"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"

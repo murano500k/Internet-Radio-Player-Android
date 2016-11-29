@@ -1,14 +1,15 @@
 package com.stc.radio.player;
 
-import android.app.Application;
-
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.Configuration;
+import com.stc.radio.player.db.NowPlaying;
+import com.stc.radio.player.db.Station;
+import com.stc.radio.player.utils.SettingsProvider;
 
 import timber.log.Timber;
 
 
-public class RadioApp extends Application {
+public class RadioApp extends com.activeandroid.app.Application {
 
 	@Override
 	public void onTerminate() {
@@ -18,7 +19,12 @@ public class RadioApp extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		ActiveAndroid.initialize(this);
+		Configuration dbConfiguration = new Configuration.Builder(this)
+				.setDatabaseName("radio.db")
+				.setModelClasses(Station.class, NowPlaying.class).create();
 
+		SettingsProvider.init(getApplicationContext());
 
 		if (BuildConfig.DEBUG) {
 			Timber.plant(new Timber.DebugTree(){
@@ -32,8 +38,6 @@ public class RadioApp extends Application {
 		} else {
 			//Timber.plant(new CrashReportingTree());
 		}
-		Configuration dbConfiguration = new Configuration.Builder(this).setDatabaseName("radio.db").create();
-		ActiveAndroid.initialize(this);
 
 	}
 
