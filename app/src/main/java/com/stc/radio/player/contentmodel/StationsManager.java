@@ -5,11 +5,11 @@ import android.support.v4.media.MediaMetadataCompat;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
-import com.example.android.uamp.model.MusicProviderSource;
 import com.stc.radio.player.StationListItem;
 import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
+import com.stc.radio.player.model.MusicProviderSource;
 import com.stc.radio.player.utils.SettingsProvider;
 
 import java.io.IOException;

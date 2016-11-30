@@ -61,7 +61,7 @@
                 android:layout_height="20dp"
                 android:tintMode="src_in"
                 android:contentDescription="@string/play_item"
-                android:src="@drawable/ic_media_play"
+                android:src="@drawable/ic_play"
                 android:elevation="20dp"
                 android:layout_centerInParent="false"
                 android:layout_centerVertical="true"/>

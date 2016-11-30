@@ -47,7 +47,7 @@
     <dimen name="movie_grid_item_width">120dp</dimen>
 
     <!-- Scale animation for grid_item_movie click-->
-    <item name="movie_grid_item_anim_scale_change" type="dimen" format="float">0.9</item>
+    <item name="movie_grid_item_anim_scale_change" format="float" type="dimen">0.9</item>
 
     <!-- Dimens for the fragment_movie_detail-->
     <dimen name="movie_detail_color_banner_min_height">100dp</dimen>

@@ -24,7 +24,7 @@ limitations under the License.
 -->
 <allowed_callers>
     <signing_certificate name="Android Auto" release="false"
-                         package="com.google.android.projection.gearhead">
+        package="com.google.android.projection.gearhead">
         MIIEqDCCA5CgAwIBAgIJANWFuGx90071MA0GCSqGSIb3DQEBBAUAMIGUMQswCQYD
         VQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4g
         VmlldzEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UE
@@ -52,7 +52,7 @@ limitations under the License.
         Ev9lKTk+jkbqxbsh8nfBUapfKqYn0eidpwq2AzVp3juYl7//fKnaPhJD9gs=
     </signing_certificate>
     <signing_certificate name="Android Auto" release="false"
-                         package="com.google.android.projection.gearhead">
+        package="com.google.android.projection.gearhead">
         MIIDvTCCAqWgAwIBAgIJAOfkBvDXw5bzMA0GCSqGSIb3DQEBBQUAMHUxCzAJBgNV
         BAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBW
         aWV3MRQwEgYDVQQKDAtHb29nbGUgSW5jLjEQMA4GA1UECwwHQW5kcm9pZDERMA8G
@@ -76,7 +76,7 @@ limitations under the License.
         0A==
     </signing_certificate>
     <signing_certificate name="Android Auto" release="true"
-                         package="com.google.android.projection.gearhead">
+        package="com.google.android.projection.gearhead">
         MIIDvTCCAqWgAwIBAgIJAMePnkuTQTAGMA0GCSqGSIb3DQEBBQUAMHUxCzAJBgNV
         BAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBW
         aWV3MRQwEgYDVQQKDAtHb29nbGUgSW5jLjEQMA4GA1UECwwHQW5kcm9pZDERMA8G
@@ -156,7 +156,7 @@ limitations under the License.
         e7MdpSQ0Xgq9TgG1BoJP6rpC0y3Ukmc+z8AXnYYdJunNXEbv0A==
     </signing_certificate>
     <signing_certificate name="Media Browser Service Simulator" release="true"
-                         package="com.google.android.mediasimulator">
+        package="com.google.android.mediasimulator">
         MIIDvTCCAqWgAwIBAgIJAMePnkuTQTAGMA0GCSqGSIb3DQEBBQUAMHUxCzAJBgNV
         BAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBW
         aWV3MRQwEgYDVQQKDAtHb29nbGUgSW5jLjEQMA4GA1UECwwHQW5kcm9pZDERMA8G
@@ -180,7 +180,7 @@ limitations under the License.
         IQ==
     </signing_certificate>
     <signing_certificate name="Android Auto Simulator" release="true"
-                         package="com.google.android.autosimulator">
+        package="com.google.android.autosimulator">
         MIIEqDCCA5CgAwIBAgIJANWFuGx90071MA0GCSqGSIb3DQEBBAUAMIGUMQswCQYD
         VQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4g
         VmlldzEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UE
@@ -208,7 +208,7 @@ limitations under the License.
         Ev9lKTk+jkbqxbsh8nfBUapfKqYn0eidpwq2AzVp3juYl7//fKnaPhJD9gs=
     </signing_certificate>
     <signing_certificate name="Media Browser Simulator" release="true"
-                         package="com.google.android.mediasimulator">
+        package="com.google.android.mediasimulator">
         MIIEqDCCA5CgAwIBAgIJANWFuGx90071MA0GCSqGSIb3DQEBBAUAMIGUMQswCQYD
         VQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4g
         VmlldzEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UE

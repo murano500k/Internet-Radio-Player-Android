@@ -42,7 +42,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
-import butterknife.ButterKnife;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -322,7 +321,6 @@ public class MainActivity extends AppCompatActivity
 		splashScreen = (ProgressBar) findViewById(R.id.progress_splash);
 		splashScreen.setVisibility(View.GONE);
 		connectivityManager=(ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-		ButterKnife.bind(this);
 		new MaterializeBuilder().withActivity(this).build();
 		initListFragment();
 
