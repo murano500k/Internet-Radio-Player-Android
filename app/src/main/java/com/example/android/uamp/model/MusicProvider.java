@@ -204,7 +204,7 @@ public class MusicProvider {
 	    From from = new Select().from(DBMediaItem.class).where("MediaId = ?", musicId);
 	    if(from.exists()){
 		    DBMediaItem dbMediaItem=from.executeSingle();
-		    dbMediaItem.setFavorite(favorite);
+		    //dbMediaItem.setFavorite(favorite);
 		    dbMediaItem.save();
 	    }
         if (favorite>0) {

@@ -9,6 +9,7 @@ import com.activeandroid.annotation.Table;
 import static android.R.attr.duration;
 import static android.R.attr.id;
 import static com.google.android.gms.analytics.internal.zzy.m;
+import static com.stc.radio.player.R.string.favorite;
 
 /**
  * Created by artem on 10/22/16.
@@ -37,17 +38,6 @@ public class DBMediaItem extends Model {
 	@Column(name = "TotalTrackCount")
 	long totalTrackCount;
 
-	@Column(name = "Favorite")
-	long favorite;
-
-	public long isFavorite() {
-		return favorite;
-	}
-
-	public void setFavorite(long favorite) {
-		this.favorite = favorite;
-	}
-
 	/*
 					*/
 	public DBMediaItem(MediaMetadataCompat metadata) {
@@ -58,13 +48,11 @@ public class DBMediaItem extends Model {
 		this.iconUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
 		this.totalTrackCount = metadata.getLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS);
 		this.trackNumber = metadata.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER);
-		this.favorite=metadata.getLong(MusicProviderSource.CUSTOM_METADATA_FAVORITE);
 	}
 	public MediaMetadataCompat createMetadata() {
 		return new MediaMetadataCompat.Builder()
 				.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
 				.putString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE, source)
-				.putLong(MusicProviderSource.CUSTOM_METADATA_FAVORITE, favorite)
 				.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, -1)
 				.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNumber)
 				.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, totalTrackCount)

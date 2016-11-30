@@ -155,7 +155,6 @@ public class RemoteJSONSource implements MusicProviderSource {
 		return new MediaMetadataCompat.Builder()
 				.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, id)
 				.putString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE, source)
-				.putLong(MusicProviderSource.CUSTOM_METADATA_FAVORITE, favorite)
 				.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
 				.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNumber)
 				.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, totalTrackCount)
@@ -182,9 +181,7 @@ public class RemoteJSONSource implements MusicProviderSource {
 		return new MediaMetadataCompat.Builder()
 				.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, id)
 				.putString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE, source)
-				.putLong(MusicProviderSource.CUSTOM_METADATA_FAVORITE, favorite)
 				.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
-
 				.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNumber)
 				.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, totalTrackCount)
 				.putString(MediaMetadataCompat.METADATA_KEY_GENRE, pls)

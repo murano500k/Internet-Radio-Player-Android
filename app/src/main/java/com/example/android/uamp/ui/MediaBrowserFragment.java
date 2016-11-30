@@ -20,6 +20,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,7 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 	private ItemTouchHelper touchHelper;
 	private View mErrorView;
 	private TextView mErrorMessage;
+	private ProgressBar progressBar;
 
 
 
@@ -149,6 +151,8 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 							fastItemAdapter.add(new MediaListItem( item, itemState, getActivity()));
 						}
 						fastItemAdapter.notifyDataSetChanged();
+						progressBar.setVisibility(View.GONE);
+
 					} catch (Throwable t) {
 						LogHelper.e(TAG, "Error on childrenloaded", t);
 					}
@@ -185,6 +189,7 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 		mErrorView = view.findViewById(R.id.playback_error);
 		mErrorMessage = (TextView) mErrorView.findViewById(R.id.error_message);
 		Context context = view.getContext();
+		progressBar=(ProgressBar)view.findViewById(R.id.progress_bar);
 			recyclerView = (AutoFitGridRecyclerView)view.findViewById(R.id.recyclerViewAutoFit);
 
 			recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -218,7 +223,8 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 
 		if (mediaBrowser.isConnected()) {
 			onConnected();
-		}
+			progressBar.setVisibility(View.GONE);
+		}else progressBar.setVisibility(View.VISIBLE);
 
 		// Registers BroadcastReceiver to track network connection changes.
 		this.getActivity().registerReceiver(mConnectivityChangeReceiver,
@@ -272,18 +278,7 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 		if (mMediaId == null) {
 			mMediaId = mListener.getMediaBrowser().getRoot();
 		}
-
 		updateTitle();
-
-		// Unsubscribing before subscribing is required if this mediaId already has a subscriber
-		// on this MediaBrowser instance. Subscribing to an already subscribed mediaId will replace
-		// the callback, but won't trigger the initial callback.onChildrenLoaded.
-		//
-		// This is temporary: A bug is being fixed that will make subscribe
-		// consistently call onChildrenLoaded initially, no matter if it is replacing an existing
-		// subscriber or not. Currently this only happens if the mediaID has no previous
-		// subscriber or if the media content changes on the service side, so we need to
-		// unsubscribe first.
 		mListener.getMediaBrowser().unsubscribe(mMediaId);
 
 		mListener.getMediaBrowser().subscribe(mMediaId, mSubscriptionCallback);

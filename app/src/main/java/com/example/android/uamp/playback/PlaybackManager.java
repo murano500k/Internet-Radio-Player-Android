@@ -331,7 +331,7 @@ public class PlaybackManager implements Playback.Callback {
                     String mediaId = currentMusic.getDescription().getMediaId();
                     if (mediaId != null) {
                         String musicId = MediaIDHelper.extractMusicIDFromMediaID(mediaId);
-                        mMusicProvider.setFavorite(musicId, extras.getLong(CUSTOM_ACTION_THUMBS_UP, 0));
+                        //mMusicProvider.setFavorite(musicId, extras.getLong(CUSTOM_ACTION_THUMBS_UP, 0));
                     }
                 }
                 // playback state needs to be updated because the "Favorite" icon on the

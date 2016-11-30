@@ -88,7 +88,7 @@ public class MediaListItem
 		From from = new Select().from(DBMediaItem.class).where("MediaId = ?", mediaItem.getMediaId());
 		if(from.exists()){
 			DBMediaItem dbMediaItem=from.executeSingle();
-			this.favorite=dbMediaItem.isFavorite();
+			//this.favorite=dbMediaItem.isFavorite();
 		}else this.favorite=0;
 
 																						}

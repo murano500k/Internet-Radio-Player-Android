@@ -124,7 +124,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.0.0'
     compile 'com.android.support:support-annotations:24.0.0'
     compile 'com.android.support:support-v13:24.0.0'
-    compile 'com.android.support:support-v4:24.0.0'
     compile 'com.google.android.gms:play-services:9.4.0'
 
 }
