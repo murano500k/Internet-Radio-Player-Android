@@ -561,7 +561,7 @@ public class ServiceRadioRx extends Service implements PlayerCallback{
 		getPlayer().playAsync(url, 128);
 	}
 	public boolean checkSuffix(String streamUrl) {
-		String SUFFIX_PLS = ".pls";
+		String SUFFIX_PLS = ".name";
 		String SUFFIX_RAM = ".ram";
 		String SUFFIX_WAX = ".wax";
 		return streamUrl.contains(SUFFIX_PLS) ||

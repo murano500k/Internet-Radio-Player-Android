@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.like.LikeButton;
 import com.stc.radio.player.AlbumArtCache;
 import com.stc.radio.player.MusicService;
 import com.stc.radio.player.R;
@@ -46,20 +47,28 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import timber.log.Timber;
+
+import static com.stc.radio.player.playback.PlaybackManager.CUSTOM_ACTION_THUMBS_UP;
+import static com.stc.radio.player.playback.PlaybackManager.IS_FAVORITE;
+
 /**
  * A class that shows the Media Queue to the user.
  */
 public class PlaybackControlsFragment extends Fragment {
+	private String musicId;
 
 	private static final String TAG = LogHelper.makeLogTag(PlaybackControlsFragment.class);
 	private ImageButton mPlayPrev, mPlayPause, mPlayNext;
 	private TextView mSong;
+	LikeButton favButton;
+	private boolean isFav;
+
 	private TextView mArtist;
 	private TextView mStation;
 	private ImageView mAlbumArt;
 	private View rootView;
-	String song;
-	String artist;
+
 	String artUrl;
 	private int status;
 	private Station station;
@@ -81,10 +90,11 @@ public class PlaybackControlsFragment extends Fragment {
 			}
 			LogHelper.d(TAG, "Received metadata state change to mediaId=",
 					metadata.getDescription().getMediaId(),
-					" artist=", metadata.getDescription().getTitle());
+					" title=", metadata.getDescription().getTitle());
 			PlaybackControlsFragment.this.onMetadataChanged(metadata);
 		}
 	};
+
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onMyMetadataUpdate(MyMetadata myMetadata){
 		CharSequence s = "" + myMetadata;
@@ -112,11 +122,21 @@ public class PlaybackControlsFragment extends Fragment {
 		mPlayNext.setOnClickListener(mButtonListener);
 		mPlayPrev.setOnClickListener(mButtonListener);
 
+		favButton = (LikeButton) rootView.findViewById(R.id.fav_button_control);
 
 		mSong = (TextView) rootView.findViewById(R.id.title);
 		mArtist = (TextView) rootView.findViewById(R.id.artist);
 		mStation = (TextView) rootView.findViewById(R.id.station);
 		rootView.setOnTouchListener(getOnSwipeListener(rootView));
+		favButton.setOnClickListener(mButtonListener);
+
+		/*favButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				favButton.setLiked(RatingHelper.updateFavorite(musicId));
+				Timber.w("favButton.isActivated %b ",favButton.isActivated());
+			}
+		});*/
 
 	    /*
         rootView.setOnClickListener(new View.OnClickListener() {
@@ -191,20 +211,25 @@ public class PlaybackControlsFragment extends Fragment {
 		if (metadata == null  || metadata.getDescription()==null) {
 			return;
 		}
+/*
+		this.musicId = MediaIDHelper.extractMusicIDFromMediaID(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID));
+		if(musicId!=null) this.favButton.setLiked(
+				RatingHelper.isFavorite(musicId));
+		else {
+			Timber.e("failed to get Fav state");
+			this.favButton.setLiked(false);
+		}*/
+
 		if(metadata.getDescription().getTitle()!=null)
 			setExtraInfo((String) metadata.getDescription().getTitle());
-		if(metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE)!=null)
-			mStation.setText(metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE));
-		else if(metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)!=null)
-			setExtraInfo( metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST));
+		else if(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)!=null)
+			setExtraInfo( metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE));
 		String artUrl = null;
 		if (metadata.getDescription().getIconUri() != null) {
 			artUrl = metadata.getDescription().getIconUri().toString();
 		}
 
 		if (true || !TextUtils.equals(artUrl, this.artUrl)) {
-
-
 			this.artUrl = artUrl;
 			Bitmap art = metadata.getDescription().getIconBitmap();
 			com.stc.radio.player.AlbumArtCache cache = AlbumArtCache.getInstance();
@@ -262,7 +287,9 @@ public class PlaybackControlsFragment extends Fragment {
 				Toast.makeText(getActivity(), state.getErrorMessage(), Toast.LENGTH_LONG).show();
 				break;
 		}
-
+		MediaControllerCompat controller = ((FragmentActivity) getActivity())
+				.getSupportMediaController();
+		String extraInfo = null;
 		if (enablePlay) {
 			mPlayPause.setImageDrawable(
 					ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_play_light));
@@ -270,10 +297,20 @@ public class PlaybackControlsFragment extends Fragment {
 			mPlayPause.setImageDrawable(
 					ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_pause_light));
 		}
+		boolean checkFav=false;
+		for(PlaybackStateCompat.CustomAction action: state.getCustomActions())
+		if(action.getAction().contains(CUSTOM_ACTION_THUMBS_UP)) {
+			isFav=action.getExtras().containsKey(IS_FAVORITE) && action.getExtras().getBoolean(IS_FAVORITE);
+			favButton.setLiked(isFav);
+			checkFav=true;
+			Timber.w("get Fav state SUCCESS");
+			break;
+		}
+		if(!checkFav){
+			Timber.e("failed to get Fav state");
+			this.favButton.setLiked(false);
+		}
 
-		MediaControllerCompat controller = ((FragmentActivity) getActivity())
-				.getSupportMediaController();
-		String extraInfo = null;
 		if (controller != null && controller.getExtras() != null) {
 			String castName = controller.getExtras().getString(MusicService.EXTRA_CONNECTED_CAST);
 			if (castName != null) {
@@ -337,12 +374,27 @@ public class PlaybackControlsFragment extends Fragment {
 				case R.id.play_prev:
 					prevMedia();
 					break;
+				case R.id.fav_button_control:
+					customAction();
+					break;
+
 			}
 		}
 
 		;
 
 	};
+
+	private void customAction() {
+		MediaControllerCompat controller = ((FragmentActivity) getActivity())
+				.getSupportMediaController();
+		if (controller != null) {
+			Bundle customActionExtras=new Bundle();
+			customActionExtras.putBoolean(IS_FAVORITE, !isFav);
+
+			controller.getTransportControls().sendCustomAction(CUSTOM_ACTION_THUMBS_UP,customActionExtras);
+		}
+	}
 
 
 	public void nextMedia() {

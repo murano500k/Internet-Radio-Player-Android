@@ -69,7 +69,7 @@ public class LocalPlayback implements Playback, AudioManager.OnAudioFocusChangeL
     private int mState;
     private boolean mPlayOnFocusGain;
     private Callback mCallback;
-    private final MusicProvider mMusicProvider;
+    private final MusicProvider mMusicProviderOldTest;
     private volatile boolean mAudioNoisyReceiverRegistered;
     private volatile int mCurrentPosition;
     private volatile String mCurrentMediaId;
@@ -99,7 +99,7 @@ public class LocalPlayback implements Playback, AudioManager.OnAudioFocusChangeL
 
     public LocalPlayback(Context context, MusicProvider musicProvider) {
         this.mContext = context;
-        this.mMusicProvider = musicProvider;
+        this.mMusicProviderOldTest = musicProvider;
         this.mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         // Create the Wifi lock (this does not acquire the lock, this just creates it)
         this.mWifiLock = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
@@ -182,7 +182,7 @@ public class LocalPlayback implements Playback, AudioManager.OnAudioFocusChangeL
         } else {
             mState = PlaybackStateCompat.STATE_STOPPED;
             relaxResources(false); // release everything except MediaPlayer
-            MediaMetadataCompat track = mMusicProvider.getMusic(
+            MediaMetadataCompat track = mMusicProviderOldTest.getMusic(
                     MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
 
             //noinspection ResourceType

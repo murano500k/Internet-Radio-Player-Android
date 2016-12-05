@@ -7,47 +7,23 @@ import com.activeandroid.annotation.Table;
 /**
  * Created by artem on 11/30/16.
  */
-@Table(name = "DBUserPrefsItem", id = "_id")
+@Table(name = "DBUserPrefsItem")
 public class DBUserPrefsItem extends Model {
-
-	@Column(name = "MediaId")
-	String mediaId;
-
-	@Column(name = "Favorite")
-	boolean favorite;
-
-	public DBUserPrefsItem(String mediaId, boolean favorite, long priority) {
-		this.favorite = favorite;
-		this.mediaId = mediaId;
-		this.priority = priority;
+	public DBUserPrefsItem() {
 	}
 
-	public String getMediaId() {
+	@Column(name = "MaxPlayedTimes")
+	int maxPlayedTimes;
 
-		return mediaId;
+	public DBUserPrefsItem(int maxPlayedTimes) {
+		this.maxPlayedTimes = maxPlayedTimes;
 	}
 
-	public void setMediaId(String mediaId) {
-		this.mediaId = mediaId;
+	public int getMaxPlayedTimes() {
+		return maxPlayedTimes;
 	}
 
-	@Column(name = "Priority")
-	long priority;
-
-	public long getPriority() {
-		return priority;
+	public void setMaxPlayedTimes(int maxPlayedTimes) {
+		this.maxPlayedTimes = maxPlayedTimes;
 	}
-
-	public void setPriority(long priority) {
-		this.priority = priority;
-	}
-
-	public boolean isFavorite() {
-		return favorite;
-	}
-
-	public void setFavorite(boolean favorite) {
-		this.favorite = favorite;
-	}
-
 }

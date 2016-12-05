@@ -29,6 +29,7 @@ package com.stc.radio.player;
  import android.support.v4.media.MediaBrowserCompat.MediaItem;
  import android.support.v4.media.MediaBrowserServiceCompat;
  import android.support.v4.media.MediaMetadataCompat;
+ import android.support.v4.media.RatingCompat;
  import android.support.v4.media.session.MediaButtonReceiver;
  import android.support.v4.media.session.MediaSessionCompat;
  import android.support.v4.media.session.PlaybackStateCompat;
@@ -45,7 +46,10 @@ package com.stc.radio.player;
  import java.lang.ref.WeakReference;
  import java.util.List;
 
+ import timber.log.Timber;
+
  import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
+
 
 
  /**
@@ -308,6 +312,8 @@ package com.stc.radio.player;
          } else {
              // otherwise, only return results when the music library is retrieved
              result.detach();
+             //testRating();
+
              mMusicProvider.retrieveMediaAsync(new MusicProvider.Callback() {
                  @Override
                  public void onMusicCatalogReady(boolean success) {
@@ -315,6 +321,16 @@ package com.stc.radio.player;
                  }
              });
          }
+     }
+     public void testRating(){
+         RatingCompat ratingCompat=RatingCompat.newPercentageRating(0.1f);
+
+         //SomaRemoteSource somaRemoteSource=new SomaRemoteSource(StationsManager.PLAYLISTS.SOMA);
+
+         //MediaMetadataCompat metadataCompat =
+         //        somaRemoteSource.buildFromResponce(StationsManager.Soma.somaStations[0],StationsManager.PLAYLISTS.SOMA);
+         //RatingCompat ratingCompat=metadataCompat.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+         Timber.w("!!!!!!!!!!!!!!!!!!!rating %b", ratingCompat!=null);
      }
 
      /**

@@ -16,60 +16,77 @@ public class DBMediaItem extends Model {
 	@Column(name = "MediaId")
 	String mediaId;
 
-	@Column(name = "Genre")
-	String genre;
-
-	@Column(name = "Name")
-	String name;
-
 	@Column(name = "Source")
 	String source;
+
+	@Column(name = "Title")
+	String title;
 
 	@Column(name = "IconUri")
 	String iconUri;
 
-	@Column(name = "TrackNumber")
-	long trackNumber;
+	@Column(name = "PlayedTimes")
+	int playedTimes;
 
-	@Column(name = "TotalTrackCount")
-	long totalTrackCount;
+	@Column(name = "Favorite")
+	boolean favorite;
 
-	/*
-					*/
+
+
+
+
+
+	public String getMediaId() {
+		return mediaId;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getIconUri() {
+		return iconUri;
+	}
+
+	public int getPlayedTimes() {
+		return playedTimes;
+	}
+
+	public void setPlayedTimes(int playedTimes) {
+		this.playedTimes = playedTimes;
+	}
+
+	public boolean isFavorite() {
+		return favorite;
+	}
+
+	public void setFavorite(boolean favorite) {
+		this.favorite = favorite;
+	}
+
 	public DBMediaItem(MediaMetadataCompat metadata) {
 		this.mediaId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
-		this.genre = metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE);
 		this.source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
-		this.name = metadata.getString(MediaMetadataCompat.METADATA_KEY_ARTIST);
+		this.title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
 		this.iconUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
-		this.totalTrackCount = metadata.getLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS);
-		this.trackNumber = metadata.getLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER);
+
+		playedTimes=0;
+
+		favorite=false;
 	}
-	public MediaMetadataCompat createMetadata() {
-		return new MediaMetadataCompat.Builder()
-				.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId)
-				.putString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE, source)
-				.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, -1)
-				.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, trackNumber)
-				.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, totalTrackCount)
-				.putString(MediaMetadataCompat.METADATA_KEY_GENRE, genre)
-				.putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUri)
-				.putString(MediaMetadataCompat.METADATA_KEY_ART_URI, iconUri)
-				.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, iconUri)
-				.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, name)
-				.build();
-	}
+
 
 	public DBMediaItem() {
 	}
 
-	public DBMediaItem(String mediaId, String genre, String name, String source, String iconUri, int totalTrackCount, int trackNumber) {
+	public DBMediaItem(String mediaId, String title, String source, String iconUri){
 		this.mediaId = mediaId;
-		this.genre = genre;
-		this.name = name;
+		this.title = title;
 		this.source = source;
 		this.iconUri = iconUri;
-		this.totalTrackCount = totalTrackCount;
-		this.trackNumber = trackNumber;
 	}
 }

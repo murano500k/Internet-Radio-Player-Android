@@ -27,10 +27,27 @@ public class MutableMediaMetadata {
 
     public MediaMetadataCompat metadata;
     public final String trackId;
+    public int playedTimes;
+
+
 
     public MutableMediaMetadata(String trackId, MediaMetadataCompat metadata) {
         this.metadata = metadata;
         this.trackId = trackId;
+    }
+
+    public MutableMediaMetadata(String trackId, MediaMetadataCompat metadata, int playedTimes) {
+        this.metadata = metadata;
+        this.trackId = trackId;
+        this.playedTimes=playedTimes;
+    }
+
+    public int getPlayedTimes() {
+        return playedTimes;
+    }
+
+    public void setPlayedTimes(int playedTimes) {
+        this.playedTimes = playedTimes;
     }
 
     @Override

@@ -7,9 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -21,8 +18,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.activeandroid.query.From;
-import com.activeandroid.query.Select;
 import com.like.LikeButton;
 import com.mikepenz.fastadapter.items.AbstractItem;
 import com.mikepenz.fastadapter.utils.ViewHolderFactory;
@@ -30,7 +25,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.stc.radio.player.GridItemImageView;
 import com.stc.radio.player.R;
-import com.stc.radio.player.db.DBMediaItem;
 import com.stc.radio.player.utils.MediaIDHelper;
 import com.stc.radio.player.utils.PabloPicasso;
 
@@ -38,12 +32,10 @@ import java.util.List;
 
 import pl.bclogic.pulsator4droid.library.PulsatorLayout;
 
-import static com.stc.radio.player.playback.PlaybackManager.CUSTOM_ACTION_THUMBS_UP;
-
 
 public class MediaListItem
-		extends AbstractItem<MediaListItem, MediaListItem.ViewHolder> implements Parcelable
-		/* implements IDraggable<MediaListItem, MediaListItem>*/
+		extends AbstractItem<MediaListItem, MediaListItem.ViewHolder>
+		/*  implements Parcelable , IDraggable<MediaListItem, MediaListItem>*/
 {
 
 	public static final ViewHolderFactory<? extends MediaListItem.ViewHolder> FACTORY = new MediaListItem.ItemFactory();
@@ -52,8 +44,7 @@ public class MediaListItem
 	public static final int STATE_PLAYABLE = 1;
 	public static final int STATE_PAUSED = 2;
 	public static final int STATE_PLAYING = 3;
-	private long favorite;
-	private String key;
+	private boolean favorite;
 	private CharSequence name;
 	private Uri artUrl;
 	public  static ColorStateList sColorStatePlaying;
@@ -86,24 +77,14 @@ public class MediaListItem
 	this.mediaItem=mediaItem;
 		this.state=state;
 		this.activity=activity;
-		From from = new Select().from(DBMediaItem.class).where("MediaId = ?", mediaItem.getMediaId());
-		if(from.exists()){
-			DBMediaItem dbMediaItem=from.executeSingle();
-			//this.favorite=dbMediaItem.isFavorite();
-		}else this.favorite=0;
-
-																						}
-
-	public MediaListItem(Parcel in) {
-		String mediaId=in.readString();
-		if(mediaId!=null) {
-			From from = new Select().from(DBMediaItem.class).where("MediaId = ?", mediaItem.getMediaId());
-			if(from.exists()){
-				DBMediaItem dbMediaItem=from.executeSingle();
-
-			}
 		}
-	}
+	public MediaListItem(MediaBrowserCompat.MediaItem mediaItem, int state, Activity activity, boolean favorite) {
+	this.mediaItem=mediaItem;
+		this.state=state;
+		this.activity=activity;
+		this.favorite=favorite;
+		}
+
 /*	@Override
 	public int describeContents() {
 		return 0;
@@ -171,7 +152,12 @@ public class MediaListItem
 	public void bindView(ViewHolder viewHolder, List payloads) {
 		super.bindView(viewHolder, payloads);
 		String key = mediaItem.getDescription().getMediaId();
-		CharSequence name = mediaItem.getDescription().getTitle();
+		CharSequence name="";
+		if(mediaItem.getDescription().getTitle()!=null){
+			String  nameStr = mediaItem.getDescription().getTitle().toString();
+			name = nameStr.replace(" - ", "\n");
+		}
+
 		Uri artUrl = mediaItem.getDescription().getIconUri();
 		Context ctx = activity;
 
@@ -183,7 +169,9 @@ public class MediaListItem
 			if (controller != null && controller.getMetadata() != null) {
 				String currentPlaying = controller.getMetadata().getDescription().getMediaId();
 				String musicId = MediaIDHelper.extractMusicIDFromMediaID(
-						mediaItem.getDescription().getMediaId());
+						key);
+				viewHolder.favButton.setLiked(favorite);
+
 				if (currentPlaying != null && currentPlaying.equals(musicId)) {
 					PlaybackStateCompat pbState = controller.getPlaybackState();
 					if (pbState == null ||
@@ -241,25 +229,10 @@ public class MediaListItem
 					viewHolder.playbackIndicator.setVisibility(View.GONE);
 			}
 		}
-		if(favorite>0) {
+
+		if(favorite) {
 			viewHolder.favButton.setLiked(true);
 		}else viewHolder.favButton.setLiked(false);
-		viewHolder.favButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(favorite==0) favorite=1;
-				else favorite=0;
-
-				MediaControllerCompat controller = ((FragmentActivity) activity)
-						.getSupportMediaController();
-				if (controller != null) {
-					Bundle bundle = new Bundle( );
-					bundle.putLong(CUSTOM_ACTION_THUMBS_UP,favorite);
-					controller.getTransportControls().sendCustomAction(CUSTOM_ACTION_THUMBS_UP,bundle );
-				}
-
-			}
-		});
 
 
 		viewHolder.itemView.setTag(R.id.tag_mediaitem_state_cache, state);
@@ -287,16 +260,25 @@ public class MediaListItem
 		return mediaItem;
 	}
 
-
+/*
 	@Override
 	public int describeContents() {
 		return 1933;
 	}
 
+	public MediaListItem(Parcel in) {
+		String mediaId=in.readString();
+		String musicId = MediaIDHelper.extractMusicIDFromMediaID(mediaId);
+		if(musicId!=null) {
+			From from = new Select().from(DBMediaItem.class).where("MediaId = ?",musicId);
+			if(from.exists()){
+				DBMediaItem dbMediaItem=from.executeSingle();
+			}
+		}
+	}
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(mediaItem.getMediaId());
-
 	}
 
 	public static final Creator<MediaListItem> CREATOR = new Creator<MediaListItem>() {
@@ -310,7 +292,7 @@ public class MediaListItem
 		public MediaListItem[] newArray(int size) {
 			return new MediaListItem[size];
 		}
-	};
+	};*/
 
 
 	protected static class ItemFactory implements ViewHolderFactory<ViewHolder> {

@@ -54,7 +54,7 @@ public class QueueManager {
     public QueueManager(@NonNull MusicProvider musicProvider,
                         @NonNull Resources resources,
                         @NonNull MetadataUpdateListener listener) {
-        this.mMusicProvider = musicProvider;
+        this.mMusicProvider= musicProvider;
         this.mListener = listener;
         this.mResources = resources;
 
@@ -127,7 +127,6 @@ public class QueueManager {
 
     public void setQueueFromMusic(String mediaId) {
         LogHelper.d(TAG, "setQueueFromMusic", mediaId);
-
         // The mediaId used here is not the unique musicId. This one comes from the
         // MediaBrowser, and is actually a "hierarchy-aware mediaID": a concatenation of
         // the hierarchy in MediaBrowser and the actual unique musicID. This is necessary

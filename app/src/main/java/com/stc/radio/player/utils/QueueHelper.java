@@ -26,8 +26,8 @@ import com.stc.radio.player.model.MusicProvider;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 /**
  * Utility class to help on queue related tasks.
@@ -55,8 +55,8 @@ public class QueueHelper {
 
         Iterable<MediaMetadataCompat> tracks = null;
         // This sample only supports genre and by_search category types.
-        if (categoryType.equals(MEDIA_ID_MUSICS_BY_GENRE)) {
-            tracks = musicProvider.getMusicsByGenre(categoryValue);
+        if (categoryType.equals(MEDIA_ID_ROOT)) {
+            tracks = musicProvider.getMusicsById();
         } else if (categoryType.equals(MEDIA_ID_MUSICS_BY_SEARCH)) {
             tracks = musicProvider.searchMusicBySongTitle(categoryValue);
         }
@@ -86,7 +86,10 @@ public class QueueHelper {
         }
 
         Iterable<MediaMetadataCompat> result = null;
-        if (params.isAlbumFocus) {
+
+        result = musicProvider.searchMusicBySongTitle(query);
+        return convertToQueue(result, MEDIA_ID_MUSICS_BY_SEARCH, query);
+        /*if (params.isAlbumFocus) {
             result = musicProvider.searchMusicByAlbum(params.album);
         } else if (params.isGenreFocus) {
             result = musicProvider.getMusicsByGenre(params.genre);
@@ -95,6 +98,7 @@ public class QueueHelper {
         } else if (params.isSongFocus) {
             result = musicProvider.searchMusicBySongTitle(params.song);
         }
+
 
         // If there was no results using media focus parameter, we do an unstructured query.
         // This is useful when the user is searching for something that looks like an artist
@@ -107,7 +111,7 @@ public class QueueHelper {
             result = musicProvider.searchMusicBySongTitle(query);
         }
 
-        return convertToQueue(result, MEDIA_ID_MUSICS_BY_SEARCH, query);
+ */
     }
 
 
@@ -140,7 +144,6 @@ public class QueueHelper {
         List<MediaSessionCompat.QueueItem> queue = new ArrayList<>();
         int count = 0;
         for (MediaMetadataCompat track : tracks) {
-
             // We create a hierarchy-aware mediaID, so we know what the queue is about by looking
             // at the QueueItem media IDs.
             String hierarchyAwareMediaID = MediaIDHelper.createMediaID(

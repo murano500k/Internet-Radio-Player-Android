@@ -1,24 +1,34 @@
-package com.stc.radio.player.model;
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
-import android.util.Log;
 
-import com.activeandroid.query.From;
-import com.activeandroid.query.Select;
-import com.stc.radio.player.R;
-import com.stc.radio.player.db.DBMediaItem;
+import com.stc.radio.player.model.BaseRemoteSource;
+import com.stc.radio.player.model.MusicProviderSource;
+import com.stc.radio.player.model.MutableMediaMetadata;
+import com.stc.radio.player.model.RemoteSource;
 import com.stc.radio.player.utils.LogHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -26,20 +36,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import timber.log.Timber;
-
-import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 import static com.stc.radio.player.utils.MediaIDHelper.createMediaID;
+import static junit.framework.Assert.assertNotNull;
 
 /**
- * Created by artem on 12/5/16.
+ * Simple data provider for music tracks. The actual metadata source is delegated to a
+ * MusicProviderSource defined by a constructor argument of this class.
  */
+public class MusicProviderOldTest {
 
-public class MusicProvider {
-    private static final int FLAG_FAVORITE = 3;
-
-    private static final String TAG = LogHelper.makeLogTag(MusicProvider.class);
+    private static final String TAG = LogHelper.makeLogTag(MusicProviderOldTest.class);
 
     private MusicProviderSource mSource;
 
@@ -59,10 +66,10 @@ public class MusicProvider {
         void onMusicCatalogReady(boolean success);
     }
 
-    public MusicProvider() {
+    public MusicProviderOldTest() {
         this(new RemoteSource());
     }
-    public MusicProvider(MusicProviderSource source) {
+    public MusicProviderOldTest(MusicProviderSource source) {
         mSource = source;
         mMusicListByGenre = new ConcurrentHashMap<>();
         mMusicListById = new ConcurrentHashMap<>();
@@ -95,73 +102,58 @@ public class MusicProvider {
         Collections.shuffle(shuffled);
         return shuffled;
     }
-    static Comparator<MediaMetadataCompat>comparator=new Comparator<MediaMetadataCompat>() {
-        @Override
-        public int compare(MediaMetadataCompat metadata2, MediaMetadataCompat metadata1) {
-            boolean b1=metadata1.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING).hasHeart();
-            boolean b2=metadata2.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING).hasHeart();
-            String t1=metadata1.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-            String t2=metadata2.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
 
-            if(b1) {
-                if(b2) return t2.compareToIgnoreCase(t1);
-                else return 1;
-            }else {
-                if(b2) return -1;
-                else return t2.compareToIgnoreCase(t1);
-            }
-        }
-
-    };
     public Iterable<MediaMetadataCompat> getMusicsById() {
         if (mCurrentState != State.INITIALIZED) {
             return Collections.emptyList();
         }
         List<MediaMetadataCompat> byId = new ArrayList<>(mMusicListById.size());
-
         for (MutableMediaMetadata mutableMetadata: mMusicListById.values()) {
-
             byId.add(mutableMetadata.metadata);
         }
-        Collections.sort(byId,comparator);
-        if(mFavoriteTracks!=null) Log.w(TAG, "getFavNum: "+ mFavoriteTracks.size());
+
         return byId;
     }
-
-
     public Iterable<MediaMetadataCompat> getMusicsByGenre(String genre) {
-        if (mCurrentState != State.INITIALIZED || !mMusicListByGenre.containsKey(genre)) {
-            return Collections.emptyList();
-        }
-        return mMusicListByGenre.get(genre);
+	    if (mCurrentState != State.INITIALIZED || !mMusicListByGenre.containsKey(genre)) {
+		    return Collections.emptyList();
+	    }
+	    return mMusicListByGenre.get(genre);
     }
+	public Iterable<MediaMetadataCompat> getMusicsFavorite(String genre) {
+		if (mCurrentState != State.INITIALIZED || !mMusicListByGenre.containsKey(genre)) {
+			return Collections.emptyList();
+		}
+		return mMusicListByGenre.get(genre);
+	}
 
-    /**
-     * Very basic implementation of a search that filter music tracks with title containing
-     * the given query.
-     *
-     */
+
     public Iterable<MediaMetadataCompat> searchMusicBySongTitle(String query) {
         return searchMusic(MediaMetadataCompat.METADATA_KEY_TITLE, query);
     }
-
-    /**
+/*
+	*//**
+     * Very basic implementation of a search that filter music tracks with title containing
+     * the given query.
+     *
+     *//*
+    *//**
      * Very basic implementation of a search that filter music tracks with album containing
      * the given query.
      *
-     */
+     *//*
     public Iterable<MediaMetadataCompat> searchMusicByAlbum(String query) {
         return searchMusic(MediaMetadataCompat.METADATA_KEY_ALBUM, query);
     }
 
-    /**
+    *//**
      * Very basic implementation of a search that filter music tracks with artist containing
      * the given query.
      *
-     */
+     *//*
     public Iterable<MediaMetadataCompat> searchMusicByArtist(String query) {
         return searchMusic(MediaMetadataCompat.METADATA_KEY_ARTIST, query);
-    }
+    }*/
 
     Iterable<MediaMetadataCompat> searchMusic(String metadataField, String query) {
         if (mCurrentState != State.INITIALIZED) {
@@ -171,7 +163,7 @@ public class MusicProvider {
         query = query.toLowerCase(Locale.US);
         for (MutableMediaMetadata track : mMusicListById.values()) {
             if (track.metadata.getString(metadataField).toLowerCase(Locale.US)
-                    .contains(query)) {
+                .contains(query)) {
                 result.add(track.metadata);
             }
         }
@@ -191,6 +183,7 @@ public class MusicProvider {
     public synchronized void updateMusicArt(String musicId, Bitmap albumArt, Bitmap icon) {
         MediaMetadataCompat metadata = getMusic(musicId);
         metadata = new MediaMetadataCompat.Builder(metadata)
+
                 // set high resolution bitmap in METADATA_KEY_ALBUM_ART. This is used, for
                 // example, on the lockscreen background when the media session is active.
                 .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, albumArt)
@@ -211,34 +204,10 @@ public class MusicProvider {
         mutableMetadata.metadata = metadata;
     }
 
-    public void setFavorite(String musicId, boolean favorite) {
-        From from = new Select().from(DBMediaItem.class).where("MediaId = ?", musicId);
-        if(from.exists()) {
-            DBMediaItem item = from.executeSingle();
-            item.setFavorite(favorite);
-            item.save();
-        }else {
-            Timber.e("Set Fav failed %s", musicId);
-        }
-        if (favorite) {
-            mFavoriteTracks.add(musicId);
-        } else {
-            mFavoriteTracks.remove(musicId);
-        }
-
-    }
-
     public boolean isInitialized() {
         return mCurrentState == State.INITIALIZED;
     }
 
-    public boolean isFavorite(String musicId) {
-        if(mFavoriteTracks!=null) {
-            Log.w(TAG, "getFavNum: "+ mFavoriteTracks.size());
-            return mFavoriteTracks.contains(musicId);
-        }else return false;
-
-    }
 
     /**
      * Get the list of music tracks from a server and caches the track information
@@ -292,14 +261,14 @@ public class MusicProvider {
                 mCurrentState = State.INITIALIZING;
 
                 Iterator<MediaMetadataCompat> tracks = mSource.iterator();
+
                 while (tracks.hasNext()) {
                     MediaMetadataCompat item = tracks.next();
                     String musicId = item.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+                    assertNotNull(musicId);
                     mMusicListById.put(musicId, new MutableMediaMetadata(musicId, item));
-                    if(item.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING).hasHeart())
-                        mFavoriteTracks.add(musicId);
+	                //if(item.getLong(MusicProviderSource.CUSTOM_METADATA_FAVORITE)>0) mFavoriteTracks.add(musicId);
                 }
-                Log.d(TAG, "retrieveMedia: favSize="+mFavoriteTracks.size());
                 //buildListsByGenre();
                 mCurrentState = State.INITIALIZED;
             }
@@ -330,15 +299,9 @@ public class MusicProvider {
                 artUrl,
                 ratingCompat
         );
-        MediaBrowserCompat.MediaItem mItem=new MediaBrowserCompat.MediaItem(copy.getDescription(),
+
+        return new MediaBrowserCompat.MediaItem(copy.getDescription(),
                 MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
-
-        int flags;
-        if(ratingCompat.hasHeart()) flags=MediaBrowserCompat.MediaItem.FLAG_PLAYABLE | FLAG_FAVORITE;
-        else flags=MediaBrowserCompat.MediaItem.FLAG_PLAYABLE;
-
-
-        return new MediaBrowserCompat.MediaItem(copy.getDescription(),MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
 
     }
 
@@ -349,26 +312,89 @@ public class MusicProvider {
         }
 
         return mediaItems;
-    }
+
+        /*
+        if (!MediaIDHelper.isBrowseable(mediaId)) {
+            return mediaItems;
+        }
+
+        if (MEDIA_ID_ROOT.equals(mediaId)) {
+            for (MediaMetadataCompat metadata : getMusicsById()) {
+                mediaItems.add(createMediaItem(metadata));
+            }
+
+            createBrowsableMediaItemForRoot(resources);
+	        for (String genre : getGenres()) {
+		        mediaItems.add(createBrowsableMediaItemForGenre(genre, resources));
+	        }
+	        //mediaItems.add(createBrowsableMediaItemForRoot(resources));
+
+        }/ else if (MEDIA_ID_MUSICS_BY_GENRE.equals(mediaId)) {
+            for (String genre : getGenres()) {
+                mediaItems.add(createBrowsableMediaItemForGenre(genre, resources));
+            }
+
+        } else if (mediaId.startsWith(MEDIA_ID_MUSICS_BY_GENRE)) {
+            String genre = MediaIDHelper.getHierarchy(mediaId)[1];
+            for (MediaMetadataCompat metadata : getMusicsByGenre(genre)) {
+                mediaItems.add(createMediaItem(metadata));
+            }
+
+        }else {
+            LogHelper.w(TAG, "Skipping unmatched mediaId: ", mediaId);
+        } */
+    }/*
+    public List<MediaBrowserCompat.MediaItem> getChildren(String mediaId, Resources resources) {
+        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+
+        if (!MediaIDHelper.isBrowseable(mediaId)) {
+            return mediaItems;
+        }
+
+        if (MEDIA_ID_ROOT.equals(mediaId)) {
+            for (String genre : getGenres()) {
+                mediaItems.add(createBrowsableMediaItemForGenre(genre, resources));
+            }
+            //mediaItems.add(createBrowsableMediaItemForRoot(resources));
+
+        } else if (MEDIA_ID_MUSICS_BY_GENRE.equals(mediaId)) {
+            for (String genre : getGenres()) {
+                mediaItems.add(createBrowsableMediaItemForGenre(genre, resources));
+            }
+
+        } else if (mediaId.startsWith(MEDIA_ID_MUSICS_BY_GENRE)) {
+            String genre = MediaIDHelper.getHierarchy(mediaId)[1];
+            for (MediaMetadataCompat metadata : getMusicsByGenre(genre)) {
+                mediaItems.add(createMediaItem(metadata));
+            }
+
+        } else {
+            LogHelper.w(TAG, "Skipping unmatched mediaId: ", mediaId);
+        }
+        return mediaItems;
+    }*/
+/*
 
     private MediaBrowserCompat.MediaItem createBrowsableMediaItemForRoot(Resources resources) {
         MediaDescriptionCompat description = new MediaDescriptionCompat.Builder()
-                .setMediaId(MEDIA_ID_MUSICS_BY_GENRE)
+                .setMediaId(MEDIA_ID_ROOT)
                 .setTitle(resources.getString(R.string.browse_genres))
                 .setSubtitle(resources.getString(R.string.browse_genre_subtitle))
                 .setIconUri(Uri.parse("android.resource://" +
                         "com.example.android.uamp/drawable/ic_by_genre"))
                 .build();
-
         return new MediaBrowserCompat.MediaItem(description,
                 MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
     }
 
-    /*private MediaBrowserCompat.MediaItem createBrowsableMediaItemForGenre(String genre,
-                                                                          Resources resources) {
+    private MediaBrowserCompat.MediaItem createBrowsableMediaItemForGenre(String genre,
+                                                                    Resources resources) {
+	    String icName = genre.replace(".","");
         MediaDescriptionCompat description = new MediaDescriptionCompat.Builder()
                 .setMediaId(createMediaID(null, MEDIA_ID_MUSICS_BY_GENRE, genre))
-                .setTitle(genre)
+		        .setIconUri(Uri.parse("android.resource://" +
+				        "com.stc.radio.player/drawable/ic_"+icName))
+		        .setTitle(genre)
                 .setSubtitle(resources.getString(
                         R.string.browse_musics_by_genre_subtitle, genre))
                 .build();
@@ -377,6 +403,4 @@ public class MusicProvider {
     }*/
 
 
-
 }
-

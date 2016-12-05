@@ -109,7 +109,7 @@ public class ActivityRxTest2 {}
 		initDrawer(savedInstanceState);
 		initList(new ArrayList<>(), playlistManager.getSelectedUrl());
 		if(initActivePlaylist()){
-			initList(playlistManager.getStations(), playlistManager.getSelectedUrl());
+			initList(playlistManager.loadStations(), playlistManager.getSelectedUrl());
 			if(!isServiceConnected()) connect();
 			else loadingFinished();
 		}
@@ -194,7 +194,7 @@ public class ActivityRxTest2 {}
 	}
 
 	private boolean initActivePlaylist(){
-		if(playlistManager.getStations()==null){
+		if(playlistManager.loadStations()==null){
 			if(!checkNetwork()) return false;
 			int i = playlistManager.getActivePlaylistIndex();
 			String url=null;

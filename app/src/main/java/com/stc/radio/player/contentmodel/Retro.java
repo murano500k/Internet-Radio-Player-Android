@@ -40,7 +40,7 @@ public class Retro {
 		return retrofit.create(StationsInterface.class);
 	}
 	public static retrofit2.Call<List<ParsedPlaylistItem>> getStationsCall(String pls) {
-		Timber.w("get stations for pls: %s", pls);
+		Timber.w("get stations for name: %s", pls);
 		return getStationsInterface().getPlaylistContent(pls);
 	}
 

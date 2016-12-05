@@ -17,6 +17,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -116,25 +117,29 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 				                             @NonNull List<MediaBrowserCompat.MediaItem> children) {
 					try {
 
-						LogHelper.d(TAG, "fragment onChildrenLoaded, parentId=" + parentId +
+						Log.w(TAG, "fragment onChildrenLoaded, parentId=" + parentId +
 								"  count=" + children.size());
 						checkForUserVisibleErrors(children.isEmpty());
 						fastItemAdapter.clear();
 
 
+
 						for (MediaBrowserCompat.MediaItem item : children) {
 							int itemState = MediaListItem.STATE_NONE;
+							boolean isFavorite=false;
 							//Timber.w("LISTFRAGMENT NEW ITEM: id=%s title=%s desc=%s", item.getMediaId(),item.getDescription().getTitle()
 							//,item.toString());
-
+							String musicId = MediaIDHelper.extractMusicIDFromMediaID(
+									item.getDescription().getMediaId());
+							//isFavorite= RatingHelper.isFavorite(musicId);
+							if(isFavorite)Timber.w("%s isFav %b", musicId, isFavorite);
 							if (item.isPlayable()) {
 								itemState = MediaListItem.STATE_PLAYABLE;
 								MediaControllerCompat controller = ((FragmentActivity) getActivity())
 										.getSupportMediaController();
 								if (controller != null && controller.getMetadata() != null) {
 									String currentPlaying = controller.getMetadata().getDescription().getMediaId();
-									String musicId = MediaIDHelper.extractMusicIDFromMediaID(
-											item.getDescription().getMediaId());
+
 									if (currentPlaying != null && currentPlaying.equals(musicId)) {
 										PlaybackStateCompat pbState = controller.getPlaybackState();
 										if (pbState == null ||
@@ -145,10 +150,17 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 										} else {
 											itemState = MediaListItem.STATE_PAUSED;
 										}
+
 									}
 								}
 							}
-							fastItemAdapter.add(new MediaListItem( item, itemState, getActivity()));
+
+							fastItemAdapter.add(new MediaListItem(
+									item,
+									itemState,
+									getActivity(),
+									isFavorite
+							));
 						}
 						fastItemAdapter.notifyDataSetChanged();
 						progressBar.setVisibility(View.GONE);
@@ -341,13 +353,7 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 	public interface MediaFragmentListener extends MediaBrowserProvider {
 		void onMediaItemSelected(MediaBrowserCompat.MediaItem item);
 		void setToolbarTitle(CharSequence title);
-	}
-	private FastItemAdapter<MediaListItem> initFastAdapter(){
-
-
-
-		//fastItemAdapter.getItemAdapter().withItemFilterListener(this);
-		return fastItemAdapter;
+		void isItemFavorite(String musicId);
 	}
 
 	public FastItemAdapter.OnClickListener<MediaListItem> listItemOnClickListener=new FastAdapter.OnClickListener<MediaListItem>() {

@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity
 			listUpdateObserver = getListObserver();
 		}
 		loadingStarted();
-		Timber.w("pls %s", pls);
+		Timber.w("name %s", pls);
 		return StationsManager.getPlsUpdateObservable(pls).doOnSubscribe(new Action0() {
 			@Override
 			public void call() {
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity
 
 	@Override
 	public void onNavigationDrawerItemSelected(String pls) {
-		Timber.d("onNavigationDrawerItemSelected pls= %s", pls);
+		Timber.d("onNavigationDrawerItemSelected name= %s", pls);
 		if(listUpdateSubscription!=null && !listUpdateSubscription.isUnsubscribed()) {
 			showToast("Please wait");
 		}else if(pls==null) {
@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity
 			loadingDialog=b.create();
 			loadingDialog.show();
 		}
-		Timber.w("active pls %s", SettingsProvider.getPlaylist());
+		Timber.w("active name %s", SettingsProvider.getPlaylist());
 		initDrawer(SettingsProvider.getPlaylist());
 		initListFragment();
 		initControlsFragment();
@@ -529,7 +529,7 @@ public class MainActivity extends AppCompatActivity
 
 
 	public void initDrawer(String pls) {
-		Timber.w("init drawer pls %s", pls);
+		Timber.w("init drawer name %s", pls);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 		dialogShower = new DialogShower();
 		if(fragmentDrawer!=null) return;

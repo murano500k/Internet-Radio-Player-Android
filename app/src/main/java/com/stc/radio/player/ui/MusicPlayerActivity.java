@@ -33,7 +33,7 @@ import android.view.WindowManager;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 
-import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
 /**
@@ -113,6 +113,11 @@ public class MusicPlayerActivity extends BaseActivity
     }
 
     @Override
+    public void isItemFavorite(String musicId) {
+
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         LogHelper.d(TAG, "onNewIntent, intent=" + intent);
         initializeFromParams(null, intent);
@@ -144,14 +149,14 @@ public class MusicPlayerActivity extends BaseActivity
                 // If there is a saved media ID, use it
                 mediaId = savedInstanceState.getString(SAVED_MEDIA_ID);
         }else {
-	        mediaId = MEDIA_ID_MUSICS_BY_GENRE;
+	        mediaId = MEDIA_ID_ROOT;
         }
         navigateToBrowser(mediaId);
     }
 
     public void navigateToBrowser(String mediaId) {
         LogHelper.d(TAG, "navigateToBrowser, mediaId=" + mediaId);
-	    if(mediaId.equals(MEDIA_ID_MUSICS_BY_GENRE)) isRoot=true;
+	    if(mediaId.equals(MEDIA_ID_ROOT)) isRoot=true;
 	    else isRoot=false;
         MediaBrowserFragment fragment = getBrowseFragment();
         if (fragment == null || !TextUtils.equals(fragment.getMediaId(), mediaId)) {

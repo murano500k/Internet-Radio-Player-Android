@@ -24,11 +24,14 @@ import com.stc.radio.player.model.MusicProviderSource;
 import com.stc.radio.player.model.MyMetadata;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
+import com.stc.radio.player.utils.RatingHelper;
 import com.stc.radio.player.utils.StreamLinkDecoder;
 
 import org.greenrobot.eventbus.EventBus;
 
 import timber.log.Timber;
+
+import static junit.framework.Assert.assertNotNull;
 
 
 public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChangeListener, PlayerCallback {
@@ -143,8 +146,10 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		}
 			mState = PlaybackStateCompat.STATE_STOPPED;
 			relaxResources(false); // release everything except MediaPlayer
-			MediaMetadataCompat track = mMusicProvider.getMusic(
-					MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
+		String musicId=MediaIDHelper.extractMusicIDFromMediaID(mCurrentMediaId);
+		assertNotNull(musicId);
+			MediaMetadataCompat track = mMusicProvider.getMusic(musicId);
+		RatingHelper.incrementPlayedTimes(musicId);
 
 			//noinspection ResourceType
 		mCurrentSource = track.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
@@ -414,7 +419,7 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 
 
 	public boolean checkSuffix(String streamUrl) {
-		String SUFFIX_PLS = ".pls";
+		String SUFFIX_PLS = ".name";
 		String SUFFIX_RAM = ".ram";
 		String SUFFIX_WAX = ".wax";
 		return streamUrl.contains(SUFFIX_PLS) ||

@@ -40,7 +40,7 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
 
     private static final String TAG = LogHelper.makeLogTag(BaseActivity.class);
 
-    private MediaBrowserCompat mMediaBrowser;
+    protected MediaBrowserCompat mMediaBrowser;
     public PlaybackControlsFragment mControlsFragment;
 
     @Override

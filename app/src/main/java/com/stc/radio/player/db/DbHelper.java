@@ -33,17 +33,17 @@ public class DbHelper {
 /*
 
 	public static String getArtUrl(String url){
-		String pls=null;
+		String name=null;
 
-		if(url.contains("di.fm")) pls="di";
-		else if(url.contains("rock")) pls="rockradio";
-		else if(url.contains("jazz")) pls="jazzradio";
-		else if(url.contains("tunes")) pls="radiotunes";
-		else if(url.contains("classic")) pls="classicalradio";
+		if(url.contains("di.fm")) name="di";
+		else if(url.contains("rock")) name="rockradio";
+		else if(url.contains("jazz")) name="jazzradio";
+		else if(url.contains("tunes")) name="radiotunes";
+		else if(url.contains("classic")) name="classicalradio";
 		else return null;
 		String station = url.substring(url.lastIndexOf("/")+1);
 		station=station.substring(0, station.indexOf("?"));
-		String result = IMG_BASE_URL+pls+"_"+station;
+		String result = IMG_BASE_URL+name+"_"+station;
 		if(url.contains("di.fm")) result+=".jpg";
 		else result+="_hi.jpg";
 		//Timber.v(result);

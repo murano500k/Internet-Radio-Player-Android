@@ -18,8 +18,6 @@ package com.stc.radio.player.utils;
 
 import android.support.annotation.NonNull;
 
-import java.util.Arrays;
-
 /**
  * Utility class to help on queue related tasks.
  */
@@ -117,10 +115,10 @@ public class MediaIDHelper {
         return null;
     }
 
+/*
     public static boolean isBrowseable(@NonNull String mediaID) {
         return mediaID.indexOf(LEAF_SEPARATOR) < 0;
     }
-
     public static String getMediaItemGenre(@NonNull String mediaID) {
         String[] hierarchy = getHierarchy(mediaID);
         if (!isBrowseable(mediaID)) {
@@ -131,5 +129,5 @@ public class MediaIDHelper {
         }
         String[] parentHierarchy = Arrays.copyOf(hierarchy, hierarchy.length-1);
         return createMediaID(null, parentHierarchy);
-    }
+    }*/
 }
