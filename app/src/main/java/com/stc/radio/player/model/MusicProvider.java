@@ -1,20 +1,17 @@
 package com.stc.radio.player.model;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 import android.util.Log;
 
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
-import com.stc.radio.player.R;
 import com.stc.radio.player.db.DBMediaItem;
 import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.MediaIDHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import timber.log.Timber;
 
-import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 import static com.stc.radio.player.utils.MediaIDHelper.createMediaID;
 
@@ -124,46 +121,13 @@ public class MusicProvider {
             byId.add(mutableMetadata.metadata);
         }
         Collections.sort(byId,comparator);
-        if(mFavoriteTracks!=null) Log.w(TAG, "getFavNum: "+ mFavoriteTracks.size());
+        //if(mFavoriteTracks!=null) Log.w(TAG, "getFavNum: "+ mFavoriteTracks.size());
         return byId;
     }
 
 
-    public Iterable<MediaMetadataCompat> getMusicsByGenre(String genre) {
-        if (mCurrentState != State.INITIALIZED || !mMusicListByGenre.containsKey(genre)) {
-            return Collections.emptyList();
-        }
-        return mMusicListByGenre.get(genre);
-    }
-
-    /**
-     * Very basic implementation of a search that filter music tracks with title containing
-     * the given query.
-     *
-     */
-    public Iterable<MediaMetadataCompat> searchMusicBySongTitle(String query) {
-        return searchMusic(MediaMetadataCompat.METADATA_KEY_TITLE, query);
-    }
-
-    /**
-     * Very basic implementation of a search that filter music tracks with album containing
-     * the given query.
-     *
-     */
-    public Iterable<MediaMetadataCompat> searchMusicByAlbum(String query) {
-        return searchMusic(MediaMetadataCompat.METADATA_KEY_ALBUM, query);
-    }
-
-    /**
-     * Very basic implementation of a search that filter music tracks with artist containing
-     * the given query.
-     *
-     */
-    public Iterable<MediaMetadataCompat> searchMusicByArtist(String query) {
-        return searchMusic(MediaMetadataCompat.METADATA_KEY_ARTIST, query);
-    }
-
-    Iterable<MediaMetadataCompat> searchMusic(String metadataField, String query) {
+	public Iterable<MediaMetadataCompat> searchMusic(String query) {
+	    String metadataField=MediaMetadataCompat.METADATA_KEY_TITLE;
         if (mCurrentState != State.INITIALIZED) {
             return Collections.emptyList();
         }
@@ -254,7 +218,6 @@ public class MusicProvider {
             return;
         }
 
-        // Asynchronously load the music catalog in a separate thread
         new AsyncTask<Void, Void, State>() {
             @Override
             protected State doInBackground(Void... params) {
@@ -271,20 +234,6 @@ public class MusicProvider {
         }.execute();
     }
 
-    private synchronized void buildListsByGenre() {
-        ConcurrentMap<String, List<MediaMetadataCompat>> newMusicListByGenre = new ConcurrentHashMap<>();
-
-        for (MutableMediaMetadata m : mMusicListById.values()) {
-            String genre = m.metadata.getString(MediaMetadataCompat.METADATA_KEY_GENRE);
-            List<MediaMetadataCompat> list = newMusicListByGenre.get(genre);
-            if (list == null) {
-                list = new ArrayList<>();
-                newMusicListByGenre.put(genre, list);
-            }
-            list.add(m.metadata);
-        }
-        mMusicListByGenre = newMusicListByGenre;
-    }
 
     private synchronized void retrieveMedia() {
         try {
@@ -300,81 +249,69 @@ public class MusicProvider {
                         mFavoriteTracks.add(musicId);
                 }
                 Log.d(TAG, "retrieveMedia: favSize="+mFavoriteTracks.size());
-                //buildListsByGenre();
                 mCurrentState = State.INITIALIZED;
             }
         } finally {
             if (mCurrentState != State.INITIALIZED) {
-                // Something bad happened, so we reset state to NON_INITIALIZED to allow
-                // retries (eg if the network connection is temporary unavailable)
                 mCurrentState = State.NON_INITIALIZED;
             }
         }
     }
-    private MediaBrowserCompat.MediaItem createMediaItem(MediaMetadataCompat metadata) {
-        // Since mediaMetadata fields are immutable, we need to create a copy, so we
-        // can set a hierarchy-aware mediaID. We will need to know the media hierarchy
-        // when we get a onPlayFromMusicID call, so we can create the proper queue based
-        // on where the music was selected from (by artist, by genre, random, etc)
-        String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-        String source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
-        String artUrl=metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
-        String hierarchyAwareMediaID = createMediaID(
-                metadata.getDescription().getMediaId(), MEDIA_ID_ROOT, MEDIA_ID_ROOT);
-        RatingCompat ratingCompat=metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
 
-        MediaMetadataCompat copy = BaseRemoteSource.createMetadata(
-                hierarchyAwareMediaID,
-                source,
-                title,
-                artUrl,
-                ratingCompat
-        );
-        MediaBrowserCompat.MediaItem mItem=new MediaBrowserCompat.MediaItem(copy.getDescription(),
-                MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
-
-        int flags;
-        if(ratingCompat.hasHeart()) flags=MediaBrowserCompat.MediaItem.FLAG_PLAYABLE | FLAG_FAVORITE;
-        else flags=MediaBrowserCompat.MediaItem.FLAG_PLAYABLE;
-
-
-        return new MediaBrowserCompat.MediaItem(copy.getDescription(),MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
-
+    public List<MediaBrowserCompat.MediaItem> getChildren(String mediaId) {
+	    List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
+	    for(String s: MediaIDHelper.getHierarchy(mediaId)){
+		    if(s.contains(MEDIA_ID_MUSICS_BY_SEARCH)){
+			    String query = MediaIDHelper.extractBrowseCategoryValueFromMediaID(mediaId);
+			    for (MediaMetadataCompat metadata : getMusicsById()) {
+				    mediaItems.add(createMediaItemForSearch(metadata, query));
+			    }
+			    return mediaItems;
+		    }
+	    }
+	    for (MediaMetadataCompat metadata : getMusicsById()) {
+		    mediaItems.add(createMediaItemForRoot(metadata));
+	    }
+	    return mediaItems;
     }
 
-    public List<MediaBrowserCompat.MediaItem> getChildren(String mediaId, Resources resources) {
-        List<MediaBrowserCompat.MediaItem> mediaItems = new ArrayList<>();
-        for (MediaMetadataCompat metadata : getMusicsById()) {
-            mediaItems.add(createMediaItem(metadata));
-        }
 
-        return mediaItems;
-    }
+	private MediaBrowserCompat.MediaItem createMediaItemForRoot(MediaMetadataCompat metadata) {
+		String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+		String source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
+		String artUrl=metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
+		String hierarchyAwareMediaID = createMediaID(
+				metadata.getDescription().getMediaId(), MEDIA_ID_ROOT, MEDIA_ID_ROOT);
+		RatingCompat ratingCompat=metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
 
-    private MediaBrowserCompat.MediaItem createBrowsableMediaItemForRoot(Resources resources) {
-        MediaDescriptionCompat description = new MediaDescriptionCompat.Builder()
-                .setMediaId(MEDIA_ID_MUSICS_BY_GENRE)
-                .setTitle(resources.getString(R.string.browse_genres))
-                .setSubtitle(resources.getString(R.string.browse_genre_subtitle))
-                .setIconUri(Uri.parse("android.resource://" +
-                        "com.example.android.uamp/drawable/ic_by_genre"))
-                .build();
+		MediaMetadataCompat copy = BaseRemoteSource.createMetadata(
+				hierarchyAwareMediaID,
+				source,
+				title,
+				artUrl,
+				ratingCompat
+		);
+		return new MediaBrowserCompat.MediaItem(copy.getDescription(),MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
 
-        return new MediaBrowserCompat.MediaItem(description,
-                MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
-    }
+	}
 
-    /*private MediaBrowserCompat.MediaItem createBrowsableMediaItemForGenre(String genre,
-                                                                          Resources resources) {
-        MediaDescriptionCompat description = new MediaDescriptionCompat.Builder()
-                .setMediaId(createMediaID(null, MEDIA_ID_MUSICS_BY_GENRE, genre))
-                .setTitle(genre)
-                .setSubtitle(resources.getString(
-                        R.string.browse_musics_by_genre_subtitle, genre))
-                .build();
-        return new MediaBrowserCompat.MediaItem(description,
-                MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
-    }*/
+	private MediaBrowserCompat.MediaItem createMediaItemForSearch(MediaMetadataCompat metadata, String query) {
+		String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+		String source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
+		String artUrl=metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
+		String hierarchyAwareMediaID = createMediaID(
+				metadata.getDescription().getMediaId(), MEDIA_ID_MUSICS_BY_SEARCH, query);
+		RatingCompat ratingCompat=metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+
+		MediaMetadataCompat copy = BaseRemoteSource.createMetadata(
+				hierarchyAwareMediaID,
+				source,
+				title,
+				artUrl,
+				ratingCompat
+		);
+		return new MediaBrowserCompat.MediaItem(copy.getDescription(),MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
+	}
 
 
 

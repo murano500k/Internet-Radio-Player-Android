@@ -148,13 +148,11 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return super.onCreateOptionsMenu(menu);
 
+	}
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
@@ -204,7 +202,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
             throw new IllegalStateException("Layout is required to include a Toolbar with id " +
                 "'toolbar'");
         }
-        mToolbar.inflateMenu(R.menu.main);
+        mToolbar.inflateMenu(R.menu.search);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {

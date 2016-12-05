@@ -441,7 +441,7 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		LogHelper.d(TAG, "createMediaPlayerIfNeeded. needed? ", (mMediaPlayer==null));
 		try {
 			java.net.URL.setURLStreamHandlerFactory( protocol -> {
-				Timber.w("Asking for stream handler for protocol: '%s'", protocol);
+				//Timber.w("Asking for stream handler for protocol: '%s'", protocol);
 				if ("icy".equals(protocol))
 					return new com.spoledge.aacdecoder.IcyURLStreamHandler();
 				return null;

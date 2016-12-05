@@ -46,16 +46,8 @@ public class RatingHelper {
         dbUserPrefsItem.save();
 
     }
-/*
-    static public float getUserRatingPercentageForItem(boolean isFavorite, int playedTimes){
-        if(isFavorite) return 0.99f;
-        if(maxPlayedTimes==0 || playedTimes==0) return
-            rating= (float)playedTimes/(float)maxPlayedTimes;
-        else rating=0.01f;
-        Timber.w("getUserRatingPercentageForItem:%f",rating);
-        if(rating==0.99f)return 0.9f;
-        else return rating;
-    }*/
+
+
     static public void incrementPlayedTimes(String mediaId){
         int newPlayedTimes=0;
         DBMediaItem dbMediaItem;
@@ -69,7 +61,7 @@ public class RatingHelper {
             dbMediaItem.setPlayedTimes(newPlayedTimes);
             dbMediaItem.save();
         }
-        Timber.w("%s incrementPlayedTimes(%d)", mediaId,newPlayedTimes);
+       // Timber.w("%s incrementPlayedTimes(%d)", mediaId,newPlayedTimes);
 
         if(getMaxPlayedTimes()<newPlayedTimes) {
             Timber.w("setMaxPlayedTimes(%d)",newPlayedTimes);

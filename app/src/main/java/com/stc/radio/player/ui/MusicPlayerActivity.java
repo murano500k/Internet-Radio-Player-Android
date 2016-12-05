@@ -145,6 +145,7 @@ public class MusicPlayerActivity extends BaseActivity
             mVoiceSearchParams = intent.getExtras();
             LogHelper.d(TAG, "Starting from voice search query=",
                 mVoiceSearchParams.getString(SearchManager.QUERY));
+	         //// TODO: 12/5/16  
         } else if (savedInstanceState != null) {
                 // If there is a saved media ID, use it
                 mediaId = savedInstanceState.getString(SAVED_MEDIA_ID);
@@ -156,8 +157,9 @@ public class MusicPlayerActivity extends BaseActivity
 
     public void navigateToBrowser(String mediaId) {
         LogHelper.d(TAG, "navigateToBrowser, mediaId=" + mediaId);
-	    if(mediaId.equals(MEDIA_ID_ROOT)) isRoot=true;
-	    else isRoot=false;
+	    //if(mediaId.equals(MEDIA_ID_ROOT)) isRoot=true;
+	    //else isRoot=false;
+	    isRoot=false;
         MediaBrowserFragment fragment = getBrowseFragment();
         if (fragment == null || !TextUtils.equals(fragment.getMediaId(), mediaId)) {
             fragment = new MediaBrowserFragment();
@@ -233,4 +235,5 @@ public class MusicPlayerActivity extends BaseActivity
 		//Timber.d("Screen inches : %d", screenInches);
 		return screenInches;
 	}
+
 }

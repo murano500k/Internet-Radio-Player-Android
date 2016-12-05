@@ -18,6 +18,10 @@ package com.stc.radio.player.utils;
 
 import android.support.annotation.NonNull;
 
+import java.util.Arrays;
+
+import timber.log.Timber;
+
 /**
  * Utility class to help on queue related tasks.
  */
@@ -25,7 +29,6 @@ public class MediaIDHelper {
 
     // Media IDs used on browseable items of MediaBrowser
     public static final String MEDIA_ID_ROOT = "__ROOT__";
-    public static final String MEDIA_ID_MUSICS_BY_GENRE = "__BY_GENRE__";
     public static final String MEDIA_ID_MUSICS_BY_SEARCH = "__BY_SEARCH__";
 
     private static final char CATEGORY_SEPARATOR = '/';
@@ -52,6 +55,7 @@ public class MediaIDHelper {
         if (categories != null) {
             for (int i=0; i < categories.length; i++) {
                 if (!isValidCategory(categories[i])) {
+	                Timber.e("Invalid category: %s",categories[0]);
                     throw new IllegalArgumentException("Invalid category: " + categories[0]);
                 }
                 sb.append(categories[i]);
@@ -74,15 +78,7 @@ public class MediaIDHelper {
                 );
     }
 
-    /**
-     * Extracts unique musicID from the mediaID. mediaID is, by this sample's convention, a
-     * concatenation of category (eg "by_genre"), categoryValue (eg "Classical") and unique
-     * musicID. This is necessary so we know where the user selected the music from, when the music
-     * exists in more than one music list, and thus we are able to correctly build the playing queue.
-     *
-     * @param mediaID that contains the musicID
-     * @return musicID
-     */
+
     public static String extractMusicIDFromMediaID(@NonNull String mediaID) {
         int pos = mediaID.indexOf(LEAF_SEPARATOR);
         if (pos >= 0) {
@@ -115,7 +111,7 @@ public class MediaIDHelper {
         return null;
     }
 
-/*
+
     public static boolean isBrowseable(@NonNull String mediaID) {
         return mediaID.indexOf(LEAF_SEPARATOR) < 0;
     }
@@ -129,5 +125,5 @@ public class MediaIDHelper {
         }
         String[] parentHierarchy = Arrays.copyOf(hierarchy, hierarchy.length-1);
         return createMediaID(null, parentHierarchy);
-    }*/
+    }
 }

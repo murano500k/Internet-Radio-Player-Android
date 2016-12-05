@@ -291,13 +291,6 @@ public class PlaybackManager implements Playback.Callback {
         }
 
         @Override
-        public void onPlayFromMediaId(String mediaId, Bundle extras) {
-            LogHelper.d(TAG, "playFromMediaId mediaId:", mediaId, "  extras=", extras);
-            mQueueManager.setQueueFromMusic(mediaId);
-            handlePlayRequest();
-        }
-
-        @Override
         public void onPause() {
             LogHelper.d(TAG, "pause. current state=" + mPlayback.getState());
             handlePauseRequest();
@@ -367,7 +360,7 @@ public class PlaybackManager implements Playback.Callback {
         @Override
         public void onPlayFromSearch(final String query, final Bundle extras) {
             LogHelper.d(TAG, "playFromSearch  query=", query, " extras=", extras);
-
+			MediaSessionCallback callback ;
             mPlayback.setState(PlaybackStateCompat.STATE_CONNECTING);
             boolean successSearch = mQueueManager.setQueueFromSearch(query, extras);
             if (successSearch) {
@@ -377,6 +370,14 @@ public class PlaybackManager implements Playback.Callback {
                 updatePlaybackState("Could not find music");
             }
         }
+
+
+	    @Override
+	    public void onPlayFromMediaId(String mediaId, Bundle extras) {
+		    LogHelper.d(TAG, "playFromMediaId mediaId:", mediaId, "  extras=", extras);
+		    mQueueManager.setQueueFromMusic(mediaId);
+		    handlePlayRequest();
+	    }
     }
 
 

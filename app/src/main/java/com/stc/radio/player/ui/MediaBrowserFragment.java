@@ -17,7 +17,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,8 +116,9 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 				                             @NonNull List<MediaBrowserCompat.MediaItem> children) {
 					try {
 
-						Log.w(TAG, "fragment onChildrenLoaded, parentId=" + parentId +
-								"  count=" + children.size());
+						//Log.w(TAG, "fragment onChildrenLoaded, parentId=" + parentId +
+						//		"  count=" + children.size());
+						Timber.w("child hierarchy : %s", children.get(0).getMediaId());
 						checkForUserVisibleErrors(children.isEmpty());
 						fastItemAdapter.clear();
 

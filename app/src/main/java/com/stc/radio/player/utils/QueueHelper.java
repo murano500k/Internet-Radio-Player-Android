@@ -58,7 +58,7 @@ public class QueueHelper {
         if (categoryType.equals(MEDIA_ID_ROOT)) {
             tracks = musicProvider.getMusicsById();
         } else if (categoryType.equals(MEDIA_ID_MUSICS_BY_SEARCH)) {
-            tracks = musicProvider.searchMusicBySongTitle(categoryValue);
+            tracks = musicProvider.searchMusic(categoryValue);
         }
 
         if (tracks == null) {
@@ -71,47 +71,12 @@ public class QueueHelper {
 
     public static List<MediaSessionCompat.QueueItem> getPlayingQueueFromSearch(String query,
             Bundle queryParams, MusicProvider musicProvider) {
-
         LogHelper.d(TAG, "Creating playing queue for musics from search: ", query,
             " params=", queryParams);
-
         VoiceSearchParams params = new VoiceSearchParams(query, queryParams);
-
         LogHelper.d(TAG, "VoiceSearchParams: ", params);
-
-        if (params.isAny) {
-            // If isAny is true, we will play anything. This is app-dependent, and can be,
-            // for example, favorite playlists, "I'm feeling lucky", most recent, etc.
-            return getRandomQueue(musicProvider);
-        }
-
-        Iterable<MediaMetadataCompat> result = null;
-
-        result = musicProvider.searchMusicBySongTitle(query);
+	    Iterable<MediaMetadataCompat> result = musicProvider.searchMusic(query);
         return convertToQueue(result, MEDIA_ID_MUSICS_BY_SEARCH, query);
-        /*if (params.isAlbumFocus) {
-            result = musicProvider.searchMusicByAlbum(params.album);
-        } else if (params.isGenreFocus) {
-            result = musicProvider.getMusicsByGenre(params.genre);
-        } else if (params.isArtistFocus) {
-            result = musicProvider.searchMusicByArtist(params.artist);
-        } else if (params.isSongFocus) {
-            result = musicProvider.searchMusicBySongTitle(params.song);
-        }
-
-
-        // If there was no results using media focus parameter, we do an unstructured query.
-        // This is useful when the user is searching for something that looks like an artist
-        // to Google, for example, but is not. For example, a user searching for Madonna on
-        // a PodCast application wouldn't get results if we only looked at the
-        // Artist (podcast author). Then, we can instead do an unstructured search.
-        if (params.isUnstructured || result == null || !result.iterator().hasNext()) {
-            // To keep it simple for this example, we do unstructured searches on the
-            // song title only. A real world application could search on other fields as well.
-            result = musicProvider.searchMusicBySongTitle(query);
-        }
-
- */
     }
 
 

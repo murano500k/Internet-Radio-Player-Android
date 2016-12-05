@@ -47,8 +47,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import timber.log.Timber;
-
 import static com.stc.radio.player.playback.PlaybackManager.CUSTOM_ACTION_THUMBS_UP;
 import static com.stc.radio.player.playback.PlaybackManager.IS_FAVORITE;
 
@@ -303,11 +301,11 @@ public class PlaybackControlsFragment extends Fragment {
 			isFav=action.getExtras().containsKey(IS_FAVORITE) && action.getExtras().getBoolean(IS_FAVORITE);
 			favButton.setLiked(isFav);
 			checkFav=true;
-			Timber.w("get Fav state SUCCESS");
+			//Timber.w("get Fav state SUCCESS");
 			break;
 		}
 		if(!checkFav){
-			Timber.e("failed to get Fav state");
+			//Timber.e("failed to get Fav state");
 			this.favButton.setLiked(false);
 		}
 

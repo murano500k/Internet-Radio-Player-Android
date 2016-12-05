@@ -17,38 +17,35 @@
 package com.stc.radio.player;
 
  import android.app.PendingIntent;
- import android.content.BroadcastReceiver;
- import android.content.Context;
- import android.content.Intent;
- import android.content.IntentFilter;
- import android.os.Bundle;
- import android.os.Handler;
- import android.os.Message;
- import android.os.RemoteException;
- import android.support.annotation.NonNull;
- import android.support.v4.media.MediaBrowserCompat.MediaItem;
- import android.support.v4.media.MediaBrowserServiceCompat;
- import android.support.v4.media.MediaMetadataCompat;
- import android.support.v4.media.RatingCompat;
- import android.support.v4.media.session.MediaButtonReceiver;
- import android.support.v4.media.session.MediaSessionCompat;
- import android.support.v4.media.session.PlaybackStateCompat;
- import android.support.v7.media.MediaRouter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
+import android.support.annotation.NonNull;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.media.MediaRouter;
 
- import com.stc.radio.player.model.MusicProvider;
- import com.stc.radio.player.playback.MyLocalPlayback;
- import com.stc.radio.player.playback.PlaybackManager;
- import com.stc.radio.player.playback.QueueManager;
- import com.stc.radio.player.ui.MusicPlayerActivity;
- import com.stc.radio.player.utils.CarHelper;
- import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.playback.MyLocalPlayback;
+import com.stc.radio.player.playback.PlaybackManager;
+import com.stc.radio.player.playback.QueueManager;
+import com.stc.radio.player.ui.MusicPlayerActivity;
+import com.stc.radio.player.utils.CarHelper;
+import com.stc.radio.player.utils.LogHelper;
 
- import java.lang.ref.WeakReference;
- import java.util.List;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
- import timber.log.Timber;
-
- import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
 
@@ -275,8 +272,6 @@ package com.stc.radio.player;
                                   Bundle rootHints) {
          LogHelper.d(TAG, "OnGetRoot: clientPackageName=" + clientPackageName,
                  "; clientUid=" + clientUid + " ; rootHints=", rootHints);
-         // To ensure you are not allowing any arbitrary app to browse your app's contents, you
-         // need to check the origin:
          if (!mPackageValidator.isCallerAllowed(this, clientPackageName, clientUid)) {
              // If the request comes from an untrusted package, return null. No further calls will
              // be made to other media browsing methods.
@@ -284,20 +279,6 @@ package com.stc.radio.player;
                      + clientPackageName);
              return null;
          }
-         //noinspection StatementWithEmptyBody
-         if (CarHelper.isValidCarPackage(clientPackageName)) {
-             // Optional: if your app needs to adapt the music library to show a different subset
-             // when connected to the car, this is where you should handle it.
-             // If you want to adapt other runtime behaviors, like tweak ads or change some behavior
-             // that should be different on cars, you should instead use the boolean flag
-             // set by the BroadcastReceiver mCarConnectionReceiver (mIsConnectedToCar).
-         }
-         //noinspection StatementWithEmptyBody
-         /*if (WearHelper.isValidWearCompanionPackage(clientPackageName)) {
-             // Optional: if your app needs to adapt the music library for when browsing from a
-             // Wear device, you should return a different MEDIA ROOT here, and then,
-             // on onLoadChildren, handle it accordingly.
-         }*/
 
          return new BrowserRoot(MEDIA_ID_ROOT, null);
      }
@@ -308,34 +289,18 @@ package com.stc.radio.player;
          LogHelper.d(TAG, "OnLoadChildren: parentMediaId=", parentMediaId);
          if (mMusicProvider.isInitialized()) {
              // if music library is ready, return immediately
-             result.sendResult(mMusicProvider.getChildren(parentMediaId, getResources()));
+             result.sendResult(mMusicProvider.getChildren(parentMediaId));
          } else {
-             // otherwise, only return results when the music library is retrieved
              result.detach();
-             //testRating();
 
              mMusicProvider.retrieveMediaAsync(new MusicProvider.Callback() {
                  @Override
                  public void onMusicCatalogReady(boolean success) {
-                     result.sendResult(mMusicProvider.getChildren(parentMediaId, getResources()));
+                     result.sendResult(mMusicProvider.getChildren(parentMediaId));
                  }
              });
          }
      }
-     public void testRating(){
-         RatingCompat ratingCompat=RatingCompat.newPercentageRating(0.1f);
-
-         //SomaRemoteSource somaRemoteSource=new SomaRemoteSource(StationsManager.PLAYLISTS.SOMA);
-
-         //MediaMetadataCompat metadataCompat =
-         //        somaRemoteSource.buildFromResponce(StationsManager.Soma.somaStations[0],StationsManager.PLAYLISTS.SOMA);
-         //RatingCompat ratingCompat=metadataCompat.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
-         Timber.w("!!!!!!!!!!!!!!!!!!!rating %b", ratingCompat!=null);
-     }
-
-     /**
-      * Callback method called from PlaybackManager whenever the music is about to play.
-      */
      @Override
      public void onPlaybackStart() {
          if (!mSession.isActive()) {
