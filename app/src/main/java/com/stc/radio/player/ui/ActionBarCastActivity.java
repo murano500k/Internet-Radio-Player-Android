@@ -17,19 +17,23 @@ package com.stc.radio.player.ui;
 
 import android.app.ActivityOptions;
 import android.app.FragmentManager;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 
+import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
 import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.utils.LogHelper;
