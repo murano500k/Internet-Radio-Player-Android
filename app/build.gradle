@@ -29,7 +29,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 25
         versionCode 5
-        versionName "2.2"
+        versionName "2.3"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         jackOptions {
@@ -92,6 +92,7 @@ dependencies {
     compile('com.mikepenz:fastadapter:1.8.2@aar') {
         transitive = true
     }
+    compile 'com.turingtechnologies.materialscrollbar:lib:10.1.4'
 
     compile 'com.github.jd-alexander:LikeButton:0.2.0'
     compile 'com.jakewharton.timber:timber:4.3.1'

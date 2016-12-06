@@ -25,11 +25,14 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.Menu;
 import android.view.WindowManager;
 
+import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 
@@ -60,9 +63,11 @@ public class MusicPlayerActivity extends BaseActivity
     public static final String EXTRA_CURRENT_MEDIA_DESCRIPTION =
         "com.example.android.uamp.CURRENT_MEDIA_DESCRIPTION";
 
-    private Bundle mVoiceSearchParams;
 
-    @Override
+    private Bundle mVoiceSearchParams;
+	private SearchView searchView;
+
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 	    if(isTablet()) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -91,7 +96,9 @@ public class MusicPlayerActivity extends BaseActivity
 
     @Override
     public void onMediaItemSelected(MediaBrowserCompat.MediaItem item) {
-        LogHelper.d(TAG, "onMediaItemSelected, mediaId=" + item.getMediaId());
+	    KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+
+	    LogHelper.d(TAG, "onMediaItemSelected, mediaId=" + item.getMediaId());
         if (item.isPlayable()) {
             getSupportMediaController().getTransportControls()
                     .playFromMediaId(item.getMediaId(), null);
@@ -145,7 +152,9 @@ public class MusicPlayerActivity extends BaseActivity
             mVoiceSearchParams = intent.getExtras();
             LogHelper.d(TAG, "Starting from voice search query=",
                 mVoiceSearchParams.getString(SearchManager.QUERY));
-	         //// TODO: 12/5/16  
+	        String query=mVoiceSearchParams.getString(SearchManager.QUERY);
+
+	        getBrowseFragment().onScrollToItem(query);
         } else if (savedInstanceState != null) {
                 // If there is a saved media ID, use it
                 mediaId = savedInstanceState.getString(SAVED_MEDIA_ID);
@@ -154,11 +163,47 @@ public class MusicPlayerActivity extends BaseActivity
         }
         navigateToBrowser(mediaId);
     }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		//new Intent(this, MusicPlayerActivity.class);
+		getMenuInflater().inflate(R.menu.search, menu);
 
+		menu.findItem(R.id.search).setIcon(getDrawable(android.R.drawable.ic_menu_search));
+
+		searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				Bundle extras=new Bundle();
+				extras.putString(SearchManager.QUERY,query);
+				getSupportMediaController().getTransportControls()
+						.playFromSearch(query, null);
+				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+
+				getBrowseFragment().onScrollToItem(query);
+				return true;
+			}
+			@Override
+			public boolean onQueryTextChange(String s) {
+				if(s.length()>1)getBrowseFragment().onScrollToItem(s);
+				return true;
+			}
+		});
+		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+			@Override
+			public boolean onClose() {
+				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+				return false;
+			}
+		});
+		return true;
+
+	}
     public void navigateToBrowser(String mediaId) {
         LogHelper.d(TAG, "navigateToBrowser, mediaId=" + mediaId);
-	    //if(mediaId.equals(MEDIA_ID_ROOT)) isRoot=true;
-	    //else isRoot=false;
+	    if(mediaId.equals(MEDIA_ID_ROOT)) isRoot=true;
+	    else isRoot=false;
 	    isRoot=false;
         MediaBrowserFragment fragment = getBrowseFragment();
         if (fragment == null || !TextUtils.equals(fragment.getMediaId(), mediaId)) {
@@ -178,7 +223,9 @@ public class MusicPlayerActivity extends BaseActivity
         }
     }
 
-    public String getMediaId() {
+
+
+	public String getMediaId() {
         MediaBrowserFragment fragment = getBrowseFragment();
         if (fragment == null) {
             return null;

@@ -1,3 +1,4 @@
+/*
 package com.stc.radio.player;
 
 import android.content.ComponentName;
@@ -108,8 +109,12 @@ public class MainActivity extends AppCompatActivity
 		bus.post(nowPlaying.getStation());
 	}
 
-	/*Metadata string: StreamTitle='Pete Seeger - I Celebrate Life (Spoken Word)';StreamUrl='';*/
-	/* Metadata string: StreamTitle='Rhian Sheehan - Boundaries (Module 'Evil Eno' Remix)';StreamUrl='';*/
+	*/
+/*Metadata string: StreamTitle='Pete Seeger - I Celebrate Life (Spoken Word)';StreamUrl='';*//*
+
+	*/
+/* Metadata string: StreamTitle='Rhian Sheehan - Boundaries (Module 'Evil Eno' Remix)';StreamUrl='';*//*
+
 	@Override
 	public void onControlsFragmentInteraction(int value) {
 		Timber.d("controls clicked %d", value);
@@ -424,7 +429,8 @@ public class MainActivity extends AppCompatActivity
 		Timber.i("check");
 
 
-			/*if(fragmentList==null || fragmentList.getAdapter()==null || fragmentList.getAdapter().getAdapterItems()==null
+			*/
+/*if(fragmentList==null || fragmentList.getAdapter()==null || fragmentList.getAdapter().getAdapterItems()==null
 					|| fragmentList.getAdapter().getAdapterItems().size()==0) {
 
 				listUpdateSubscription.unsubscribe();
@@ -432,7 +438,8 @@ public class MainActivity extends AppCompatActivity
 				savedInstanceState.putBoolean(INTERRUPTED_LOADING_PLAYLIST, false);
 			}
 			if(listUpdateSubscription!=null && !listUpdateSubscription.isUnsubscribed()) {
-			}*/
+			}*//*
+
 
 		//Timber.i("check");
 	}
@@ -441,12 +448,14 @@ public class MainActivity extends AppCompatActivity
 		Timber.i("check");
 
 		//Timber.i("check");
-		/*if(fragmentControls!=null) {
+		*/
+/*if(fragmentControls!=null) {
 			NowPlaying nowPlaying= DbHelper.getNowPlaying();
 			nowPlaying.withArtist(fragmentControls.getArtist())
 					.withSong(fragmentControls.getSong())
 					.save();
-		}*/
+		}*//*
+
 		if(listUpdateSubscription!=null && !listUpdateSubscription.isUnsubscribed()) {
 			listUpdateSubscription.unsubscribe();
 		}
@@ -466,10 +475,12 @@ public class MainActivity extends AppCompatActivity
 		}else if(getService().getNowPlaying()==null || getService().getNowPlaying().getStation()==null){
 			Timber.e("NOWPLAYING NULL IN SERVICE");
 		}else nowPlaying=getService().getNowPlaying();
-		/*if(isServiceConnected() && NowPlaying.getInstance()!=null ){
+		*/
+/*if(isServiceConnected() && NowPlaying.getInstance()!=null ){
 		nowPlaying=NowPlaying.getInstance();
 		onNowPlayingUpdate(nowPlaying);
-		}*/
+		}*//*
+
 	}
 		@Override
 	protected void onStop() {
@@ -495,9 +506,11 @@ public class MainActivity extends AppCompatActivity
 		Timber.d("initListFragment");
 		//
 		//if(fragmentList==null) {
-			/*List<Station> list = nowPlaying.getActiveList();
+			*/
+/*List<Station> list = nowPlaying.getActiveList();
 			DbHelper.trannsformToStations();
-		assertNotNull(list);*/
+		assertNotNull(list);*//*
+
 			fragmentList = ListFragment.newInstance();
 			assertNotNull(fragmentList);
 			FragmentManager fragmentManager = getSupportFragmentManager();
@@ -520,9 +533,11 @@ public class MainActivity extends AppCompatActivity
 				Timber.w("nowPlaying %s", nowPlaying);
 				Timber.w("nowPlaying station %s", nowPlaying.getStation().toString());
 
+*/
 /*				fragmentControls.updateStation(nowPlaying.getStation());
 				fragmentControls.updateButtons(nowPlaying.getStatus());
-				fragmentControls.updateMetadata(nowPlaying.getMetadata());*/
+				fragmentControls.updateMetadata(nowPlaying.getMetadata());*//*
+
 			}
 		}
 	}
@@ -540,7 +555,9 @@ public class MainActivity extends AppCompatActivity
 		}
 		fragmentDrawer.setUp(
 				R.id.navigation_drawer,
-				(DrawerLayout) findViewById(R.id.drawer_layout), /*playlist.position*/pls);
+				(DrawerLayout) findViewById(R.id.drawer_layout), */
+/*playlist.position*//*
+pls);
 		if(fragmentList ==null
 				|| fragmentList.getAdapter()==null
 				|| fragmentList.getAdapter().getAdapterItems()==null
@@ -634,3 +651,4 @@ public class MainActivity extends AppCompatActivity
 }
 
 
+*/

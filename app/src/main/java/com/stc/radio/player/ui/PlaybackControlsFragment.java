@@ -290,10 +290,10 @@ public class PlaybackControlsFragment extends Fragment {
 		String extraInfo = null;
 		if (enablePlay) {
 			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_play_light));
+					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
 		} else {
 			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_pause_light));
+					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
 		}
 		boolean checkFav=false;
 		for(PlaybackStateCompat.CustomAction action: state.getCustomActions())

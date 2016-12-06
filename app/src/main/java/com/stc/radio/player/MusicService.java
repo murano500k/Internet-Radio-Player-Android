@@ -267,6 +267,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
          mSession.release();
      }
 
+
      @Override
      public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid,
                                   Bundle rootHints) {
@@ -301,7 +302,20 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
              });
          }
      }
-     @Override
+
+	 @Override
+	 public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaItem>> result, @NonNull Bundle options) {
+
+		 super.onLoadChildren(parentId, result, options);
+	 }
+
+	 @Override
+	 public void onLoadItem(String itemId, Result<MediaItem> result) {
+
+
+	 }
+
+	 @Override
      public void onPlaybackStart() {
          if (!mSession.isActive()) {
              mSession.setActive(true);

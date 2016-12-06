@@ -64,7 +64,7 @@
             android:maxLines="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
+            android:visibility="gone"
             android:contentDescription="@string/currently_playing_extra_info"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/colorTextAccent"
@@ -112,7 +112,8 @@
                 android:elevation="15dp"
                 android:layout_weight="1"
                 android:background="?attr/actionBarItemBackground"
-                />
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="8dp"/>
 
             <ImageButton
                 android:id="@+id/play_prev"

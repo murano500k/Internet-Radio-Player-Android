@@ -33,14 +33,14 @@ import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
 import com.stc.radio.player.utils.NetworkHelper;
+import com.turingtechnologies.materialscrollbar.DragScrollBar;
 
 import java.util.List;
 
 import timber.log.Timber;
 
 
-public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.ItemFilterListener, ItemTouchCallback*/
-{
+public class MediaBrowserFragment extends Fragment{
 	private static final String TAG = LogHelper.makeLogTag(MediaBrowserFragment.class);
 
 	private static final String ARG_MEDIA_ID = "media_id";
@@ -54,6 +54,7 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 	private View mErrorView;
 	private TextView mErrorMessage;
 	private ProgressBar progressBar;
+	private DragScrollBar scrollBar;
 
 
 
@@ -64,6 +65,28 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 	 */
 	public MediaBrowserFragment() {
 
+	}
+
+	public void onScrollToItem(String query) {
+		for(MediaListItem listItem :    fastItemAdapter.getAdapterItems()){
+			String title=listItem.getMediaItem().getDescription().getTitle().toString();
+			String name=title.substring(title.indexOf(" - ")+3).trim();
+			String simpleQuery=query.trim();
+			Timber.w("name=%s", name);
+			Timber.w("title=%s", title);
+			if (simpleQuery.equalsIgnoreCase(name)){
+				recyclerView.smoothScrollToPosition(
+						fastItemAdapter.getAdapterPosition(listItem)
+				);
+				break;
+			}
+			if (title.equalsIgnoreCase(simpleQuery)){
+				recyclerView.smoothScrollToPosition(
+						fastItemAdapter.getAdapterPosition(listItem)
+				);
+				break;
+			}
+		}
 	}
 
 	private final BroadcastReceiver mConnectivityChangeReceiver = new BroadcastReceiver() {
@@ -79,7 +102,7 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 					checkForUserVisibleErrors(false);
 					if (isOnline) {
 						fastItemAdapter.notifyDataSetChanged();
-					}
+					}else Toast.makeText(getActivity(), "No connection", Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
@@ -98,6 +121,7 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 					LogHelper.d(TAG, "Received metadata change to media ",
 							metadata.getDescription().getMediaId());
 					fastItemAdapter.notifyDataSetChanged();
+					onScrollToItem((String) metadata.getText(MediaMetadataCompat.METADATA_KEY_TITLE));
 				}
 
 				@Override
@@ -202,8 +226,9 @@ public class MediaBrowserFragment extends Fragment/* implements ItemAdapter.Item
 		mErrorMessage = (TextView) mErrorView.findViewById(R.id.error_message);
 		Context context = view.getContext();
 		progressBar=(ProgressBar)view.findViewById(R.id.progress_bar);
+		scrollBar=(DragScrollBar)view.findViewById(R.id.dragScrollBar);
 			recyclerView = (AutoFitGridRecyclerView)view.findViewById(R.id.recyclerViewAutoFit);
-
+			//scrollBar.setIndicator(new AlphabetIndicator(getActivity()),true);
 			recyclerView.setItemAnimator(new DefaultItemAnimator());
 			recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
 			//final FastScrollIndicatorAdapter<MediaListItem> fastScrollIndicatorAdapter = new FastScrollIndicatorAdapter<>();

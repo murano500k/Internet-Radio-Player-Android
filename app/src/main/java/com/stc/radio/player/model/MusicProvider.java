@@ -276,6 +276,7 @@ public class MusicProvider {
     }
 
 
+
 	private MediaBrowserCompat.MediaItem createMediaItemForRoot(MediaMetadataCompat metadata) {
 		String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
 		String source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);

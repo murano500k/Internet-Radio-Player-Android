@@ -17,19 +17,23 @@ package com.stc.radio.player.ui;
 
 import android.app.ActivityOptions;
 import android.app.FragmentManager;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 
@@ -148,11 +152,8 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
     }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		return super.onCreateOptionsMenu(menu);
 
-	}
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
@@ -175,7 +176,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         }
         // Otherwise, it may return to the previous fragment stack
         FragmentManager fragmentManager = getFragmentManager();
-        if (fragmentManager.getBackStackEntryCount() > 0) {
+        if (fragmentManager.getBackStackEntryCount() > 1) {
             fragmentManager.popBackStack();
         } else {
             // Lastly, it will rely on the system behavior for back
@@ -250,7 +251,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
             return;
         }
 
-        boolean isRoot = getFragmentManager().getBackStackEntryCount() == 1;
+        boolean isRoot = getFragmentManager().getBackStackEntryCount() <= 1;
         mDrawerToggle.setDrawerIndicatorEnabled(isRoot);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowHomeEnabled(!isRoot);
