@@ -21,10 +21,6 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
-import com.stc.radio.player.model.MusicProvider;
-import com.stc.radio.player.model.MusicProviderSource;
-import com.stc.radio.player.utils.LogHelper;
-import com.stc.radio.player.utils.MediaIDHelper;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
@@ -32,6 +28,10 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.common.images.WebImage;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.model.MusicProviderSource;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.MediaIDHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
