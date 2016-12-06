@@ -28,7 +28,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -70,7 +69,7 @@ public class PlaybackControlsFragment extends Fragment {
 	String artUrl;
 	private int status;
 	private Station station;
-	private FrameLayout pacmanIndicator;
+	//private FrameLayout pacmanIndicator;
 	EventBus bus=EventBus.getDefault();
 	// Receive callbacks from the MediaController. Here we update our state such as which queue
 	// is being shown, the current title and description and the PlaybackState.
@@ -109,13 +108,12 @@ public class PlaybackControlsFragment extends Fragment {
 		mPlayPause = (ImageButton) rootView.findViewById(R.id.play_pause);
 		mPlayPause.setEnabled(true);
 		mPlayPrev = (ImageButton) rootView.findViewById(R.id.play_prev);
-		pacmanIndicator = (FrameLayout) rootView.findViewById(R.id.pacman_layout);
-		pacmanIndicator.setVisibility(View.GONE);
+		//pacmanIndicator.setVisibility(View.GONE);
 		mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
 
 		mPlayNext = (ImageButton) rootView.findViewById(R.id.play_next);
 		mPlayPause.setOnClickListener(mButtonListener);
-		pacmanIndicator.setOnClickListener(mButtonListener);
+		//pacmanIndicator.setOnClickListener(mButtonListener);
 		//mAlbumArt.setOnClickListener(	v -> onButtonClicked(0));
 		mPlayNext.setOnClickListener(mButtonListener);
 		mPlayPrev.setOnClickListener(mButtonListener);
@@ -290,10 +288,10 @@ public class PlaybackControlsFragment extends Fragment {
 		String extraInfo = null;
 		if (enablePlay) {
 			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_play_light));
+					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
 		} else {
 			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), R.drawable.ic_media_pause_light));
+					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
 		}
 		boolean checkFav=false;
 		for(PlaybackStateCompat.CustomAction action: state.getCustomActions())
@@ -354,7 +352,7 @@ public class PlaybackControlsFragment extends Fragment {
 			LogHelper.d(TAG, "Button pressed, in state " + state);
 			switch (v.getId()) {
 				case R.id.play_pause:
-				case R.id.pacman_layout:
+				/*case R.id.pacman_layout:
 					LogHelper.d(TAG, "Play button pressed, in state " + state);
 					if (state == PlaybackStateCompat.STATE_PAUSED ||
 							state == PlaybackStateCompat.STATE_STOPPED ||
@@ -365,7 +363,7 @@ public class PlaybackControlsFragment extends Fragment {
 							state == PlaybackStateCompat.STATE_CONNECTING) {
 						pauseMedia();
 					}
-					break;
+					break;*/
 				case R.id.play_next:
 					nextMedia();
 					break;

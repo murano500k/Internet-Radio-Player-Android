@@ -28,16 +28,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/include_toolbar" android:id="@+id/toolbar_container"/>
+        <include
+            android:id="@+id/toolbar_container"
+            layout="@layout/include_toolbar"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:drawableTop="@drawable/ic_info_outline_grey600_48dp"
             android:gravity="center"
-            android:text="@string/placeholder_message"
-            android:drawableTop="@drawable/ic_info_outline_grey600_48dp"/>
+            android:text="@string/placeholder_message"/>
 
         <android.support.v7.widget.CardView
             android:id="@+id/controls_container"
@@ -46,12 +48,13 @@
             android:layout_alignParentBottom="true"
             app:cardElevation="8dp">
 
-            <fragment android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
+            <fragment
                 android:id="@+id/fragment_playback_controls"
+                android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                tools:layout="@layout/fragment_playback_controls" />
+                tools:layout="@layout/fragment_playback_controls"/>
 
         </android.support.v7.widget.CardView>
 

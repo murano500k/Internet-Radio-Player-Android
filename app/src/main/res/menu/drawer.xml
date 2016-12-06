@@ -15,39 +15,9 @@
   limitations under the License.
   -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/navigation_di"
-            android:icon="@drawable/ic_playlist_music_black_24dp"
-            android:titleCondensed="@string/url_section_di"
-            android:title="@string/title_section_di"/>
+            android:id="@+id/shuffle"
+            android:title="Shuffle"/>
 
-        <item
-            android:id="@+id/navigation_classical"
-            android:icon="@drawable/ic_playlist_music_black_24dp"
-            android:titleCondensed="@string/url_section_classic"
-            android:title="@string/title_section_classic"/>
-        <item
-            android:id="@+id/navigation_rock"
-            android:icon="@drawable/ic_playlist_music_black_24dp"
-            android:titleCondensed="@string/url_section_rock"
-            android:title="@string/title_section_rock"/>
-        <item
-            android:id="@+id/navigation_radiotunes"
-            android:icon="@drawable/ic_playlist_music_black_24dp"
-            android:titleCondensed="@string/url_section_radiotunes"
-            android:title="@string/title_section_radiotunes"/>
-        <item
-            android:id="@+id/navigation_jazz"
-            android:icon="@drawable/ic_playlist_music_black_24dp"
-            android:titleCondensed="@string/url_section_jazz"
-            android:title="@string/title_section_jazz"/>
-        <item
-            android:id="@+id/navigation_soma"
-            android:icon="@drawable/ic_playlist_music_black_24dp"
-            android:titleCondensed="@string/url_section_soma"
-            android:title="@string/title_section_soma"/>
-
-    </group>
 </menu>

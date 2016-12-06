@@ -4,9 +4,11 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 
 import com.activeandroid.ActiveAndroid;
+import com.activeandroid.query.Delete;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
 import com.stc.radio.player.db.DBMediaItem;
+import com.stc.radio.player.db.DBUserPrefsItem;
 import com.stc.radio.player.utils.LogHelper;
 
 import java.util.ArrayList;
@@ -57,7 +59,23 @@ public abstract class BaseRemoteSource {
 
 
     protected ArrayList<MediaMetadataCompat> checkDB() {
-        boolean exists=false;
+		if(	ActiveAndroid.getDatabase().getVersion()< 40) {
+				ActiveAndroid.beginTransaction();
+				try {
+					From from=new Delete().from(DBMediaItem.class);
+					if(from.exists())from.execute();
+					from=new Delete().from(DBUserPrefsItem.class);
+					if(from.exists())from.execute();
+				}catch (Exception e){
+
+				}
+				finally {
+					ActiveAndroid.endTransaction();
+				}
+			}
+
+	    boolean exists=false;
+
         ArrayList<MediaMetadataCompat> tracks = new ArrayList<>();
         From from = new Select().from(DBMediaItem.class).orderBy("PlayedTimes").orderBy("Favorite");
         if (from.exists()) {

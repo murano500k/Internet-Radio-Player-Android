@@ -41,7 +41,7 @@ import android.widget.TextView;
 import com.example.android.uamp.AlbumArtCache;
 import com.example.android.uamp.MusicService;
 import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

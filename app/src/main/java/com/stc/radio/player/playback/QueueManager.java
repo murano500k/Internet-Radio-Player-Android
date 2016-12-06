@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Simple data provider for queues. Keeps track of a current queue and a current index in the
  * queue. Also provides methods to set the current queue based on common queries, relying on a
@@ -96,6 +98,7 @@ public class QueueManager {
     }
 
     public boolean skipQueuePosition(int amount) {
+	    Timber.w("");
         int index = mCurrentIndex + amount;
         if (index < 0) {
             // skip backwards before the first song will keep you on the first song
@@ -126,7 +129,9 @@ public class QueueManager {
     }
 
     public void setQueueFromMusic(String mediaId) {
-        LogHelper.d(TAG, "setQueueFromMusic", mediaId);
+	    Timber.w("");
+
+	    LogHelper.d(TAG, "setQueueFromMusic", mediaId);
         // The mediaId used here is not the unique musicId. This one comes from the
         // MediaBrowser, and is actually a "hierarchy-aware mediaID": a concatenation of
         // the hierarchy in MediaBrowser and the actual unique musicID. This is necessary

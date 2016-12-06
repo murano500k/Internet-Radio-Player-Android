@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.uamp.utils;
+package com.stc.radio.player.utils;
 
 import android.support.annotation.NonNull;
 

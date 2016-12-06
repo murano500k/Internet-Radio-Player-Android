@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import timber.log.Timber;
 
+import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_USER_RATING;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 import static com.stc.radio.player.utils.MediaIDHelper.createMediaID;
@@ -95,8 +96,8 @@ public class MusicProvider {
     static Comparator<MediaMetadataCompat>comparator=new Comparator<MediaMetadataCompat>() {
         @Override
         public int compare(MediaMetadataCompat metadata2, MediaMetadataCompat metadata1) {
-            boolean b1=metadata1.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING).hasHeart();
-            boolean b2=metadata2.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING).hasHeart();
+            boolean b1=metadata1.getRating(METADATA_KEY_USER_RATING).hasHeart();
+            boolean b2=metadata2.getRating(METADATA_KEY_USER_RATING).hasHeart();
             String t1=metadata1.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
             String t2=metadata2.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
 
@@ -245,7 +246,10 @@ public class MusicProvider {
                     MediaMetadataCompat item = tracks.next();
                     String musicId = item.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
                     mMusicListById.put(musicId, new MutableMediaMetadata(musicId, item));
-                    if(item.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING).hasHeart())
+                    if(item.getRating(METADATA_KEY_USER_RATING) !=null &&
+		                    item.getRating(METADATA_KEY_USER_RATING).isRated() &&
+		                    item.getRating(METADATA_KEY_USER_RATING).getRatingStyle()==RatingCompat.RATING_HEART &&
+		                    item.getRating(METADATA_KEY_USER_RATING).hasHeart())
                         mFavoriteTracks.add(musicId);
                 }
                 Log.d(TAG, "retrieveMedia: favSize="+mFavoriteTracks.size());
@@ -276,13 +280,14 @@ public class MusicProvider {
     }
 
 
+
 	private MediaBrowserCompat.MediaItem createMediaItemForRoot(MediaMetadataCompat metadata) {
 		String title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
 		String source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
 		String artUrl=metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
 		String hierarchyAwareMediaID = createMediaID(
 				metadata.getDescription().getMediaId(), MEDIA_ID_ROOT, MEDIA_ID_ROOT);
-		RatingCompat ratingCompat=metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+		RatingCompat ratingCompat=metadata.getRating(METADATA_KEY_USER_RATING);
 
 		MediaMetadataCompat copy = BaseRemoteSource.createMetadata(
 				hierarchyAwareMediaID,
@@ -301,7 +306,7 @@ public class MusicProvider {
 		String artUrl=metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
 		String hierarchyAwareMediaID = createMediaID(
 				metadata.getDescription().getMediaId(), MEDIA_ID_MUSICS_BY_SEARCH, query);
-		RatingCompat ratingCompat=metadata.getRating(MediaMetadataCompat.METADATA_KEY_USER_RATING);
+		RatingCompat ratingCompat=metadata.getRating(METADATA_KEY_USER_RATING);
 
 		MediaMetadataCompat copy = BaseRemoteSource.createMetadata(
 				hierarchyAwareMediaID,

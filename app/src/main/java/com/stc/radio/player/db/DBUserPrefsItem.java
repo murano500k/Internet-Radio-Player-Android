@@ -14,6 +14,16 @@ public class DBUserPrefsItem extends Model {
 
 	@Column(name = "MaxPlayedTimes")
 	int maxPlayedTimes;
+	@Column(name = "Shuffle")
+	boolean shuffle;
+
+	public void setShuffle(boolean shuffle) {
+		this.shuffle = shuffle;
+	}
+
+	public boolean isShuffle() {
+		return shuffle;
+	}
 
 	public DBUserPrefsItem(int maxPlayedTimes) {
 		this.maxPlayedTimes = maxPlayedTimes;

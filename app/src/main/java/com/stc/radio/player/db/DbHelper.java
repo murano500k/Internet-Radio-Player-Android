@@ -28,6 +28,21 @@ public class DbHelper {
 	private static final String IMG_BASE_URL = "http://static.diforfree.org/img/channels/80/";
 	private static final String IMG_BASE_PATH = "/sdcard";
 
+	public static boolean isShuffle(){
+		boolean res=false;
+		From from=new Select().from(DBUserPrefsItem.class);
+		if(from.exists()) res=((DBUserPrefsItem)from.executeSingle()).isShuffle();
+		return res;
+	}
+
+
+	public static void setShuffle(boolean shuffle){
+		From from=new Select().from(DBUserPrefsItem.class);
+		DBUserPrefsItem item=null;
+		if(from.exists()) item=from.executeSingle();
+		else item=new DBUserPrefsItem();
+		item.setShuffle(shuffle);
+	}
 
 
 /*

@@ -26,6 +26,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.stc.radio.player.R;
+import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.model.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
@@ -279,14 +280,14 @@ public class PlaybackManager implements Playback.Callback {
 
         @Override
         public void onSkipToQueueItem(long queueId) {
-            LogHelper.d(TAG, "OnSkipToQueueItem:" + queueId);
+            LogHelper.w(TAG, "OnSkipToQueueItem:" + queueId);
             mQueueManager.setCurrentQueueItem(queueId);
             mQueueManager.updateMetadata();
         }
 
         @Override
         public void onSeekTo(long position) {
-            LogHelper.d(TAG, "onSeekTo:", position);
+            LogHelper.w(TAG, "onSeekTo:", position);
             mPlayback.seekTo((int) position);
         }
 
@@ -304,8 +305,18 @@ public class PlaybackManager implements Playback.Callback {
 
         @Override
         public void onSkipToNext() {
-            LogHelper.d(TAG, "skipToNext");
-            if (mQueueManager.skipQueuePosition(1)) {
+	        int amount = 1;
+	        boolean shuffle= DbHelper.isShuffle();
+	        LogHelper.w(TAG, "skipToNext shuffle="+ shuffle);
+
+	        /*boolean shuffle=DbHelper.isShuffle();
+            LogHelper.d(TAG, "skipToNext shuffle="+ shuffle);
+	        if(shuffle) {
+		        int size = mQueueManager.getCurrentQueueSize();
+		        amount=new Random().nextInt(size);
+	        }*/
+
+            if (mQueueManager.skipQueuePosition(amount)) {
                 handlePlayRequest();
             } else {
                 handleStopRequest("Cannot skip");

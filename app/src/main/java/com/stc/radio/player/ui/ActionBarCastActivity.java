@@ -26,11 +26,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Switch;
 
 import com.stc.radio.player.R;
+import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.utils.LogHelper;
 
 /**
@@ -148,11 +149,8 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
     }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		return super.onCreateOptionsMenu(menu);
 
-	}
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
@@ -175,7 +173,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         }
         // Otherwise, it may return to the previous fragment stack
         FragmentManager fragmentManager = getFragmentManager();
-        if (fragmentManager.getBackStackEntryCount() > 0) {
+        if (fragmentManager.getBackStackEntryCount() > 1) {
             fragmentManager.popBackStack();
         } else {
             // Lastly, it will rely on the system behavior for back
@@ -212,6 +210,25 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
                         "with id 'nav_view'");
             }
 
+	        navigationView.getMenu().findItem(R.id.shuffle)
+			        .setActionView(new Switch(this));
+	        navigationView.getMenu().findItem(R.id.shuffle).setChecked(DbHelper.isShuffle());
+	        navigationView.setNavigationItemSelectedListener(
+			        new NavigationView.OnNavigationItemSelectedListener() {
+
+				        @Override
+
+				        public boolean onNavigationItemSelected(MenuItem menuItem) {
+					        switch (menuItem.getItemId()) {
+						        case R.id.shuffle:
+							        ((Switch) menuItem.getActionView()).toggle();
+							        DbHelper.setShuffle(menuItem.isChecked());
+
+							        return true;
+					        }
+					        return false;
+				        }
+			        });
             // Create an ActionBarDrawerToggle that will handle opening/closing of the drawer:
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 mToolbar, R.string.open_content_drawer, R.string.close_content_drawer);
@@ -237,12 +254,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
                         return true;
                     }
                 });
-	    navigationView.setCheckedItem(R.id.navigation_di);
-        if (MusicPlayerActivity.class.isAssignableFrom(getClass())) {
 
-        } else if (PlaceholderActivity.class.isAssignableFrom(getClass())) {
-            navigationView.setCheckedItem(R.id.navigation_radiotunes);
-        }
     }
 
     protected void updateDrawerToggle() {
@@ -250,7 +262,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
             return;
         }
 
-        boolean isRoot = getFragmentManager().getBackStackEntryCount() == 1;
+        boolean isRoot = getFragmentManager().getBackStackEntryCount() <= 1;
         mDrawerToggle.setDrawerIndicatorEnabled(isRoot);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowHomeEnabled(!isRoot);

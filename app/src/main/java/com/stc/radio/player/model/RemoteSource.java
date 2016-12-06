@@ -37,11 +37,11 @@ public class RemoteSource implements MusicProviderSource {
 
 	private static final String TAG = LogHelper.makeLogTag(RemoteSource.class);
 
-
 	@Override
 	public Iterator<MediaMetadataCompat> iterator() {
 		Retro.updateToken();
 		SettingsProvider.getToken();
+		
 		ArrayList<MediaMetadataCompat> allTracks = new ArrayList<>();
 		ArrayList<BaseRemoteSource> sources = new ArrayList<>();
 		sources.add(new AudioAddictSource(StationsManager.PLAYLISTS.DI));

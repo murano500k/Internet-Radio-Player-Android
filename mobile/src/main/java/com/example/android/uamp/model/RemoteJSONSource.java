@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.example.android.uamp.model;
+package com.stc.radio.player.model;
 
 import android.support.v4.media.MediaMetadataCompat;
 
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;

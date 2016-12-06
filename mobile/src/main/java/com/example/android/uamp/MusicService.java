@@ -34,17 +34,17 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.media.MediaRouter;
 
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.playback.CastPlayback;
-import com.example.android.uamp.playback.LocalPlayback;
-import com.example.android.uamp.playback.Playback;
-import com.example.android.uamp.playback.PlaybackManager;
-import com.example.android.uamp.playback.QueueManager;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.playback.CastPlayback;
+import com.stc.radio.player.playback.LocalPlayback;
+import com.stc.radio.player.playback.Playback;
+import com.stc.radio.player.playback.PlaybackManager;
+import com.stc.radio.player.playback.QueueManager;
 import com.example.android.uamp.ui.NowPlayingActivity;
-import com.example.android.uamp.utils.CarHelper;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.TvHelper;
-import com.example.android.uamp.utils.WearHelper;
+import com.stc.radio.player.utils.CarHelper;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.TvHelper;
+import com.stc.radio.player.utils.WearHelper;
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.SessionManager;
@@ -52,7 +52,7 @@ import com.google.android.gms.cast.framework.SessionManagerListener;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_ROOT;
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 /**
  * This class provides a MediaBrowser through a service. It exposes the media library to a browsing

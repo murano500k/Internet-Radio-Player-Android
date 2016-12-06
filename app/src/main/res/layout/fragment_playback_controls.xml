@@ -2,142 +2,125 @@
 
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/fragment_playback_controls"
+                android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border"
-                android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
-                android:id="@+id/fragment_playback_controls"
                 android:elevation="30dp"
-                tools:context="com.stc.radio.player.MainActivity"
+                android:paddingEnd="8dp"
                 android:paddingStart="8dp"
                 android:paddingTop="8dp"
-                android:paddingEnd="8dp">
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@color/colorPrimary"
-        android:elevation="16dp"
-        android:id="@+id/pacman_layout"
-        android:visibility="gone">
-
-        <com.wang.avi.AVLoadingIndicatorView
-            android:layout_height="100dp"
-            android:elevation="20dp"
-            android:visibility="visible"
-            app:indicator="Pacman"
-            app:indicator_color="@color/colorAccent"
-            android:layout_centerInParent="true"
-            android:layout_alignParentBottom="false"
-            android:layout_gravity="center"
-            android:layout_width="72dp"/>
-    </FrameLayout>
+                tools:context="com.stc.radio.player.ui.ActionBarCastActivity">
 
     <ImageView
         android:id="@+id/album_art"
-        tools:src="@mipmap/ic_launcher"
-        android:scaleType="fitXY"
-        android:clickable="true"
-
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_alignParentStart="true"
+
         android:layout_centerInParent="true"
         android:layout_centerVertical="true"
-        android:layout_width="100dp"
-        android:layout_height="100dp"/>
+        android:clickable="true"
+        android:scaleType="fitXY"
+        tools:src="@mipmap/ic_launcher"/>
 
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_marginStart="4dp"
         android:layout_toEndOf="@id/album_art"
-        android:weightSum="6"
-        android:layout_centerVertical="false"
-        android:layout_marginStart="12dp">
+        android:orientation="vertical"
+        android:weightSum="3.5">
 
         <TextView
             android:id="@+id/station"
-            tools:text="casting to MyCast"
-            android:ellipsize="end"
-            android:maxLines="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="visible"
+            android:layout_weight="1"
             android:contentDescription="@string/currently_playing_extra_info"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/colorTextAccent"
-            android:textAllCaps="true"
-            android:layout_weight="1"
-            android:textStyle="normal|bold"/>
+            android:textStyle="normal|bold"
+            android:visibility="gone"
+            tools:text="casting to MyCast"/>
 
         <TextView
             android:id="@+id/title"
-            tools:text="The Best Music EVAH1111 THE BEST"
-            android:ellipsize="end"
-            android:maxLines="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:contentDescription="@string/currently_playing_song"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary"/>
-        <TextView
-            android:id="@+id/artist"
-            tools:text="John Doe and Band"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="The Best Music EVAH1111 THE BEST"/>
+
+        <TextView
+            android:id="@+id/artist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/md_blue_grey_200"
             android:contentDescription="@string/currently_playing_artist"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:paddingStart="4dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="normal|italic"/>
+            android:textColor="@color/md_blue_grey_200"
+            android:textStyle="normal|italic"
+            tools:text="John Doe and Band"/>
 
         <LinearLayout
-            android:orientation="horizontal"
-            android:weightSum="4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal"
+            android:weightSum="4">
+
             <com.like.LikeButton
-                app:icon_type="star"
-                app:icon_size="16dp"
                 android:id="@+id/fav_button_control"
-                app:is_enabled="true"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="15dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
                 android:background="?attr/actionBarItemBackground"
-                />
+                android:elevation="15dp"
+                app:icon_size="16dp"
+                app:icon_type="star"
+                app:is_enabled="true"/>
 
             <ImageButton
                 android:id="@+id/play_prev"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="15dp"
-                android:src="@android:drawable/ic_media_previous"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:background="?attr/actionBarItemBackground"
-                android:layout_weight="1"/>
+                android:elevation="15dp"
+                android:src="@android:drawable/ic_media_previous"/>
+
             <ImageButton
                 android:id="@+id/play_pause"
                 android:layout_width="wrap_content"
-                android:src="@android:drawable/ic_media_play"
-                android:background="?attr/actionBarItemBackground"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:elevation="15dp"/>
+                android:background="?attr/actionBarItemBackground"
+                android:elevation="15dp"
+                android:src="@android:drawable/ic_media_play"/>
+
             <ImageButton
                 android:id="@+id/play_next"
-                android:src="@android:drawable/ic_media_next"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:elevation="15dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:background="?attr/actionBarItemBackground"
-                android:layout_weight="1"/>
+                android:elevation="15dp"
+                android:src="@android:drawable/ic_media_next"/>
         </LinearLayout>
 
 
@@ -146,10 +129,9 @@
 
     <!--android:background="@color/colorPrimary"
     android:tintMode="src_in"-->
-   <!-- android:tint="@color/colorAccent"
-    android:src="@drawable/ic_play_arrow_black_36dp"
-    android:background="?selectableItemBackgroundBorderless"-->
-
+    <!-- android:tint="@color/colorAccent"
+     android:src="@drawable/ic_play_arrow_black_36dp"
+     android:background="?selectableItemBackgroundBorderless"-->
 
 
 </RelativeLayout>

@@ -1,71 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:elevation="100dp"
     android:layout_margin="4dp"
-    android:clickable="true">
+    android:clickable="true"
+    android:elevation="100dp">
+
     <pl.bclogic.pulsator4droid.library.PulsatorLayout
         android:id="@+id/pulsator"
-        app:pulse_count="1"
-        android:background="@color/colorPrimary"
-
-        app:pulse_duration="1"
-        app:pulse_repeat="1"
-        app:pulse_color="@color/colorAccent"
-        app:pulse_startFromScratch="false"
-        app:pulse_interpolator="Accelerate"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    <com.stc.radio.player.GridItemImageView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/icon_list_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusable="false"
-        android:clickable="false"
-        android:scaleType="fitXY"
-        android:layout_marginBottom="30dp"/>
 
-    <RelativeLayout
+        android:background="@color/colorPrimary"
+        app:pulse_color="@color/colorAccent"
+        app:pulse_count="1"
+        app:pulse_duration="1"
+        app:pulse_interpolator="Accelerate"
+        app:pulse_repeat="1"
+        app:pulse_startFromScratch="false">
 
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:gravity="bottom|center_vertical"
-        android:layout_gravity="bottom"
-        android:layout_alignParentBottom="true">
-
-        <TextView
+        <com.stc.radio.player.GridItemImageView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/icon_list_item"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/textName"
-            android:text="drumandbass"
-            android:textSize="14sp"
-            android:lines="1"
-            android:gravity="center_vertical"
-            android:layout_toStartOf="@+id/fav_button"
-            android:paddingStart="8dp"
-            android:layout_alignParentEnd="true"/>
+            android:layout_marginBottom="30dp"
+            android:clickable="false"
+            android:focusable="false"
+            android:scaleType="fitXY"/>
 
-        <com.like.LikeButton
-            app:icon_type="star"
-            app:icon_size="14dp"
-            android:id="@+id/fav_button"
-            app:is_enabled="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="4dp"/>
-    </RelativeLayout>
+        <RelativeLayout
 
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:gravity="bottom|center_vertical">
 
+            <TextView
+                android:id="@+id/textName"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_toStartOf="@+id/fav_button"
+                android:gravity="center_vertical"
+                android:lines="1"
+                android:paddingStart="8dp"
+                android:text="drumandbass"
+                android:textSize="14sp"/>
+
+            <com.like.LikeButton
+                android:id="@+id/fav_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="4dp"
+                app:icon_size="14dp"
+                app:icon_type="star"
+                app:is_enabled="true"/>
+        </RelativeLayout>
 
 
     </pl.bclogic.pulsator4droid.library.PulsatorLayout>

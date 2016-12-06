@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.uamp.playback;
+package com.stc.radio.player.playback;
 
 import android.support.annotation.NonNull;
 import android.support.test.runner.AndroidJUnit4;
@@ -22,10 +22,10 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.test.mock.MockResources;
 
 import com.example.android.uamp.TestSetupHelper;
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.utils.MediaIDHelper;
-import com.example.android.uamp.utils.QueueHelper;
-import com.example.android.uamp.utils.SimpleMusicProviderSource;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.utils.MediaIDHelper;
+import com.stc.radio.player.utils.QueueHelper;
+import com.stc.radio.player.utils.SimpleMusicProviderSource;
 
 import org.junit.Before;
 import org.junit.Test;

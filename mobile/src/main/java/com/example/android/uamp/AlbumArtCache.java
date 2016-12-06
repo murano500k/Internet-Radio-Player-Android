@@ -20,8 +20,8 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.LruCache;
 
-import com.example.android.uamp.utils.BitmapHelper;
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.BitmapHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 import java.io.IOException;
 

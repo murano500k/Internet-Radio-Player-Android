@@ -1,7 +1,9 @@
+/*
 package com.stc.radio.player.ui;
 
 public class ActivityRxTest2 {}
-		/*
+		*/
+/*
 		extends AppCompatActivity {
 	public static final String TAG = "ActivityRadio";
 	public static final String INTENT_TOKEN_UPDATED = "com.stc.radio.player.INTENT_TOKEN_UPDATED";
@@ -468,8 +470,12 @@ public void closeDrawer(){
 			if (seconds > 1) {
 				if(seconds>60) setTitle(seconds/60 + " minutes left");
 				else setTitle(seconds+" seconds to sleep");
-				*//*drawer.updateItem(
+				*//*
+*/
+/*drawer.updateItem(
 						drawerManager.getDrawerItemSleep(this,true, INDEX_SLEEP));*//*
+*/
+/*
 
 			}
 		} else if (action== SleepEvent.SLEEP_ACTION.FINISH) {

@@ -36,8 +36,8 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.NotificationCompat;
 
 import com.example.android.uamp.ui.MusicPlayerActivity;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.ResourceHelper;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.ResourceHelper;
 
 /**
  * Keeps track of a notification and updates it automatically for a given

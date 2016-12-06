@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertTrue;
 /**
  * Created by artem on 11/30/16.
  *//*
+// TODO: 12/6/16 add tests from uamp
 
 //@RunWith(AndroidJUnit4.class)
 public class StationTest {

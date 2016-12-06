@@ -24,7 +24,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 
 import com.example.android.uamp.MusicService;
 import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 public class TvVerticalGridActivity extends FragmentActivity
         implements TvVerticalGridFragment.MediaFragmentListener {

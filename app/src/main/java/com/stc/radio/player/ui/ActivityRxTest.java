@@ -1,9 +1,12 @@
+/*
 package com.stc.radio.player.ui;
 
 import com.stc.radio.player.PlaybackControlsFragment;
 
 public class ActivityRxTest
-		/*extends AppCompatActivity implements ItemAdapter.ItemFilterListener, ItemTouchCallback*/
+		*/
+/*extends AppCompatActivity implements ItemAdapter.ItemFilterListener, ItemTouchCallback*//*
+
 
 {
 	private PlaybackControlsFragment mControlsFragment;
@@ -21,6 +24,7 @@ public class ActivityRxTest
 	public static final String RADIO_PREFERENCES = "com.stc.radio.player.RADIO_PREFERENCES";
 	public static final String SELECTED_PLAYLIST_ID = "com.stc.radio.player.SELECTED_PLAYLIST_POSITION";
 	public static final String SELECTED_LIST_POSITION = "com.stc.radio.player.SELECTED_LIST_POSITION";
+*/
 /*
 	private Subscription internetListener;
 	private Subscription mSubscription;
@@ -173,8 +177,12 @@ public class ActivityRxTest
 		fastItemAdapter.withSelectable(true);
 		fastItemAdapter.withMultiSelect(false);
 *//*
+*/
+/*
 		fastItemAdapter.withPositionBasedStateManagement(false);
 *//*
+*/
+/*
 		final FastScrollIndicatorAdapter<StationListItem> fastScrollIndicatorAdapter = new FastScrollIndicatorAdapter<>();
 		fastItemAdapter.withOnClickListener(listItemOnClickListener);
 		fastItemAdapter.withFilterPredicate((item, constraint) -> !item.station.name.toLowerCase()
@@ -202,10 +210,14 @@ public class ActivityRxTest
 		touchCallback = new SimpleDragCallback(this);
 		touchHelper = new ItemTouchHelper(touchCallback);
 		touchHelper.attachToRecyclerView(recyclerView);
-		*//*if(getActionBar()!=null) {
+		*//*
+*/
+/*if(getActionBar()!=null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setHomeButtonEnabled(false);
 		}*//*
+*/
+/*
 		return true;
 	}
 
@@ -320,11 +332,15 @@ public class ActivityRxTest
 			drawerBuilder.withSelectedItem(DbHelper.getPlaylistId(getString(R.string.title_section_di)));
 		}
 		drawerBuilder.withHasStableIds(true);
-		*//*if (isTablet()) {
+		*//*
+*/
+/*if (isTablet()) {
 			Drawer drawer = drawerBuilder.buildView();
 			((ViewGroup) findViewById(R.id.nav_tablet)).addView(drawer.getSlider());
 			return drawer;
-		} *//*return drawerBuilder.build();
+		} *//*
+*/
+/*return drawerBuilder.build();
 	}
 	public boolean updateSleepDrawerItem(boolean isSleepActive){
 		if(drawer!=null && drawer.getDrawerItem(INDEX_SLEEP)==null) {
@@ -386,16 +402,24 @@ public class ActivityRxTest
 		if(EventBus.getDefault().isRegistered(this)) {
 			EventBus.getDefault().unregister(this);
 		}
-		*//*if(loadingLayout==null) loadingLayout =(LinearLayout) findViewById(R.id.select_pls);
+		*//*
+*/
+/*if(loadingLayout==null) loadingLayout =(LinearLayout) findViewById(R.id.select_pls);
 		closeDrawer();
 		loadingLayout.setVisibility(View.VISIBLE);*//*
+*/
+/*
 	}
 	public void loadingFinished(){
 		if(!EventBus.getDefault().isRegistered(this)) {
 			EventBus.getDefault().register(this);
 		}
-		*//*if(loadingLayout==null) loadingLayout =(LinearLayout) findViewById(R.id.select_pls);
+		*//*
+*/
+/*if(loadingLayout==null) loadingLayout =(LinearLayout) findViewById(R.id.select_pls);
 		loadingLayout.setVisibility(View.GONE);*//*
+*/
+/*
 		if(drawer!=null) setTitle(DbHelper.getPlaylistName(drawer.getCurrentSelection()));
 
 		closeDrawer();
@@ -405,11 +429,19 @@ public class ActivityRxTest
 	}
 public void closeDrawer(){
 	if(drawer!=null && drawer.isDrawerOpen()) drawer.closeDrawer();
-	*//*if(getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(false);*//*
+	*//*
+*/
+/*if(getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(false);*//*
+*/
+/*
 }
 	public void openDrawer(){
 		if(drawer!=null && !drawer.isDrawerOpen()) drawer.openDrawer();
-		*//*if(getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);*//*
+		*//*
+*/
+/*if(getSupportActionBar()!=null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);*//*
+*/
+/*
 	}
 
 	public void btnControlClick(String extra){
@@ -465,7 +497,9 @@ public void closeDrawer(){
 	public void initDrawerAndUI() {
 		progressBar=(ProgressBar) findViewById(R.id.progressBar);
 		dialogShower =new DialogShower();
-		*//*btnNext = (ImageButton) findViewById(R.id.btnNext);
+		*//*
+*/
+/*btnNext = (ImageButton) findViewById(R.id.btnNext);
 		btnPrev = (ImageButton) findViewById(R.id.btnPrev);
 		spinner = (AVLoadingIndicatorView) findViewById(R.id.spinner);
 		btnPlay = (ImageButton) findViewById(R.id.buttonControlStart);
@@ -493,6 +527,8 @@ public void closeDrawer(){
 		infoSong=(TextView) infoView.findViewById(R.id.textViewSong);
 		infoArt=(ImageView) infoView.findViewById(R.id.imageViewArt);
 		infoProgress = (TextView) infoView.findViewById(R.id.textViewProgress);*//*
+*/
+/*
 		mControlsFragment = (PlaybackControlsFragment) getFragmentManager()
 				.findFragmentById(R.id.fragment_playback_controls);
 		if (mControlsFragment == null) {
@@ -703,5 +739,7 @@ public void closeDrawer(){
 			Timber.v("onPlayPrev");
 			selectPrevItem();
 		}
-	}*/
+	}*//*
+
 }
+*/
