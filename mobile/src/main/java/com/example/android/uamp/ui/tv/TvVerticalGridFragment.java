@@ -29,7 +29,6 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.VerticalGridPresenter;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.text.TextUtils;
 

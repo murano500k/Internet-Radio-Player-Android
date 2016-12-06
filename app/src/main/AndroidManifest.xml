@@ -33,12 +33,11 @@
             android:value="radio.db" />
         <meta-data
             android:name="AA_DB_VERSION"
-            android:value="40" />
+            android:value="44" />
         <meta-data
             android:name="AA_MODELS"
             android:value="com.stc.radio.player.db.DBMediaItem, com.stc.radio.player.db.DBUserPrefsItem" />
 
-        <activity android:name=".LoadingActivity"></activity>
 
         <!-- Main activity for music browsing on phone -->
         <activity

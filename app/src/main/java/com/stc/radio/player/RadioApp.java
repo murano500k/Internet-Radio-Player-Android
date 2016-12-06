@@ -28,8 +28,6 @@ public class RadioApp extends com.activeandroid.app.Application {
 							+':'+element.getLineNumber();
 				}
 			});
-		} else {
-			//Timber.plant(new CrashReportingTree());
 		}
 	}
 

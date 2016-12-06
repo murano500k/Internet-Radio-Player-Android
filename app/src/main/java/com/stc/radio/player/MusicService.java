@@ -21,9 +21,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
- import android.content.pm.PackageInfo;
- import android.content.pm.PackageManager;
- import android.os.Bundle;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
@@ -36,12 +36,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.media.MediaRouter;
 
- import com.activeandroid.ActiveAndroid;
- import com.activeandroid.query.Delete;
- import com.activeandroid.query.From;
- import com.stc.radio.player.db.DBMediaItem;
- import com.stc.radio.player.db.DBUserPrefsItem;
- import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.model.MusicProvider;
 import com.stc.radio.player.playback.MyLocalPlayback;
 import com.stc.radio.player.playback.PlaybackManager;
 import com.stc.radio.player.playback.QueueManager;
@@ -147,7 +142,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
      private BroadcastReceiver mCarConnectionReceiver;
 
 	 public void checkDBVersion(){
-		 if(getVersionCode()<6) {
+		 /*if(getVersionCode()<6) {
 			 ActiveAndroid.beginTransaction();
 			 try {
 				 From from=new Delete().from(DBMediaItem.class);
@@ -161,7 +156,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 				 ActiveAndroid.endTransaction();
 			 }
 		 }
-
+*/
 	 }
 
 	 private String getAppVersion(){
