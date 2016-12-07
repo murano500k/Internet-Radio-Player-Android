@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.guava:guava:19.0' // added after getting NoSuchMethod Error - it solved the issue
-        classpath 'com.android.tools.build:gradle:2.2.2'
+        classpath 'com.android.tools.build:gradle:2.2.3'
         classpath "net.rdrei.android.buildtimetracker:gradle-plugin:0.8.0"
 
         /*classpath 'com.android.tools.build:gradle:2.2.0'*/

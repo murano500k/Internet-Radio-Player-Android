@@ -335,7 +335,6 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		if(mState==PlaybackStateCompat.STATE_SKIPPING_TO_NEXT && mCurrentSource!=null) tryToPlayAsync(mCurrentSource);
 		//mState=PlaybackStateCompat.STATE_PAUSED;
 
-		Timber.w("callback playerStopped perf=%d%", i);
 		if (mCallback != null) {
 			mCallback.onCompletion();
 		}

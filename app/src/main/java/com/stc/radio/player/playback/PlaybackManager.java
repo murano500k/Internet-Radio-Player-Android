@@ -26,7 +26,6 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import com.stc.radio.player.R;
-import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.model.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
@@ -305,9 +304,9 @@ public class PlaybackManager implements Playback.Callback {
 
         @Override
         public void onSkipToNext() {
-	        int amount = 1;
-	        boolean shuffle= DbHelper.isShuffle();
-	        LogHelper.w(TAG, "skipToNext shuffle="+ shuffle);
+	        //int amount = 1;
+	      //  boolean shuffle= DbHelper.isShuffle();
+	     //   LogHelper.w(TAG, "skipToNext shuffle="+ shuffle);
 
 	        /*boolean shuffle=DbHelper.isShuffle();
             LogHelper.d(TAG, "skipToNext shuffle="+ shuffle);
@@ -316,7 +315,7 @@ public class PlaybackManager implements Playback.Callback {
 		        amount=new Random().nextInt(size);
 	        }*/
 
-            if (mQueueManager.skipQueuePosition(amount)) {
+            if (mQueueManager.skipQueuePosition(1)) {
                 handlePlayRequest();
             } else {
                 handleStopRequest("Cannot skip");
