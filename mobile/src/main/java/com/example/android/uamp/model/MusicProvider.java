@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.android.uamp.model;
+package com.stc.radio.player.model;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -25,8 +25,8 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 
 import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.MediaIDHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,9 +37,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
-import static com.example.android.uamp.utils.MediaIDHelper.MEDIA_ID_ROOT;
-import static com.example.android.uamp.utils.MediaIDHelper.createMediaID;
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
+import static com.stc.radio.player.utils.MediaIDHelper.createMediaID;
 
 /**
  * Simple data provider for music tracks. The actual metadata source is delegated to a

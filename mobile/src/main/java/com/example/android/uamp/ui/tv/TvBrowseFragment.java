@@ -36,8 +36,8 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.MediaIDHelper;
 
 import java.util.HashSet;
 import java.util.Iterator;

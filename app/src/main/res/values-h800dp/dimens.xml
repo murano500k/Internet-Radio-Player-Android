@@ -16,5 +16,4 @@
   -->
 <resources>
     <!-- media browser listview -->
-    <dimen name="media_item_height">96dp</dimen>
 </resources>

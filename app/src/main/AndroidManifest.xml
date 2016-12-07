@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.stc.radio.player">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.stc.radio.player">
 
-        <uses-permission android:name="android.permission.INTERNET"/>
-        <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-        <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-        <uses-permission android:name="android.permission.WAKE_LOCK"/>
-        <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <instrumentation
+        android:name="android.support.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.stc.radio.player" />
 
     <uses-feature
         android:name="android.software.leanback"
@@ -17,135 +21,76 @@
     <uses-feature
         android:name="android.hardware.touchscreen"
         android:required="false" />
+
     <application
         android:name=".RadioApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <!--
-        android:allowBackup="true"
-        android:fullBackupContent="true"
-        -->
         <meta-data
             android:name="AA_DB_NAME"
-            android:value="radio.db"/>
+            android:value="radio.db" />
         <meta-data
             android:name="AA_DB_VERSION"
-            android:value="31"/>
+            android:value="44" />
         <meta-data
             android:name="AA_MODELS"
-            android:value="com.stc.radio.player.db.DBMediaItem"/>
+            android:value="com.stc.radio.player.db.DBMediaItem, com.stc.radio.player.db.DBUserPrefsItem" />
 
-        <service
-            android:name=".ServiceRadioRx"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.stc.radio.player.INTENT_RESET"/>
-                <action android:name="com.stc.radio.player.INTENT_SLEEP_SET"/>
-                <action android:name="com.stc.radio.player.INTENT_SLEEP_CANCEL"/>
-                <action android:name="com.stc.radio.player.INTENT_SET_BUFFER_SIZE"/>
-                <action android:name="com.stc.radio.player.INTENT_USER_ACTION"/>
-            </intent-filter>
-        </service>
-
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTop">
-
-            <intent-filter>
-                <action android:name="com.stc.radio.player.INTENT_OPEN_APP"/>
-                <action android:name="com.stc.radio.player.INTENT_SERVICE_READY"/>
-                <action android:name="com.stc.radio.player.INTENT_DB_READY"/>
-                <action android:name="com.stc.radio.player.INTENT_CLOSE_APP"/>
-            </intent-filter>
-            <!--<intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>-->
-        </activity>
-
-        <receiver
-            android:name=".utils.MediaButtonsReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON"/>
-                <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name=".ServiceRadioRx$HeadsetPlugReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.HEADSET_PLUG"/>
-            </intent-filter>
-        </receiver>
-
-        <activity android:name=".LoadingActivity">
-
-        </activity>
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
 
         <!-- Main activity for music browsing on phone -->
         <activity
-            android:name="com.example.android.uamp.ui.MusicPlayerActivity"
+            android:name=".ui.MusicPlayerActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <!-- Use this intent filter to get voice searches, like "Play The Beatles" -->
             <intent-filter>
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <!-- Placeholder activity for phone UI -->
         <activity
-            android:name="com.example.android.uamp.ui.PlaceholderActivity"
-            android:label="@string/app_name">
-        </activity>
+            android:name=".ui.PlaceholderActivity"
+            android:label="@string/app_name"></activity>
 
-        <!-- Proxy activity that opens either the NowPlaying TV or the mobile UI, depending on
-        the current environment -->
+        <!--
+        Proxy activity that opens either the NowPlaying TV or the mobile UI, depending on
+        the current environment
+        -->
         <activity
-            android:name="com.example.android.uamp.ui.NowPlayingActivity"
-            android:icon="@drawable/ic_launcher">
-        </activity>
+            android:name=".ui.NowPlayingActivity"
+            android:icon="@drawable/ic_launcher"></activity>
 
         <!-- Main activity for Android TV user interface -->
         <activity
-            android:name="com.example.android.uamp.ui.tv.TvBrowseActivity"
+            android:name=".ui.tv.TvBrowseActivity"
             android:label="@string/app_name"
-            android:theme="@style/Theme.UAmp.TVLeanback" >
+            android:theme="@style/Theme.UAmp.TVLeanback">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="com.example.android.uamp.ui.tv.TvVerticalGridActivity"
-            android:theme="@style/Theme.UAmp.TVLeanback"
-            android:parentActivityName="com.example.android.uamp.ui.tv.TvBrowseActivity" />
+            android:name=".ui.tv.TvVerticalGridActivity"
+            android:parentActivityName=".ui.tv.TvBrowseActivity"
+            android:theme="@style/Theme.UAmp.TVLeanback" />
 
         <!-- Android TV UI when playing a song -->
         <activity
-            android:name="com.example.android.uamp.ui.tv.TvPlaybackActivity"
-            android:theme="@style/Theme.UAmp.TVLeanback"
-            android:parentActivityName="com.example.android.uamp.ui.tv.TvBrowseActivity" />
+            android:name=".ui.tv.TvPlaybackActivity"
+            android:parentActivityName=".ui.tv.TvBrowseActivity"
+            android:theme="@style/Theme.UAmp.TVLeanback" />
 
         <!--
              (OPTIONAL) use this meta data to indicate which icon should be
@@ -175,47 +120,53 @@
             android:name="com.google.android.wearable.media.theme"
             android:resource="@style/WearTheme" />
 
-        <!-- Main music service, provides media browsing and media playback services to
+        <!--
+         Main music service, provides media browsing and media playback services to
          consumers through MediaBrowserService and MediaSession. Consumers connect to it through
-         MediaBrowser (for browsing) and MediaController (for play session control) -->
+         MediaBrowser (for browsing) and MediaController (for play session control)
+        -->
         <service
-            android:name="com.example.android.uamp.MusicService"
-            android:exported="true"
+            android:name=".MusicService"
             android:enabled="true"
+            android:exported="true"
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
 
-        <!--
-             (REQUIRED) use this meta data to to declare the app OptionsProvider.
-        -->
+        <!--              (REQUIRED) use this meta data to to declare the app OptionsProvider. -->
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.example.android.uamp.CastOptionsProvider" />
+            android:value="com.stc.radio.player.CastOptionsProvider" />
 
-        <!-- A full screen activity showing controls and a seek bar for
-             the current playing music -->
+        <!--
+             A full screen activity showing controls and a seek bar for
+             the current playing music
+        -->
         <activity
-            android:name="com.example.android.uamp.ui.FullScreenPlayerActivity"
+            android:name=".ui.FullScreenPlayerActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:parentActivityName="com.example.android.uamp.ui.MusicPlayerActivity">
+            android:parentActivityName=".ui.MusicPlayerActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.android.uamp.ui.MusicPlayerActivity"/>
+                android:value="com.stc.radio.player.ui.MusicPlayerActivity" />
         </activity>
 
-        <!-- A receiver that will receive media buttons and send as
+        <!--
+             A receiver that will receive media buttons and send as
             intents to your MediaBrowserServiceCompat implementation.
             Required on pre-Lollipop. More information at
-            http://developer.android.com/reference/android/support/v4/media/session/MediaButtonReceiver.html -->
-        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver" >
+            http://developer.android.com/reference/android/support/v4/media/session/MediaButtonReceiver.html
+        -->
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".TestActivity"></activity>
     </application>
 
 </manifest>

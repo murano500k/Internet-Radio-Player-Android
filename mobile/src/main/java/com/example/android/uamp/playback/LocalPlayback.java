@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.uamp.playback;
+package com.stc.radio.player.playback;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,10 +28,10 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
 import com.example.android.uamp.MusicService;
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.model.MusicProviderSource;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.model.MusicProviderSource;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.MediaIDHelper;
 
 import java.io.IOException;
 

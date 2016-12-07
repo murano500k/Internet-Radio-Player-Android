@@ -5,11 +5,11 @@ import android.support.v4.media.MediaMetadataCompat;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
-import com.example.android.uamp.model.MusicProviderSource;
 import com.stc.radio.player.StationListItem;
 import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.db.NowPlaying;
 import com.stc.radio.player.db.Station;
+import com.stc.radio.player.model.MusicProviderSource;
 import com.stc.radio.player.utils.SettingsProvider;
 
 import java.io.IOException;
@@ -204,7 +204,7 @@ public abstract class StationsManager  implements MusicProviderSource {
 					@Override
 					public Observable<List<Station>> call(String s) {
 						List<Station>list = new ArrayList<Station>();
-						Timber.w("first check if pls in db: %s",pls);
+						Timber.w("first check if name in db: %s",pls);
 						From from;
 						if(pls.contains("favorite")){
 							from=new Select().from(Station.class).where("Favorite = ?", true);
@@ -256,16 +256,16 @@ public abstract class StationsManager  implements MusicProviderSource {
 							List<Station> stations = DbHelper.trannsformToStations(response.body(), pls);
 							return Observable.just(stations);
 						}
-						else Timber.e("request pls error");
+						else Timber.e("request name error");
 
-						throw new RuntimeException("ERROR download pls failed");
+						throw new RuntimeException("ERROR download name failed");
 					}
 				}).flatMap(new Func1<List<Station>, Observable<Station>>() {
 					@Override
 					public Observable<Station> call(List<Station> stations) {
 						if (stations != null) {
 
-							Timber.w("downloaded pls size %d",stations.size());
+							Timber.w("downloaded name size %d",stations.size());
 							NowPlaying nowPlaying= NowPlaying.getInstance();
 							if(nowPlaying==null ) nowPlaying=new NowPlaying();
 							if(nowPlaying.getStation()==null && stations.size()>0 && !stations.contains(nowPlaying.getStation()))

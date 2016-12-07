@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.uamp.playback;
+package com.stc.radio.player.playback;
 
 import com.example.android.uamp.MusicService;
 

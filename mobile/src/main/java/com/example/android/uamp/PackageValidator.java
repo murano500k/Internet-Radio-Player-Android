@@ -22,7 +22,7 @@ import android.content.res.XmlResourceParser;
 import android.os.Process;
 import android.util.Base64;
 
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 import org.xmlpull.v1.XmlPullParserException;
 

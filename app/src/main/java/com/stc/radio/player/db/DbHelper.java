@@ -28,22 +28,37 @@ public class DbHelper {
 	private static final String IMG_BASE_URL = "http://static.diforfree.org/img/channels/80/";
 	private static final String IMG_BASE_PATH = "/sdcard";
 
+	public static boolean isShuffle(){
+		boolean res=false;
+		From from=new Select().from(DBUserPrefsItem.class);
+		if(from.exists()) res=((DBUserPrefsItem)from.executeSingle()).isShuffle();
+		return res;
+	}
+
+
+	public static void setShuffle(boolean shuffle){
+		From from=new Select().from(DBUserPrefsItem.class);
+		DBUserPrefsItem item=null;
+		if(from.exists()) item=from.executeSingle();
+		else item=new DBUserPrefsItem();
+		item.setShuffle(shuffle);
+	}
 
 
 /*
 
 	public static String getArtUrl(String url){
-		String pls=null;
+		String name=null;
 
-		if(url.contains("di.fm")) pls="di";
-		else if(url.contains("rock")) pls="rockradio";
-		else if(url.contains("jazz")) pls="jazzradio";
-		else if(url.contains("tunes")) pls="radiotunes";
-		else if(url.contains("classic")) pls="classicalradio";
+		if(url.contains("di.fm")) name="di";
+		else if(url.contains("rock")) name="rockradio";
+		else if(url.contains("jazz")) name="jazzradio";
+		else if(url.contains("tunes")) name="radiotunes";
+		else if(url.contains("classic")) name="classicalradio";
 		else return null;
 		String station = url.substring(url.lastIndexOf("/")+1);
 		station=station.substring(0, station.indexOf("?"));
-		String result = IMG_BASE_URL+pls+"_"+station;
+		String result = IMG_BASE_URL+name+"_"+station;
 		if(url.contains("di.fm")) result+=".jpg";
 		else result+="_hi.jpg";
 		//Timber.v(result);

@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.example.android.uamp.model;
+package com.stc.radio.player.model;
 
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
@@ -24,8 +24,8 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.test.mock.MockResources;
 
 import com.example.android.uamp.TestSetupHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
-import com.example.android.uamp.utils.SimpleMusicProviderSource;
+import com.stc.radio.player.utils.MediaIDHelper;
+import com.stc.radio.player.utils.SimpleMusicProviderSource;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -5,6 +5,6 @@
 
     <item name="fastadapter_generic_icon_item_id" type="id">6780</item>
     <item name="fastadapter_icon_item_id" type="id">55569</item>
-    <item type="id" name="tag_mediaitem_state_cache"/>
+    <item name="tag_mediaitem_state_cache" type="id"/>
 
 </resources>

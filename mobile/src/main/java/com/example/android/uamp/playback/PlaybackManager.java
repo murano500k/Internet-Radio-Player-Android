@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.example.android.uamp.playback;
+package com.stc.radio.player.playback;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -25,10 +25,10 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.example.android.uamp.R;
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
-import com.example.android.uamp.utils.WearHelper;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.MediaIDHelper;
+import com.stc.radio.player.utils.WearHelper;
 
 /**
  * Manage the interactions among the container service, the queue manager and the actual playback.

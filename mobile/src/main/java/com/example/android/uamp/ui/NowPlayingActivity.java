@@ -22,7 +22,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 
 import com.example.android.uamp.ui.tv.TvPlaybackActivity;
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 /**
  * The activity for the Now Playing Card PendingIntent.

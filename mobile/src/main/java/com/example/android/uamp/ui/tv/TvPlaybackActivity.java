@@ -27,7 +27,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.example.android.uamp.MusicService;
 import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 /**
  * Activity used to display details of the currently playing song, along with playback controls

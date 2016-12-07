@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_loading"
     android:layout_width="match_parent"
@@ -13,27 +12,27 @@
     tools:context="com.stc.radio.player.LoadingActivity">
 
     <ProgressBar
+        android:id="@+id/progressDB"
         style="@android:style/Widget.Material.ProgressBar.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/progressDB"/>
+        android:layout_centerVertical="true"/>
 
     <TextView
-        android:text="TextView"
+        android:id="@+id/textStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/textStatus"/>
+        android:layout_alignParentTop="true"
+        android:text="TextView"/>
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
 
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/textStatus"
         android:layout_marginStart="7dp"
-        android:id="@+id/imageView"/>
+        android:layout_toEndOf="@+id/textStatus"/>
 </RelativeLayout>

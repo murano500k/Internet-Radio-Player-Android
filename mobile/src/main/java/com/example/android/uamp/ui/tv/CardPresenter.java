@@ -36,7 +36,7 @@ import android.view.ViewGroup;
 
 import com.example.android.uamp.AlbumArtCache;
 import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 public class CardPresenter extends Presenter {
     private static final String TAG = LogHelper.makeLogTag(CardPresenter.class);

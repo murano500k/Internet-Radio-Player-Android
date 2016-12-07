@@ -16,12 +16,12 @@
 
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
     <fragment
         android:id="@+id/vertical_grid_fragment"
-        android:name="com.example.android.uamp.ui.tv.TvVerticalGridFragment"
+        android:name="com.stc.radio.player.ui.tv.TvVerticalGridFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 </FrameLayout>

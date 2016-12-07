@@ -84,7 +84,7 @@ public class LoadingActivity extends AppCompatActivity {
 
 
 		private void loadPlaylistStations(String pls) {
-			Timber.w("pls=%s",pls);
+			Timber.w("name=%s",pls);
 			Call<List<ParsedPlaylistItem>> loadSizeCall = Retro.getStationsCall(pls);
 			loadSizeCall.enqueue(new Callback<List<ParsedPlaylistItem>>() {
 				@Override

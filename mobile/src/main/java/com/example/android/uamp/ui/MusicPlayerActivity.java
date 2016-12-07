@@ -24,7 +24,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.text.TextUtils;
 
 import com.example.android.uamp.R;
-import com.example.android.uamp.utils.LogHelper;
+import com.stc.radio.player.utils.LogHelper;
 
 /**
  * Main activity for the music player.
