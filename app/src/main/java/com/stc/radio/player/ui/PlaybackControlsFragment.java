@@ -46,6 +46,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import timber.log.Timber;
+
 import static com.stc.radio.player.playback.PlaybackManager.CUSTOM_ACTION_THUMBS_UP;
 import static com.stc.radio.player.playback.PlaybackManager.IS_FAVORITE;
 
@@ -113,18 +115,35 @@ public class PlaybackControlsFragment extends Fragment {
 
 		mPlayNext = (ImageButton) rootView.findViewById(R.id.play_next);
 		mPlayPause.setOnClickListener(mButtonListener);
+		mPlayNext.setEnabled(true);
+		mPlayPrev.setEnabled(true);
 		//pacmanIndicator.setOnClickListener(mButtonListener);
 		//mAlbumArt.setOnClickListener(	v -> onButtonClicked(0));
-		mPlayNext.setOnClickListener(mButtonListener);
-		mPlayPrev.setOnClickListener(mButtonListener);
+		mPlayNext.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				nextMedia();
+			}
+		});
+		mPlayPrev.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				prevMedia();
+			}
+		});
 
 		favButton = (LikeButton) rootView.findViewById(R.id.fav_button_control);
 
 		mSong = (TextView) rootView.findViewById(R.id.title);
 		mArtist = (TextView) rootView.findViewById(R.id.artist);
 		mStation = (TextView) rootView.findViewById(R.id.station);
-		rootView.setOnTouchListener(getOnSwipeListener(rootView));
-		favButton.setOnClickListener(mButtonListener);
+		//rootView.setOnTouchListener(getOnSwipeListener(rootView));
+		favButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				customAction();
+			}
+		});
 
 		/*favButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -352,7 +371,6 @@ public class PlaybackControlsFragment extends Fragment {
 			LogHelper.d(TAG, "Button pressed, in state " + state);
 			switch (v.getId()) {
 				case R.id.play_pause:
-				/*case R.id.pacman_layout:
 					LogHelper.d(TAG, "Play button pressed, in state " + state);
 					if (state == PlaybackStateCompat.STATE_PAUSED ||
 							state == PlaybackStateCompat.STATE_STOPPED ||
@@ -363,16 +381,9 @@ public class PlaybackControlsFragment extends Fragment {
 							state == PlaybackStateCompat.STATE_CONNECTING) {
 						pauseMedia();
 					}
-					break;*/
-				case R.id.play_next:
-					nextMedia();
 					break;
-				case R.id.play_prev:
-					prevMedia();
-					break;
-				case R.id.fav_button_control:
-					customAction();
-					break;
+				default:
+					Timber.w("Unknown button clicked: %d", v.getId());
 
 			}
 		}
