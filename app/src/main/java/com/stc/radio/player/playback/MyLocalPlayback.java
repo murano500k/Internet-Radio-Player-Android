@@ -282,8 +282,6 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 			}
 		} else if (mPlayOnFocusGain) {
 				if (mMediaPlayer != null && !isPlaying) {
-					LogHelper.d(TAG,"configMediaPlayerState startMediaPlayer. seeking to ",
-							mCurrentPosition);
 					mState = PlaybackStateCompat.STATE_PLAYING;
 					createMediaPlayerIfNeeded();
 					//tryToGetAudioFocus();
@@ -331,21 +329,21 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 
 	@Override
 	public void playerStopped(int i) {
+		Timber.w("callback");
 		isPlaying=false;
 		if(mState==PlaybackStateCompat.STATE_SKIPPING_TO_NEXT && mCurrentSource!=null) tryToPlayAsync(mCurrentSource);
-		//mState=PlaybackStateCompat.STATE_PAUSED;
+		mState=PlaybackStateCompat.STATE_PAUSED;
 
-		Timber.w("callback playerStopped perf=%d%", i);
 		if (mCallback != null) {
-			mCallback.onCompletion();
+			mCallback.onPlaybackStatusChanged(mState);
 		}
-		EventBus.getDefault().post(new MyMetadata(""));
+		//EventBus.getDefault().post(new MyMetadata(""));
 
 	}
 
 	@Override
 	public void playerStarted() {
-		Timber.w("callback playerStarted");
+		Timber.w("callback");
 		isPlaying=true;
 		mState=PlaybackStateCompat.STATE_PLAYING;
 		if (mCallback != null) {

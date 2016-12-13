@@ -153,8 +153,8 @@ public class MusicPlayerActivity extends BaseActivity
             LogHelper.d(TAG, "Starting from voice search query=",
                 mVoiceSearchParams.getString(SearchManager.QUERY));
 	        String query=mVoiceSearchParams.getString(SearchManager.QUERY);
-
-	        getBrowseFragment().onScrollToItem(query);
+			getSupportMediaController().getTransportControls().playFromSearch(query,new Bundle());
+	        //getBrowseFragment().onScrollToItem(query);
         } else if (savedInstanceState != null) {
                 // If there is a saved media ID, use it
                 mediaId = savedInstanceState.getString(SAVED_MEDIA_ID);

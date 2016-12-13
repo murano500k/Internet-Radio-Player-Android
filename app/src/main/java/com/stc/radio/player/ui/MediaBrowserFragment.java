@@ -70,21 +70,14 @@ public class MediaBrowserFragment extends Fragment{
 	public void onScrollToItem(String query) {
 		for(MediaListItem listItem :    fastItemAdapter.getAdapterItems()){
 			String title=listItem.getMediaItem().getDescription().getTitle().toString();
-			String name=title.substring(title.indexOf(" - ")+3).trim();
-			String simpleQuery=query.trim();
-			Timber.w("name=%s", name);
-			Timber.w("title=%s", title);
-			if (simpleQuery.equalsIgnoreCase(name)){
+			//String name=title.substring(title.indexOf(" - ")+3).trim();
+			//String simpleQuery=query.trim();
+			//Timber.w("name=%s", name);
+			//Timber.w("title=%s", title);
+			if (title.equalsIgnoreCase(query)){
 				recyclerView.smoothScrollToPosition(
 						fastItemAdapter.getAdapterPosition(listItem)
 				);
-				break;
-			}
-			if (title.equalsIgnoreCase(simpleQuery)){
-				recyclerView.smoothScrollToPosition(
-						fastItemAdapter.getAdapterPosition(listItem)
-				);
-				break;
 			}
 		}
 	}

@@ -28,6 +28,9 @@ import com.example.android.uamp.model.MusicProvider;
 import com.example.android.uamp.utils.LogHelper;
 import com.example.android.uamp.utils.MediaIDHelper;
 import com.stc.radio.player.R;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.MediaIDHelper;
 
 /**
  * Manage the interactions among the container service, the queue manager and the actual playback.
@@ -303,7 +306,17 @@ public class PlaybackManager implements Playback.Callback {
 
         @Override
         public void onSkipToNext() {
-            LogHelper.d(TAG, "skipToNext");
+	        //int amount = 1;
+	      //  boolean shuffle= DbHelper.isShuffle();
+	     //   LogHelper.w(TAG, "skipToNext shuffle="+ shuffle);
+
+	        /*boolean shuffle=DbHelper.isShuffle();
+            LogHelper.d(TAG, "skipToNext shuffle="+ shuffle);
+	        if(shuffle) {
+		        int size = mQueueManager.getCurrentQueueSize();
+		        amount=new Random().nextInt(size);
+	        }*/
+
             if (mQueueManager.skipQueuePosition(1)) {
                 handlePlayRequest();
             } else {
