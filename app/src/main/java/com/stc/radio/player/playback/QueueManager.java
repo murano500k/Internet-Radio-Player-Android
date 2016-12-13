@@ -25,6 +25,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 
 import com.stc.radio.player.AlbumArtCache;
 import com.stc.radio.player.R;
+import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.model.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
@@ -34,6 +35,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+
+import timber.log.Timber;
 
 /**
  * Simple data provider for queues. Keeps track of a current queue and a current index in the
@@ -104,6 +108,10 @@ public class QueueManager {
             // skip forwards when in last song will cycle back to start of the queue
             index %= mPlayingQueue.size();
         }
+	    if(DbHelper.isShuffle()) {
+		    Timber.w("next shuffle");
+		    index=new Random().nextInt(mPlayingQueue.size()-1);
+	    }
         if (!QueueHelper.isIndexPlayable(index, mPlayingQueue)) {
             LogHelper.e(TAG, "Cannot increment queue index by ", amount,
                     ". Current=", mCurrentIndex, " queue length=", mPlayingQueue.size());

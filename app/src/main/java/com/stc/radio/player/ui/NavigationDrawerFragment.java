@@ -101,6 +101,8 @@ public class NavigationDrawerFragment extends Fragment {
 				//updateDrawerState(false);
 			}
 		});
+		Timber.w("test");
+
 		mDrawerListView.setAdapter(new ArrayAdapter<String>(
 				getActivity(),
 				android.R.layout.simple_list_item_activated_1,
@@ -193,6 +195,8 @@ public class NavigationDrawerFragment extends Fragment {
 	}
 
 	public void selectItem(int position) {
+		Timber.w("test");
+
 		Timber.d("pos=%d", position);
 		mCurrentSelectedPls = items.get(position);
 		if (mDrawerListView != null) {
@@ -205,25 +209,6 @@ public class NavigationDrawerFragment extends Fragment {
 			mCallbacks.onNavigationDrawerItemSelected((String) mDrawerListView.getAdapter().getItem(position));
 		}
 	}
-	public void selectItem(String pls) {
-		int position=items.indexOf(pls);
-		Timber.d("pos=%d", position);
-		mCurrentSelectedPls = items.get(position);
-		if (mDrawerListView != null) {
-			mDrawerListView.setItemChecked(position, true);
-		}
-		if (mDrawerLayout != null) {
-			mDrawerLayout.closeDrawer(mFragmentContainerView);
-		}
-		if (mCallbacks != null) {
-			mCallbacks.onNavigationDrawerItemSelected((String) mDrawerListView.getAdapter().getItem(position));
-		}
-	}
-
-	public int getSelectedPosition(){
-		return mDrawerListView.getSelectedItemPosition();
-	}
-
 
 	@Override
 	public void onAttach(Activity activity) {

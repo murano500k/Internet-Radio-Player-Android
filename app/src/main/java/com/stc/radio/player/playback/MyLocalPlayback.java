@@ -356,6 +356,7 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 	public void playerException(Throwable throwable) {
 		Timber.e(throwable.getMessage(), "TEST callback playerException");
 		isPlaying=false;
+
 		//mState = PlaybackStateCompat.STATE_PAUSED;
 		//configMediaPlayerState();
 		/*if (mCallback != null) {

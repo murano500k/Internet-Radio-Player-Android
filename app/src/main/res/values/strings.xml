@@ -1,21 +1,6 @@
 <resources>
     <string name="app_name">Online Radio</string>
 
-    <string name="title_section_di">Digitally Imported</string>
-    <string name="title_section_radiotunes">Radio Tunes</string>
-    <string name="title_section_jazz">Jazz Radio</string>
-    <string name="title_section_rock">Rock Radio</string>
-    <string name="title_section_classic">Classical Radio</string>
-    <string name="title_section_soma">SomaFM</string>
-
-
-    <string name="url_section_di">difm</string>
-    <string name="url_section_soma">somafm</string>
-    <string name="url_section_radiotunes">radiotunes</string>
-    <string name="url_section_jazz">jazzradio</string>
-    <string name="url_section_rock">rockradio</string>
-    <string name="url_section_classic">classicalradio</string>
-
 
     <string name="search_title">Search</string>
 

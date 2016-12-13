@@ -19,5 +19,8 @@
         <item
             android:id="@+id/shuffle"
             android:title="Shuffle"/>
-
+<!--
+    <item
+        android:id="@+id/sleep"
+        android:title="Sleep timer"/>-->
 </menu>

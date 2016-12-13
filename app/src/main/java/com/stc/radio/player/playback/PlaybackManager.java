@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.example.android.uamp.playback;
+package com.stc.radio.player.playback;
 
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -24,9 +24,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.example.android.uamp.model.MusicProvider;
-import com.example.android.uamp.utils.LogHelper;
-import com.example.android.uamp.utils.MediaIDHelper;
 import com.stc.radio.player.R;
 import com.stc.radio.player.model.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
@@ -39,8 +36,9 @@ public class PlaybackManager implements Playback.Callback {
 
     private static final String TAG = LogHelper.makeLogTag(PlaybackManager.class);
     // Action to thumbs up a media item
-    public static final String CUSTOM_ACTION_THUMBS_UP = "com.example.android.uamp.THUMBS_UP";
+    public static final String CUSTOM_ACTION_THUMBS_UP = "com.stc.radio.player.THUMBS_UP";
 
+	public static final String IS_FAVORITE = "com.stc.radio.player.IS_FAVORITE";
     private MusicProvider mMusicProvider;
     private QueueManager mQueueManager;
     private Resources mResources;
@@ -160,14 +158,16 @@ public class PlaybackManager implements Playback.Callback {
             return;
         }
         String musicId = MediaIDHelper.extractMusicIDFromMediaID(mediaId);
-        int favoriteIcon = mMusicProvider.isFavorite(musicId) ?
+	    boolean isFavorite=mMusicProvider.isFavorite(musicId);
+        int favoriteIcon = isFavorite ?
                 R.drawable.ic_star_on : R.drawable.ic_star_off;
         LogHelper.d(TAG, "updatePlaybackState, setting Favorite custom action of music ",
-                musicId, " current favorite=", mMusicProvider.isFavorite(musicId));
+                musicId, " current favorite=", isFavorite);
         Bundle customActionExtras = new Bundle();
+	    customActionExtras.putBoolean(IS_FAVORITE, isFavorite);
         //WearHelper.setShowCustomActionOnWear(customActionExtras, true);
         stateBuilder.addCustomAction(new PlaybackStateCompat.CustomAction.Builder(
-                CUSTOM_ACTION_THUMBS_UP, mResources.getString(R.string.favorite), favoriteIcon)
+                CUSTOM_ACTION_THUMBS_UP, IS_FAVORITE, favoriteIcon)
                 .setExtras(customActionExtras)
                 .build());
     }
@@ -339,11 +339,13 @@ public class PlaybackManager implements Playback.Callback {
         public void onCustomAction(@NonNull String action, Bundle extras) {
             if (CUSTOM_ACTION_THUMBS_UP.equals(action)) {
                 LogHelper.i(TAG, "onCustomAction: favorite for current track");
+	            boolean isFav=extras.containsKey(IS_FAVORITE) && extras.getBoolean(IS_FAVORITE);
                 MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
                 if (currentMusic != null) {
                     String mediaId = currentMusic.getDescription().getMediaId();
                     if (mediaId != null) {
                         String musicId = MediaIDHelper.extractMusicIDFromMediaID(mediaId);
+	                    mMusicProvider.setFavorite(musicId, isFav);
                         //mMusicProvider.setFavorite(musicId, extras.getLong(CUSTOM_ACTION_THUMBS_UP, 0));
                     }
                 }

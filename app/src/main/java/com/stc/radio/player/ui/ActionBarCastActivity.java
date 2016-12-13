@@ -17,26 +17,24 @@ package com.stc.radio.player.ui;
 
 import android.app.ActivityOptions;
 import android.app.FragmentManager;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 
-import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
 import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.utils.LogHelper;
+
+import timber.log.Timber;
 
 /**
  * Abstract activity with toolbar, navigation drawer and cast support. Needs to be extended by
@@ -157,14 +155,21 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        // If not handled by drawerToggle, home needs to be handled by returning to previous
-        if (item != null && item.getItemId() == android.R.id.home) {
-            onBackPressed();
-            return true;
-        }
+
+	    if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
+		    return true;
+	    }
+
+	    Timber.w("after toggle");
+	    if(item!=null){
+		    switch (item.getItemId()) {
+			    case android.R.id.home: {
+				    onBackPressed();
+				    break;
+			    }
+		    }
+
+    }
         return super.onOptionsItemSelected(item);
     }
 
@@ -205,7 +210,6 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
                 "'toolbar'");
         }
         mToolbar.inflateMenu(R.menu.search);
-
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -214,26 +218,8 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
                         "with id 'nav_view'");
             }
 
-	        navigationView.getMenu().findItem(R.id.shuffle)
-			        .setActionView(new Switch(this));
-	        navigationView.getMenu().findItem(R.id.shuffle).setChecked(DbHelper.isShuffle());
-	        navigationView.setNavigationItemSelectedListener(
-			        new NavigationView.OnNavigationItemSelectedListener() {
+	        initNavMenuItem(navigationView,R.id.shuffle);
 
-				        @Override
-
-				        public boolean onNavigationItemSelected(MenuItem menuItem) {
-					        switch (menuItem.getItemId()) {
-						        case R.id.shuffle:
-							        ((Switch) menuItem.getActionView()).toggle();
-							        DbHelper.setShuffle(menuItem.isChecked());
-
-							        return true;
-					        }
-					        return false;
-				        }
-			        });
-            // Create an ActionBarDrawerToggle that will handle opening/closing of the drawer:
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 mToolbar, R.string.open_content_drawer, R.string.close_content_drawer);
             mDrawerLayout.setDrawerListener(mDrawerListener);
@@ -246,15 +232,35 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
         mToolbarInitialized = true;
     }
+	public void initNavMenuItem(NavigationView navigationView,int resId){
+		if(resId==R.id.shuffle) {
+			MenuItem itemShuffle = navigationView.getMenu().findItem(R.id.shuffle);
+			itemShuffle.setActionView(new Switch(this));
+			((Switch)itemShuffle.getActionView()).setChecked(DbHelper.isShuffle());
+			itemShuffle.getActionView().setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					boolean isShuffle = !DbHelper.isShuffle();
+					Timber.w("new is shuffle=%b", isShuffle);
+					DbHelper.setShuffle(isShuffle);
+
+				}
+			});
+		}
+		/*else if(resId==R.id.sleep){
+
+		}*/
+	}
 
     private void populateDrawerItems(NavigationView navigationView) {
+
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        menuItem.setChecked(true);
-                        mItemToOpenWhenDrawerCloses = menuItem.getItemId();
-                        mDrawerLayout.closeDrawers();
+	                    Timber.w("test");
+
+	                    //mDrawerLayout.closeDrawers();
                         return true;
                     }
                 });

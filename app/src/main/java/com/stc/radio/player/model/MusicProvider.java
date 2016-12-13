@@ -28,6 +28,7 @@ import timber.log.Timber;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_USER_RATING;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_SEARCH;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
+import static com.stc.radio.player.utils.MediaIDHelper.QUERY_RANDOM;
 import static com.stc.radio.player.utils.MediaIDHelper.createMediaID;
 
 /**
@@ -134,7 +135,13 @@ public class MusicProvider {
         }
         ArrayList<MediaMetadataCompat> result = new ArrayList<>();
         query = query.toLowerCase(Locale.US);
-        for (MutableMediaMetadata track : mMusicListById.values()) {
+		Timber.w("search query"+query);
+
+		if(query.equals(QUERY_RANDOM)) {
+			Timber.w("search Random");
+	        return getShuffledMusic();
+        }
+		for (MutableMediaMetadata track : mMusicListById.values()) {
             if (track.metadata.getString(metadataField).toLowerCase(Locale.US)
                     .contains(query)) {
                 result.add(track.metadata);

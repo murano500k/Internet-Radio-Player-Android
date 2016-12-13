@@ -312,18 +312,12 @@ public class PlaybackControlsFragment extends Fragment {
 			mPlayPause.setImageDrawable(
 					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
 		}
-		boolean checkFav=false;
 		for(PlaybackStateCompat.CustomAction action: state.getCustomActions())
 		if(action.getAction().contains(CUSTOM_ACTION_THUMBS_UP)) {
 			isFav=action.getExtras().containsKey(IS_FAVORITE) && action.getExtras().getBoolean(IS_FAVORITE);
 			favButton.setLiked(isFav);
-			checkFav=true;
 			//Timber.w("get Fav state SUCCESS");
 			break;
-		}
-		if(!checkFav){
-			//Timber.e("failed to get Fav state");
-			this.favButton.setLiked(false);
 		}
 
 		if (controller != null && controller.getExtras() != null) {
@@ -397,7 +391,8 @@ public class PlaybackControlsFragment extends Fragment {
 				.getSupportMediaController();
 		if (controller != null) {
 			Bundle customActionExtras=new Bundle();
-			customActionExtras.putBoolean(IS_FAVORITE, !isFav);
+			//favButton.setLiked(!favButton.isActivated());
+			customActionExtras.putBoolean(IS_FAVORITE, !favButton.isActivated());
 
 			controller.getTransportControls().sendCustomAction(CUSTOM_ACTION_THUMBS_UP,customActionExtras);
 		}

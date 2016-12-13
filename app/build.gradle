@@ -28,8 +28,8 @@ android {
         applicationId "com.stc.radio.player"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 8
-        versionName "2.4"
+        versionCode 12
+        versionName "2.12"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         jackOptions {

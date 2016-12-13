@@ -58,6 +58,8 @@
             android:layout_weight="1"
             android:contentDescription="@string/currently_playing_song"
             android:ellipsize="end"
+            android:paddingStart="4dp"
+
             android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary"

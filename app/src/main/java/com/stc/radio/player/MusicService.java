@@ -46,6 +46,7 @@ import com.stc.radio.player.utils.LogHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.TimerTask;
 
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
@@ -433,5 +434,12 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
              }
          }
      }
+	 public class SleepTimerTask extends TimerTask {
+
+		 @Override
+		 public void run() {
+
+		 }
+	 }
 
  }
