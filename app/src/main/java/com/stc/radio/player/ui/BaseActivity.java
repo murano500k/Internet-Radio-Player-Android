@@ -65,6 +65,8 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
         // this can be done, for example by sharing the session token directly.
         mMediaBrowser = new MediaBrowserCompat(this,
             new ComponentName(this, MusicService.class), mConnectionCallback, null);
+
+	    //MusicService service=(MusicService) mMediaBrowser.getServiceComponent();
     }
 
     @Override
@@ -89,6 +91,7 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
         LogHelper.d(TAG, "Activity onStop");
         if (getSupportMediaController() != null) {
             getSupportMediaController().unregisterCallback(mMediaControllerCallback);
+
         }
         mMediaBrowser.disconnect();
     }
@@ -146,7 +149,10 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
 
     private void connectToSession(MediaSessionCompat.Token token) throws RemoteException {
         MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
-        setSupportMediaController(mediaController);
+
+
+	    // TODO: 12/27/16
+	    setSupportMediaController(mediaController);
         mediaController.registerCallback(mMediaControllerCallback);
 
         if (shouldShowControls()) {

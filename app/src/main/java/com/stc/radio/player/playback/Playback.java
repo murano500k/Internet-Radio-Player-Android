@@ -15,6 +15,7 @@
  */
 package com.stc.radio.player.playback;
 
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.stc.radio.player.MusicService;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -134,4 +135,6 @@ public interface Playback {
      * @param callback to be called
      */
     void setCallback(Callback callback);
+
+	void setPlayerView(SimpleExoPlayerView playerView);
 }

@@ -111,10 +111,7 @@ public class PlaybackManager implements Playback.Callback {
      */
     public void updatePlaybackState(String error) {
         LogHelper.d(TAG, "updatePlaybackState, playback state=" + mPlayback.getState());
-        long position = PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN;
-        if (mPlayback != null && mPlayback.isConnected()) {
-            position = mPlayback.getCurrentStreamPosition();
-        }
+
 
         //noinspection ResourceType
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder()
@@ -131,7 +128,7 @@ public class PlaybackManager implements Playback.Callback {
             state = PlaybackStateCompat.STATE_ERROR;
         }
         //noinspection ResourceType
-        stateBuilder.setState(state, position, 1.0f, SystemClock.elapsedRealtime());
+        stateBuilder.setState(state, -1, 1.0f, SystemClock.elapsedRealtime());
 
         // Set the activeQueueItemId if the current index is valid.
         MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
@@ -218,12 +215,7 @@ public class PlaybackManager implements Playback.Callback {
     }
 
 
-    /**
-     * Switch to a different Playback instance, maintaining all playback state, if possible.
-     *
-     * @param playback switch to this playback
-     */
-    public void switchToPlayback(Playback playback, boolean resumePlaying) {
+   /* public void switchToPlayback(Playback playback, boolean resumePlaying) {
         if (playback == null) {
             throw new IllegalArgumentException("Playback cannot be null");
         }
@@ -259,7 +251,7 @@ public class PlaybackManager implements Playback.Callback {
             default:
                 LogHelper.d(TAG, "Default called. Old state is ", oldState);
         }
-    }
+    }*/
 
 
     private class MediaSessionCallback extends MediaSessionCompat.Callback {

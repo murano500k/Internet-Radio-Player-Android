@@ -206,7 +206,7 @@ public class MusicProvider {
 
     public boolean isFavorite(String musicId) {
         if(mFavoriteTracks!=null) {
-            Log.w(TAG, "getFavNum: "+ mFavoriteTracks.size());
+            //Log.w(TAG, "getFavNum: "+ mFavoriteTracks.size());
             return mFavoriteTracks.contains(musicId);
         }else return false;
 

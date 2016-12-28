@@ -17,38 +17,38 @@
 package com.stc.radio.player;
 
  import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.RemoteException;
-import android.support.annotation.NonNull;
-import android.support.v4.media.MediaBrowserCompat.MediaItem;
-import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
-import android.support.v7.media.MediaRouter;
+ import android.content.BroadcastReceiver;
+ import android.content.Context;
+ import android.content.Intent;
+ import android.content.IntentFilter;
+ import android.content.pm.PackageInfo;
+ import android.content.pm.PackageManager;
+ import android.os.Bundle;
+ import android.os.Handler;
+ import android.os.Message;
+ import android.os.RemoteException;
+ import android.support.annotation.NonNull;
+ import android.support.v4.media.MediaBrowserCompat.MediaItem;
+ import android.support.v4.media.MediaBrowserServiceCompat;
+ import android.support.v4.media.MediaMetadataCompat;
+ import android.support.v4.media.session.MediaButtonReceiver;
+ import android.support.v4.media.session.MediaSessionCompat;
+ import android.support.v4.media.session.PlaybackStateCompat;
+ import android.support.v7.media.MediaRouter;
 
-import com.stc.radio.player.model.MusicProvider;
-import com.stc.radio.player.playback.MyLocalPlayback;
-import com.stc.radio.player.playback.PlaybackManager;
-import com.stc.radio.player.playback.QueueManager;
-import com.stc.radio.player.ui.MusicPlayerActivity;
-import com.stc.radio.player.utils.CarHelper;
-import com.stc.radio.player.utils.LogHelper;
+ import com.stc.radio.player.model.MusicProvider;
+ import com.stc.radio.player.playback.ExoPlayback;
+ import com.stc.radio.player.playback.PlaybackManager;
+ import com.stc.radio.player.playback.QueueManager;
+ import com.stc.radio.player.ui.MusicPlayerActivity;
+ import com.stc.radio.player.utils.CarHelper;
+ import com.stc.radio.player.utils.LogHelper;
 
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.TimerTask;
+ import java.lang.ref.WeakReference;
+ import java.util.List;
+ import java.util.TimerTask;
 
-import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
+ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
 
@@ -226,8 +226,8 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
 
-         MyLocalPlayback playback = new MyLocalPlayback(this, mMusicProvider);
-         //LocalPlayback playback = new LocalPlayback(this, mMusicProvider);
+         //MyLocalPlayback playback = new MyLocalPlayback(this, mMusicProvider);
+	     ExoPlayback playback = new ExoPlayback(this, mMusicProvider);
          mPlaybackManager = new PlaybackManager(this, getResources(), mMusicProvider, queueManager,
                  playback);
 

@@ -298,6 +298,7 @@ public class PlaybackControlsFragment extends Fragment {
 				enablePlay = true;
 				break;
 			case PlaybackStateCompat.STATE_ERROR:
+				enablePlay = true;
 				LogHelper.e(TAG, "error playbackstate: ", state.getErrorMessage());
 				Toast.makeText(getActivity(), state.getErrorMessage(), Toast.LENGTH_LONG).show();
 				break;

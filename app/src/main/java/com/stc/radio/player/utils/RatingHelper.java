@@ -64,7 +64,7 @@ public class RatingHelper {
        // Timber.w("%s incrementPlayedTimes(%d)", mediaId,newPlayedTimes);
 
         if(getMaxPlayedTimes()<newPlayedTimes) {
-            Timber.w("setMaxPlayedTimes(%d)",newPlayedTimes);
+           // Timber.w("setMaxPlayedTimes(%d)",newPlayedTimes);
             setMaxPlayedTimes(newPlayedTimes);
         }
 

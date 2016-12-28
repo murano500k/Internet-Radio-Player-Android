@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.session.PlaybackState;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.v4.media.MediaMetadataCompat;
@@ -15,6 +16,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.spoledge.aacdecoder.MultiPlayer;
 import com.spoledge.aacdecoder.PlayerCallback;
 import com.stc.radio.player.MusicService;
@@ -34,9 +36,9 @@ import timber.log.Timber;
 import static junit.framework.Assert.assertNotNull;
 
 
-public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChangeListener, PlayerCallback {
+public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChangeListener, PlayerCallback {
 
-	private static final String TAG = LogHelper.makeLogTag(MyLocalPlayback.class);
+	private static final String TAG = LogHelper.makeLogTag(AacOldPlayback.class);
 
 	// The volume we set the media player to when we lose audio focus, but are
 	// allowed to reduce the volume instead of stopping playback.
@@ -71,6 +73,8 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 
 	private final IntentFilter mAudioNoisyIntentFilter =
 			new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+	private AudioTrack mAudioTrack;
+
 
 	private final BroadcastReceiver mAudioNoisyReceiver = new BroadcastReceiver() {
 		@Override
@@ -87,7 +91,7 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		}
 	};
 
-	public MyLocalPlayback(Context context, MusicProvider musicProvider) {
+	public AacOldPlayback(Context context, MusicProvider musicProvider) {
 		this.mContext = context;
 		this.mMusicProvider = musicProvider;
 		this.mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -119,7 +123,7 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 
 	@Override
 	public boolean isPlaying() {
-		return mPlayOnFocusGain || (mMediaPlayer != null && isPlaying);
+		return (mAudioTrack!=null && mAudioTrack.getPlayState()==PlaybackState.STATE_PLAYING);
 	}
 
 	@Override
@@ -153,11 +157,11 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 
 			//noinspection ResourceType
 		mCurrentSource = track.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
-			Timber.w("NOW WILL PLAY %s", mCurrentSource);
 		try {
 			if(isPlaying){
 				mState = PlaybackStateCompat.STATE_SKIPPING_TO_NEXT;
-				mMediaPlayer.stop();
+
+				flush();
 			}else {
 				createMediaPlayerIfNeeded();
 				mState = PlaybackStateCompat.STATE_PLAYING;
@@ -175,10 +179,10 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 			}
 		}
 
-
 	@Override
 	public void stop(boolean notifyListeners) {
 		mState = PlaybackStateCompat.STATE_STOPPED;
+		flush();
 		if (notifyListeners && mCallback != null) {
 			mCallback.onPlaybackStatusChanged(mState);
 		}
@@ -195,10 +199,12 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 
 		if (mState == PlaybackStateCompat.STATE_PLAYING) {
 			// Pause media player and cancel the 'foreground service' state.
-			if (mMediaPlayer != null && isPlaying) {
+			/*if (mMediaPlayer != null && isPlaying) {
 				mMediaPlayer.stop();
 				mMediaPlayer=null;
-			}
+			}*/
+			flush();
+
 			// while paused, retain the MediaPlayer but give up audio focus
 			relaxResources(true);
 			giveUpAudioFocus();
@@ -218,6 +224,11 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 	@Override
 	public void setCallback(Callback callback) {
 		this.mCallback = callback;
+	}
+
+	@Override
+	public void setPlayerView(SimpleExoPlayerView playerView) {
+
 	}
 
 	@Override
@@ -261,16 +272,6 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		}
 	}
 
-	/**
-	 * Reconfigures MediaPlayer according to audio focus settings and
-	 * starts/restarts it. This method starts/restarts the MediaPlayer
-	 * respecting the current audio focus state. So if we have focus, it will
-	 * play normally; if we don't have focus, it will either leave the
-	 * MediaPlayer paused or set it to a low volume, depending on what is
-	 * allowed by the current focus settings. This method assumes mPlayer !=
-	 * null, so if you are calling it, you have to do so from a context where
-	 * you are sure this is the case.
-	 */
 	private void configMediaPlayerState() {
 		Timber.w("check");
 
@@ -283,6 +284,7 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		} else if (mPlayOnFocusGain) {
 				if (mMediaPlayer != null && !isPlaying) {
 					mState = PlaybackStateCompat.STATE_PLAYING;
+					flush();
 					createMediaPlayerIfNeeded();
 					//tryToGetAudioFocus();
 					if(mCurrentSource!=null)tryToPlayAsync(mCurrentSource);
@@ -322,9 +324,26 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 
 
 
+	public void flush(){
+		if(mAudioTrack!=null && mAudioTrack.getPlayState()== PlaybackState.STATE_PLAYING) {
+			mAudioTrack.pause();
+			mAudioTrack.flush();
+			//mAudioTrack=null;
+			Timber.w("flush audiotrack");
+		}else if(mMediaPlayer!=null ){
+			mMediaPlayer.stop();
+			//mMediaPlayer=null;
+			Timber.w("flush mediaplayer");
+		}else {
+			Timber.e("flush false");
+		}
+	}
+
 	@Override
 	public void playerAudioTrackCreated(AudioTrack audiotrack) {
+		Timber.w("playerAudioTrackCreated");
 		audioSessionId = audiotrack.getAudioSessionId();
+		mAudioTrack=audiotrack;
 	}
 
 	@Override
@@ -332,7 +351,11 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		Timber.w("callback");
 		isPlaying=false;
 		if(mState==PlaybackStateCompat.STATE_SKIPPING_TO_NEXT && mCurrentSource!=null) tryToPlayAsync(mCurrentSource);
-		mState=PlaybackStateCompat.STATE_PAUSED;
+		else if(mState==PlaybackStateCompat.STATE_PLAYING){
+
+		}
+		mAudioTrack=null;
+		mMediaPlayer=null;
 
 		if (mCallback != null) {
 			mCallback.onPlaybackStatusChanged(mState);
@@ -356,8 +379,13 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 	public void playerException(Throwable throwable) {
 		Timber.e(throwable.getMessage(), "TEST callback playerException");
 		isPlaying=false;
-
-		//mState = PlaybackStateCompat.STATE_PAUSED;
+		mState = PlaybackStateCompat.STATE_PAUSED;
+		if(throwable.getMessage().contains("404")){
+			relaxResources(true);
+			if (mCallback != null) {
+				mCallback.onError("MediaPlayer error " + throwable.getMessage() + " (" + throwable.toString() + ")");
+			}
+		}
 		//configMediaPlayerState();
 		/*if (mCallback != null) {
 			mCallback.onError("MediaPlayer error " + throwable.getMessage() + " (" + throwable.toString() + ")");
@@ -380,14 +408,15 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		String s="";
 		boolean post=false;
 		Metadata metadata;
-		if((s1!=null && s1.equals("StreamTitle")) || (s2!=null && s2.contains("kbps"))) {
+		if((s1!=null && s1.equals("StreamTitle"))) {
 			a = getArtistFromString(s2);
 			s = getTrackFromString(s2);
+			EventBus.getDefault().post(new MyMetadata(a+"  "+ s));
 		}else if(s1!=null && s1.contains("StreamTitle")) {
 			a = s1.replace("StreamTitle=", "");
 			s = "";
+			EventBus.getDefault().post(new MyMetadata(a+"  "+ s));
 		}
-		EventBus.getDefault().post(new MyMetadata(a+"  "+ s));
 	}
 
 	static String getArtistFromString(String data) {
@@ -438,6 +467,13 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 	}
 	private void createMediaPlayerIfNeeded() {
 		LogHelper.d(TAG, "createMediaPlayerIfNeeded. needed? ", (mMediaPlayer==null));
+
+		if (mMediaPlayer == null) {
+			mMediaPlayer = new MultiPlayer(this);
+			//mMediaPlayer.setResponseCodeCheckEnabled(true);
+		} else {
+			if(isPlaying())	flush();
+		}
 		try {
 			java.net.URL.setURLStreamHandlerFactory( protocol -> {
 				//Timber.w("Asking for stream handler for protocol: '%s'", protocol);
@@ -448,16 +484,11 @@ public class MyLocalPlayback implements Playback, AudioManager.OnAudioFocusChang
 		} catch (Throwable t) {
 			Log.w("LOG", "Cannot set the ICY URLStreamHandler - maybe already set ? - " + t);
 		}
-		if (mMediaPlayer == null) {
-			mMediaPlayer = new MultiPlayer(this);
-			//mMediaPlayer.setResponseCodeCheckEnabled(true);
-		} else {
-			mMediaPlayer.stop();
-		}
+
 	}
 	private void relaxResources(boolean releaseMediaPlayer) {
 		LogHelper.d(TAG, "relaxResources. releaseMediaPlayer=", releaseMediaPlayer);
-
+		//flush();
 		// stop and release the Media Player, if it's available
 		if (releaseMediaPlayer && mMediaPlayer != null) {
 			mMediaPlayer = null;
