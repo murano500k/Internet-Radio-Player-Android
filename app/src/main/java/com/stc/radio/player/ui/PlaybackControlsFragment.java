@@ -42,10 +42,6 @@ import com.stc.radio.player.model.MyMetadata;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.OnSwipeListener;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import timber.log.Timber;
 
 import static com.stc.radio.player.playback.PlaybackManager.CUSTOM_ACTION_THUMBS_UP;
@@ -72,7 +68,7 @@ public class PlaybackControlsFragment extends Fragment {
 	private int status;
 	private Station station;
 	//private FrameLayout pacmanIndicator;
-	EventBus bus=EventBus.getDefault();
+	//EventBus bus=EventBus.getDefault();
 	// Receive callbacks from the MediaController. Here we update our state such as which queue
 	// is being shown, the current title and description and the PlaybackState.
 	private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
@@ -94,7 +90,6 @@ public class PlaybackControlsFragment extends Fragment {
 		}
 	};
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onMyMetadataUpdate(MyMetadata myMetadata){
 		CharSequence s = "" + myMetadata;
 		if(mArtist!=null) mArtist.setText(s);
@@ -179,7 +174,7 @@ public class PlaybackControlsFragment extends Fragment {
 		LogHelper.d(TAG, "fragment.onStart");
 		MediaControllerCompat controller = ((FragmentActivity) getActivity())
 				.getSupportMediaController();
-		if(!bus.isRegistered(this))bus.register(this);
+		//if(!bus.isRegistered(this))bus.register(this);
 
 		if (controller != null) {
 			onConnected();
@@ -195,7 +190,7 @@ public class PlaybackControlsFragment extends Fragment {
 		if (controller != null) {
 			controller.unregisterCallback(mCallback);
 		}
-		if(bus.isRegistered(this))bus.unregister(this);
+		//if(bus.isRegistered(this))bus.unregister(this);
 
 	}
 
@@ -213,7 +208,7 @@ public class PlaybackControlsFragment extends Fragment {
 			onPlaybackStateChanged(controller.getPlaybackState());
 			controller.registerCallback(mCallback);
 		}
-		if(!bus.isRegistered(this))bus.register(this);
+		//if(!bus.isRegistered(this))bus.register(this);
 	}
 
 	private void onMetadataChanged(MediaMetadataCompat metadata) {

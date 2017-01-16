@@ -1,3 +1,4 @@
+/*
 
 package com.stc.radio.player.playback;
 
@@ -199,10 +200,12 @@ public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChange
 
 		if (mState == PlaybackStateCompat.STATE_PLAYING) {
 			// Pause media player and cancel the 'foreground service' state.
-			/*if (mMediaPlayer != null && isPlaying) {
+			*/
+/*if (mMediaPlayer != null && isPlaying) {
 				mMediaPlayer.stop();
 				mMediaPlayer=null;
-			}*/
+			}*//*
+
 			flush();
 
 			// while paused, retain the MediaPlayer but give up audio focus
@@ -246,9 +249,11 @@ public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChange
 		return mCurrentMediaId;
 	}
 
-	/**
+	*/
+/**
 	 * Try to get the system audio focus.
-	 */
+	 *//*
+
 	private void tryToGetAudioFocus() {
 		LogHelper.d(TAG, "tryToGetAudioFocus");
 		if (mAudioFocus != AUDIO_FOCUSED) {
@@ -260,9 +265,11 @@ public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChange
 		}
 	}
 
-	/**
+	*/
+/**
 	 * Give up the audio focus.
-	 */
+	 *//*
+
 	private void giveUpAudioFocus() {
 		LogHelper.d(TAG, "giveUpAudioFocus");
 		if (mAudioFocus == AUDIO_FOCUSED) {
@@ -296,10 +303,12 @@ public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChange
 		}
 	}
 
-	/**
+	*/
+/**
 	 * Called by AudioManager on audio focus changes.
 	 * Implementation of {@link AudioManager.OnAudioFocusChangeListener}
-	 */
+	 *//*
+
 	@Override
 	public void onAudioFocusChange(int focusChange) {
 		LogHelper.d(TAG, "onAudioFocusChange. focusChange=", focusChange);
@@ -387,18 +396,22 @@ public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChange
 			}
 		}
 		//configMediaPlayerState();
-		/*if (mCallback != null) {
+		*/
+/*if (mCallback != null) {
 			mCallback.onError("MediaPlayer error " + throwable.getMessage() + " (" + throwable.toString() + ")");
-		}*/
+		}*//*
+
 	}
 
 	@Override
 	public void playerPCMFeedBuffer(boolean intermediate, int audioBufferSizeMs, int audioBufferCapacityMs){
-		/*if(mState!=PlaybackStateCompat.STATE_PLAYING) {
+		*/
+/*if(mState!=PlaybackStateCompat.STATE_PLAYING) {
 			mState = PlaybackStateCompat.STATE_PLAYING;
 			configMediaPlayerState();
 		}
-*/
+*//*
+
 		//bus.post(new BufferUpdate(audioBufferSizeMs, audioBufferCapacityMs, nowPlaying.isPlaying()));
 	}
 
@@ -447,7 +460,7 @@ public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChange
 
 
 	public boolean checkSuffix(String streamUrl) {
-		String SUFFIX_PLS = ".name";
+		String SUFFIX_PLS = ".pls";
 		String SUFFIX_RAM = ".ram";
 		String SUFFIX_WAX = ".wax";
 		return streamUrl.contains(SUFFIX_PLS) ||
@@ -515,4 +528,4 @@ public class AacOldPlayback implements Playback, AudioManager.OnAudioFocusChange
 	}
 
 
-}
+}*/

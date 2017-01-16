@@ -6,3 +6,13 @@
 .DS_Store
 /build
 /captures
+app/.idea/.name
+app/.idea/vcs.xml
+app/gradle/wrapper/gradle-wrapper.jar
+app/gradlew
+app/gradlew.bat
+app/hs_err_pid6666.log
+app/src/androidTest/java/com/stc/radio/player/StationTest.java
+app/src/main/java/com/stc/radio/player/playback/EventLogger.java
+app/src/test/
+gen/

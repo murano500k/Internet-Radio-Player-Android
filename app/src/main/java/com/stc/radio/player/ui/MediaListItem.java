@@ -30,8 +30,6 @@ import com.stc.radio.player.utils.PabloPicasso;
 
 import java.util.List;
 
-import pl.bclogic.pulsator4droid.library.PulsatorLayout;
-
 
 public class MediaListItem
 		extends AbstractItem<MediaListItem, MediaListItem.ViewHolder>
@@ -317,7 +315,6 @@ public class MediaListItem
 		GridItemImageView icon;
 
 		LikeButton favButton;
-		PulsatorLayout pulsator;
 
 
 		public ViewHolder(View view) {

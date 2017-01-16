@@ -214,7 +214,7 @@ public class ListFragment extends Fragment implements ItemAdapter.ItemFilterList
 		@Override
 		public boolean onClick(View v, IAdapter<StationListItem> adapter, StationListItem item, int position) {
 			Timber.v("item %s",item.getName());
-			item.getViewHolder(v).pulsator.start();
+
 
 			/*adapter.getFastAdapter().deselect();
 			adapter.getFastAdapter().select(position,false);

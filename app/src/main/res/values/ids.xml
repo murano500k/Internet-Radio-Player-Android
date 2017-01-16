@@ -3,8 +3,6 @@
     <item name="fastadapter_sample_item_id" type="id">12345</item>
     <item name="mediaitem_id" type="id">17256</item>
 
-    <item name="fastadapter_generic_icon_item_id" type="id">6780</item>
-    <item name="fastadapter_icon_item_id" type="id">55569</item>
     <item name="tag_mediaitem_state_cache" type="id"/>
 
 </resources>
