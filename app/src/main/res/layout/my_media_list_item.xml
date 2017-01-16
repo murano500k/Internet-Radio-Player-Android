@@ -12,17 +12,9 @@
 
     android:background="@drawable/fullscreen_bg_gradient">
 
-    <pl.bclogic.pulsator4droid.library.PulsatorLayout
-        android:id="@+id/pulsator"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        app:pulse_color="@color/colorAccent"
-        app:pulse_count="1"
-        app:pulse_duration="1"
-        app:pulse_interpolator="Accelerate"
-        app:pulse_repeat="1"
-        app:pulse_startFromScratch="false">
+        android:layout_height="match_parent" >
 
         <com.like.LikeButton
             android:id="@+id/fav_button"
@@ -89,7 +81,7 @@
         </RelativeLayout>
 
 
-    </pl.bclogic.pulsator4droid.library.PulsatorLayout>
+    </RelativeLayout>
 
 </android.support.v7.widget.CardView>
 

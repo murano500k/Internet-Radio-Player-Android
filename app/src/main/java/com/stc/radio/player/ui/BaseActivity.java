@@ -130,17 +130,12 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
      *
      * @return true if the MediaSession's state requires playback controls to be visible.
      */
-    protected boolean shouldShowControls() {
-        MediaControllerCompat mediaController = getSupportMediaController();
-        if (mediaController == null ||
-            mediaController.getMetadata() == null ||
-            mediaController.getPlaybackState() == null) {
-            return false;
-        }
-        switch (mediaController.getPlaybackState().getState()) {
+    protected boolean shouldShowControls(PlaybackStateCompat state) {
+        switch (state.getState()) {
             case PlaybackStateCompat.STATE_ERROR:
             case PlaybackStateCompat.STATE_NONE:
             case PlaybackStateCompat.STATE_STOPPED:
+            //case PlaybackStateCompat.STATE_PAUSED:
                 return false;
             default:
                 return true;
@@ -150,12 +145,10 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
     private void connectToSession(MediaSessionCompat.Token token) throws RemoteException {
         MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
 
-
-	    // TODO: 12/27/16
 	    setSupportMediaController(mediaController);
         mediaController.registerCallback(mMediaControllerCallback);
 
-        if (shouldShowControls()) {
+        if (shouldShowControls(mediaController.getPlaybackState())) {
             showPlaybackControls();
         } else {
             LogHelper.d(TAG, "connectionCallback.onConnected: " +
@@ -175,7 +168,7 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
         new MediaControllerCompat.Callback() {
             @Override
             public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
-                if (shouldShowControls()) {
+                if (shouldShowControls(state)) {
                     showPlaybackControls();
                 } else {
                     LogHelper.d(TAG, "mediaControllerCallback.onPlaybackStateChanged: " +
@@ -186,13 +179,13 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
 
             @Override
             public void onMetadataChanged(MediaMetadataCompat metadata) {
-                if (shouldShowControls()) {
+                /*if (shouldShowControls(getSupportMediaController().getPlaybackState())) {
                     showPlaybackControls();
                 } else {
                     LogHelper.d(TAG, "mediaControllerCallback.onMetadataChanged: " +
                         "hiding controls because metadata is null");
                     hidePlaybackControls();
-                }
+                }*/
             }
         };
 

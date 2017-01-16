@@ -10,18 +10,11 @@
     android:clickable="true"
     android:elevation="100dp">
 
-    <pl.bclogic.pulsator4droid.library.PulsatorLayout
-        android:id="@+id/pulsator"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
 
-        android:background="@color/colorPrimary"
-        app:pulse_color="@color/colorAccent"
-        app:pulse_count="1"
-        app:pulse_duration="1"
-        app:pulse_interpolator="Accelerate"
-        app:pulse_repeat="1"
-        app:pulse_startFromScratch="false">
+        android:background="@color/colorPrimary">
 
         <com.stc.radio.player.GridItemImageView
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -66,50 +59,6 @@
         </RelativeLayout>
 
 
-    </pl.bclogic.pulsator4droid.library.PulsatorLayout>
+    </RelativeLayout>
 
 </android.support.v7.widget.CardView>
-    <!--<android.support.v7.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:clickable="true"
-    android:background="@color/cardview_dark_background"
-    android:layout_height="wrap_content"
-    android:layout_centerVertical="false"
-    android:layout_centerHorizontal="false"
-    android:layout_centerInParent="false"
-    android:layout_margin="@dimen/activity_vertical_margin">
-
-    <ImageView
-        android:id="@+id/icon_list_item"
-        android:clickable="false"
-        android:scaleType="center"
-        android:src="@drawable/ic_checked"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentStart="false"
-        android:adjustViewBounds="true"
-        android:cropToPadding="true"
-        android:layout_width="100dp"
-        android:layout_height="100dp"/>
-
-    <com.like.LikeButton
-        app:icon_type="star"
-        app:icon_size="16dp"
-        android:id="@+id/fav_button"
-        android:layout_gravity="center_vertical|end"
-        app:is_enabled="true"
-        android:layout_width="48dp"
-        android:layout_height="48dp"/>
-
-    <TextView
-        android:id="@+id/textName"
-        android:layout_width="match_parent"
-        android:textColor="@color/md_white_1000"
-        android:textSize="@dimen/station_text_size"
-        android:hint="station name"
-
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/activity_vertical_margin"/>
-
-</android.support.v7.widget.CardView>-->

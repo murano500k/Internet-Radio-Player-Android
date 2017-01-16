@@ -23,8 +23,6 @@ import com.stc.radio.player.utils.PabloPicasso;
 
 import java.util.List;
 
-import pl.bclogic.pulsator4droid.library.PulsatorLayout;
-
 import static com.activeandroid.Cache.getContext;
 
 public class StationListItem
@@ -223,7 +221,6 @@ public class StationListItem
 		GridItemImageView icon;
 
 		LikeButton favButton;
-		PulsatorLayout pulsator;
 
 
 
@@ -244,7 +241,7 @@ public class StationListItem
 			name=(TextView)view.findViewById(R.id.textName);
 			favButton=(LikeButton) view.findViewById(R.id.fav_button);
 			icon=(GridItemImageView) view.findViewById(R.id.icon_list_item);
-			pulsator = (PulsatorLayout) view.findViewById(R.id.pulsator);
+
 
 		}
 

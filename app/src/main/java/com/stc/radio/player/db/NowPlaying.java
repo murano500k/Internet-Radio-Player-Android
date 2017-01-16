@@ -7,8 +7,6 @@ import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
 import com.stc.radio.player.utils.SettingsProvider;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.List;
 
 /**
@@ -41,7 +39,7 @@ public class NowPlaying extends Model {
 
 
 
-	EventBus bus = EventBus.getDefault();
+	//EventBus bus = EventBus.getDefault();
 
 	public static final int STATUS_PLAYING = 1;
 	public static final int STATUS_IDLE = 0;
@@ -171,7 +169,6 @@ public class NowPlaying extends Model {
 			this.artist = metadata.getArtist();
 		}
 		this.save();
-		if(post) bus.post(this);
 	}
 
 	public void setMetadata(Metadata metadata) {
@@ -186,7 +183,6 @@ public class NowPlaying extends Model {
 			this.artist = metadata.getArtist();
 		}
 		this.save();
-		if(post) bus.post(this);
 	}
 
 	public void setStation(Station s) {
@@ -195,35 +191,24 @@ public class NowPlaying extends Model {
 		else this.stationKey = s.getKey();
 		station=s;
 		this.save();
-		if(post) {
-			bus.post(this);
-		}
 	}
 	public void setStation(Station s, boolean fireEvent) {
 		boolean post=fireEvent;
 		this.stationKey = s.getKey();
 		station=s;
 		this.save();
-		if(post) {
-			bus.post(this);
-		}
 	}
 
 	public void setStatus(int status, boolean fireEvent) {
 		boolean post=fireEvent;
 		this.status = status;
 		this.save();
-		if(post) {
-
-			bus.post(this);
-		}
 	}
 	public void setShuffle(boolean shuffle) {
 		boolean post=false;
 		if(this.shuffle != shuffle) post=true;
 		this.shuffle = shuffle;
 		this.save();
-		if(post) bus.post(this);
 	}
 
 	public void setStatus(int status) {
@@ -231,9 +216,6 @@ public class NowPlaying extends Model {
 		if(this.status != status) post=true;
 		this.status = status;
 		this.save();
-		if(post) {
-			bus.post(this);
-		}
 	}
 
 	public List<Station>getStations(){
@@ -256,7 +238,6 @@ public class NowPlaying extends Model {
 
 	public void setStations(List<Station> stations, boolean fireEvent) {
 		this.list=stations;
-		if(fireEvent) bus.post(this);
 	}
 
 	public String getStationKey() {
