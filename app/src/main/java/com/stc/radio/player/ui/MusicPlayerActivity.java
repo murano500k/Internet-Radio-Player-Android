@@ -28,13 +28,17 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
+
+import timber.log.Timber;
 
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
@@ -49,11 +53,11 @@ public class MusicPlayerActivity extends BaseActivity
         implements MediaBrowserFragment.MediaFragmentListener {
 
     private static final String TAG = LogHelper.makeLogTag(MusicPlayerActivity.class);
-    private static final String SAVED_MEDIA_ID="com.example.android.uamp.MEDIA_ID";
+    private static final String SAVED_MEDIA_ID="com.stc.radio.player.MEDIA_ID";
     private static final String FRAGMENT_TAG = "uamp_list_container";
 
     public static final String EXTRA_START_FULLSCREEN =
-            "com.example.android.uamp.EXTRA_START_FULLSCREEN";
+            "com.stc.radio.player.EXTRA_START_FULLSCREEN";
 
     /**
      * Optionally used with {@link #EXTRA_START_FULLSCREEN} to carry a MediaDescription to
@@ -61,7 +65,7 @@ public class MusicPlayerActivity extends BaseActivity
      * while the {@link android.support.v4.media.session.MediaControllerCompat} is connecting.
      */
     public static final String EXTRA_CURRENT_MEDIA_DESCRIPTION =
-        "com.example.android.uamp.CURRENT_MEDIA_DESCRIPTION";
+        "com.stc.radio.player.CURRENT_MEDIA_DESCRIPTION";
 
 
     private Bundle mVoiceSearchParams;
@@ -165,36 +169,62 @@ public class MusicPlayerActivity extends BaseActivity
     }
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		//new Intent(this, MusicPlayerActivity.class);
 		getMenuInflater().inflate(R.menu.search, menu);
-
 		menu.findItem(R.id.search).setIcon(getDrawable(android.R.drawable.ic_menu_search));
-
 		searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+			@Override
+			public boolean onClose() {
+				Timber.w("");
+				return false;
+			}
+		});
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
 			@Override
 			public boolean onQueryTextSubmit(String query) {
+				Log.d(TAG, "onQueryTextSubmit: ");
 				Bundle extras=new Bundle();
 				extras.putString(SearchManager.QUERY,query);
+				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+				getBrowseFragment().onScrollToItem(query);
 				getSupportMediaController().getTransportControls()
 						.playFromSearch(query, null);
-				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-
-				getBrowseFragment().onScrollToItem(query);
 				return true;
 			}
 			@Override
 			public boolean onQueryTextChange(String s) {
-				if(s.length()>1)getBrowseFragment().onScrollToItem(s);
-				return true;
+				Log.d(TAG, "onQueryTextChange: "+s);
+				if(s.length()>1){
+					getBrowseFragment().onScrollToItem(s);
+					return true;
+				}else {
+					KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+					menu.findItem(R.id.search).collapseActionView();
+					return false;
+				}
+			}
+		});
+		searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View view, boolean b) {
+				Log.d(TAG, "onFocusChange: "+b);
+			}
+		});
+		searchView.setOnSearchClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+
+				Log.d(TAG, "onClick: ");
 			}
 		});
 		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
 			@Override
 			public boolean onClose() {
+				Log.d(TAG, "onClose: ");
 				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-				return false;
+
+				menu.findItem(R.id.search).collapseActionView();
+				return true;
 			}
 		});
 		return true;

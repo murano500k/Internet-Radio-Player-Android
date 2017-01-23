@@ -31,13 +31,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.like.LikeButton;
 import com.stc.radio.player.AlbumArtCache;
 import com.stc.radio.player.MusicService;
 import com.stc.radio.player.R;
-import com.stc.radio.player.db.Station;
 import com.stc.radio.player.model.MyMetadata;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.OnSwipeListener;
@@ -65,12 +63,6 @@ public class PlaybackControlsFragment extends Fragment {
 	private View rootView;
 
 	String artUrl;
-	private int status;
-	private Station station;
-	//private FrameLayout pacmanIndicator;
-	//EventBus bus=EventBus.getDefault();
-	// Receive callbacks from the MediaController. Here we update our state such as which queue
-	// is being shown, the current title and description and the PlaybackState.
 	private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
 		@Override
 		public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
@@ -99,21 +91,16 @@ public class PlaybackControlsFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		setRetainInstance(true);
-
-		//if(!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this);
 		rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
 		mPlayPause = (ImageButton) rootView.findViewById(R.id.play_pause);
 		mPlayPause.setEnabled(true);
 		mPlayPrev = (ImageButton) rootView.findViewById(R.id.play_prev);
-		//pacmanIndicator.setVisibility(View.GONE);
 		mAlbumArt = (ImageView) rootView.findViewById(R.id.album_art);
 
 		mPlayNext = (ImageButton) rootView.findViewById(R.id.play_next);
 		mPlayPause.setOnClickListener(mButtonListener);
 		mPlayNext.setEnabled(true);
 		mPlayPrev.setEnabled(true);
-		//pacmanIndicator.setOnClickListener(mButtonListener);
-		//mAlbumArt.setOnClickListener(	v -> onButtonClicked(0));
 		mPlayNext.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -126,45 +113,16 @@ public class PlaybackControlsFragment extends Fragment {
 				prevMedia();
 			}
 		});
-
 		favButton = (LikeButton) rootView.findViewById(R.id.fav_button_control);
-
 		mSong = (TextView) rootView.findViewById(R.id.title);
 		mArtist = (TextView) rootView.findViewById(R.id.artist);
 		mStation = (TextView) rootView.findViewById(R.id.station);
-		//rootView.setOnTouchListener(getOnSwipeListener(rootView));
 		favButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				customAction();
 			}
 		});
-
-		/*favButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				favButton.setLiked(RatingHelper.updateFavorite(musicId));
-				Timber.w("favButton.isActivated %b ",favButton.isActivated());
-			}
-		});*/
-
-	    /*
-        rootView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), FullScreenPlayerActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                MediaControllerCompat controller = ((FragmentActivity) getActivity())
-                        .getSupportMediaController();
-                MediaMetadataCompat metadata = controller.getMetadata();
-                if (metadata != null) {
-                    intent.putExtra(MusicPlayerActivity.EXTRA_CURRENT_MEDIA_DESCRIPTION,
-                        metadata.getDescription());
-                }
-                startActivity(intent);
-            }
-        });
-        */
 		return rootView;
 	}
 
@@ -174,8 +132,6 @@ public class PlaybackControlsFragment extends Fragment {
 		LogHelper.d(TAG, "fragment.onStart");
 		MediaControllerCompat controller = ((FragmentActivity) getActivity())
 				.getSupportMediaController();
-		//if(!bus.isRegistered(this))bus.register(this);
-
 		if (controller != null) {
 			onConnected();
 		}
@@ -190,8 +146,6 @@ public class PlaybackControlsFragment extends Fragment {
 		if (controller != null) {
 			controller.unregisterCallback(mCallback);
 		}
-		//if(bus.isRegistered(this))bus.unregister(this);
-
 	}
 
 	@Override
@@ -208,7 +162,6 @@ public class PlaybackControlsFragment extends Fragment {
 			onPlaybackStateChanged(controller.getPlaybackState());
 			controller.registerCallback(mCallback);
 		}
-		//if(!bus.isRegistered(this))bus.register(this);
 	}
 
 	private void onMetadataChanged(MediaMetadataCompat metadata) {
@@ -221,15 +174,6 @@ public class PlaybackControlsFragment extends Fragment {
 		if (metadata == null  || metadata.getDescription()==null) {
 			return;
 		}
-/*
-		this.musicId = MediaIDHelper.extractMusicIDFromMediaID(metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID));
-		if(musicId!=null) this.favButton.setLiked(
-				RatingHelper.isFavorite(musicId));
-		else {
-			Timber.e("failed to get Fav state");
-			this.favButton.setLiked(false);
-		}*/
-
 		if(metadata.getDescription().getTitle()!=null)
 			setExtraInfo((String) metadata.getDescription().getTitle());
 		else if(metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE)!=null)
@@ -257,9 +201,7 @@ public class PlaybackControlsFragment extends Fragment {
 									LogHelper.d(TAG, "album art icon of w=", icon.getWidth(),
 											" h=", icon.getHeight());
 									if (isAdded()) {
-
 										mAlbumArt.setImageBitmap(icon);
-										//onMyMetadataUpdate(new MyMetadata(""));
 									}
 								}
 							}
@@ -286,72 +228,48 @@ public class PlaybackControlsFragment extends Fragment {
 		if (state == null) {
 			return;
 		}
-		boolean enablePlay = false;
-		switch (state.getState()) {
-			case PlaybackStateCompat.STATE_PAUSED:
-			case PlaybackStateCompat.STATE_STOPPED:
-				enablePlay = true;
-				break;
-			case PlaybackStateCompat.STATE_ERROR:
-				enablePlay = true;
-				LogHelper.e(TAG, "error playbackstate: ", state.getErrorMessage());
-				Toast.makeText(getActivity(), state.getErrorMessage(), Toast.LENGTH_LONG).show();
-				break;
-		}
-		MediaControllerCompat controller = ((FragmentActivity) getActivity())
-				.getSupportMediaController();
-		String extraInfo = null;
-		if (enablePlay) {
-			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
-		} else {
-			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
-		}
-
+		updateButtonState(state.getState());
 		for(PlaybackStateCompat.CustomAction action: state.getCustomActions())
 		if(action.getAction().contains(CUSTOM_ACTION_THUMBS_UP)) {
 			isFav=action.getExtras().containsKey(IS_FAVORITE) && action.getExtras().getBoolean(IS_FAVORITE);
 			favButton.setLiked(isFav);
-			//Timber.w("get Fav state SUCCESS");
 			break;
 		}
-
+		MediaControllerCompat controller = ((FragmentActivity) getActivity())
+				.getSupportMediaController();
+		String extraInfo="";
 		if (controller != null && controller.getExtras() != null) {
 			String castName = controller.getExtras().getString(MusicService.EXTRA_CONNECTED_CAST);
 			if (castName != null) {
 				extraInfo = getResources().getString(R.string.casting_to_device, castName);
+				setExtraInfo(extraInfo);
 			}
+
 		}
-		setExtraInfo(extraInfo);
 	}
 
 	public void updateButtonState(int state){
-		boolean enablePlay = false;
-		/*switch (state.getState()) {
-			case PlaybackStateCompat.STATE_PAUSED:
-			case PlaybackStateCompat.STATE_STOPPED:
-				enablePlay = true;
+		switch (state){
+			case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
+			case PlaybackStateCompat.STATE_BUFFERING:
+				mPlayPause.setImageDrawable(
+						ContextCompat.getDrawable(getActivity(), R.drawable.ic_buffering));
+				break;
+			case PlaybackStateCompat.STATE_PLAYING:
+				mPlayPause.setImageDrawable(
+						ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
 				break;
 			case PlaybackStateCompat.STATE_ERROR:
-				enablePlay = true;
-				LogHelper.e(TAG, "error playbackstate: ", state.getErrorMessage());
-				Toast.makeText(getActivity(), state.getErrorMessage(), Toast.LENGTH_LONG).show();
+				mPlayPause.setImageDrawable(
+						ContextCompat.getDrawable(getActivity(), R.drawable.ic_error));
 				break;
-		}
-		MediaControllerCompat controller = ((FragmentActivity) getActivity())
-				.getSupportMediaController();
-		String extraInfo = null;
-		if (enablePlay) {
-			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
-		} else {
-			mPlayPause.setImageDrawable(
-					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
-		}*/
 
-		switch (state){
-
+			case PlaybackStateCompat.STATE_PAUSED:
+			case PlaybackStateCompat.STATE_STOPPED:
+			case PlaybackStateCompat.STATE_NONE:
+				mPlayPause.setImageDrawable(
+						ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
+				break;
 		}
 	}
 
@@ -362,19 +280,14 @@ public class PlaybackControlsFragment extends Fragment {
 			public void onTopToBottomSwipe() {
 				mButtonListener.onClick(mPlayPause);
 			}
-
 			@Override
 			public void onBottomToTopSwipe() {
-
 			}
-
 			@Override
 			public void onLeftToRightSwipe() {
 			}
-
 			@Override
 			public void onRightToLeftSwipe() {
-
 			}
 		};
 	}
@@ -398,13 +311,14 @@ public class PlaybackControlsFragment extends Fragment {
 						playMedia();
 					} else if (state == PlaybackStateCompat.STATE_PLAYING ||
 							state == PlaybackStateCompat.STATE_BUFFERING ||
-							state == PlaybackStateCompat.STATE_CONNECTING) {
+							state == PlaybackStateCompat.STATE_SKIPPING_TO_NEXT) {
 						pauseMedia();
+					}else if( state == PlaybackStateCompat.STATE_ERROR){
+						stopMedia();
 					}
 					break;
 				default:
 					Timber.w("Unknown button clicked: %d", v.getId());
-
 			}
 		}
 
@@ -453,7 +367,19 @@ public class PlaybackControlsFragment extends Fragment {
 		MediaControllerCompat controller = ((FragmentActivity) getActivity())
 				.getSupportMediaController();
 		if (controller != null) {
-			controller.getTransportControls().pause();
+			if(controller.getPlaybackState().getState()==PlaybackStateCompat.STATE_ERROR){
+				controller.getTransportControls().stop();
+			}else {
+				controller.getTransportControls().pause();
+			}
 		}
 	}
+	public void stopMedia() {
+		MediaControllerCompat controller = ((FragmentActivity) getActivity())
+				.getSupportMediaController();
+		if (controller != null) {
+			controller.getTransportControls().stop();
+		}
+	}
+
 }
