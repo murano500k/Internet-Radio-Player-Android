@@ -79,9 +79,7 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
         if (mControlsFragment == null) {
             throw new IllegalStateException("Mising fragment with id 'controls'. Cannot continue.");
         }
-
-        hidePlaybackControls();
-
+        //hidePlaybackControls();
         mMediaBrowser.connect();
     }
 
@@ -91,7 +89,6 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
         LogHelper.d(TAG, "Activity onStop");
         if (getSupportMediaController() != null) {
             getSupportMediaController().unregisterCallback(mMediaControllerCallback);
-
         }
         mMediaBrowser.disconnect();
     }
@@ -102,7 +99,12 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
     }
 
     protected void onMediaControllerConnected() {
-        // empty implementation, can be overridden by clients.
+	    MediaControllerCompat controller = getSupportMediaController();
+	    if(controller!=null){
+		    if(!shouldShowControls(controller.getPlaybackState())){
+			    hidePlaybackControls();
+		    }	else showPlaybackControls();
+	    }
     }
 
     protected void showPlaybackControls() {
@@ -135,7 +137,6 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
             case PlaybackStateCompat.STATE_ERROR:
             case PlaybackStateCompat.STATE_NONE:
             case PlaybackStateCompat.STATE_STOPPED:
-            //case PlaybackStateCompat.STATE_PAUSED:
                 return false;
             default:
                 return true;

@@ -60,7 +60,9 @@ import com.stc.radio.player.utils.StreamLinkDecoder;
 import timber.log.Timber;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
+import static android.support.v4.media.session.PlaybackStateCompat.STATE_ERROR;
 import static com.google.android.exoplayer2.C.STREAM_TYPE_MUSIC;
+import static com.stc.radio.player.playback.PlaybackManager.detectPlaybackStateCompact;
 
 /**
  * A class that implements local media playback using {@link android.media.MediaPlayer}
@@ -231,7 +233,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
             relaxResources(false);
             MediaMetadataCompat track = mMusicProvider.getMusic(
                     MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
-            //noinspection ResourceType
             String source = track.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
 	        createMediaPlayerIfNeeded();
 	        mState = PlaybackStateCompat.STATE_BUFFERING;
@@ -278,7 +279,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 			@Override
 			protected void onPostExecute(String s) {
 				super.onPostExecute(s);
-
 				tryToPlayAsync(s);
 			}
 		}.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -462,23 +462,14 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	@Override
 	public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
 		Timber.w("onPlayerStateChanged %b %d", playWhenReady, playbackState);
-		mState=detectPlaybackStateCompact(playWhenReady, playbackState);
+		if(playbackState==ExoPlayer.STATE_IDLE && playWhenReady && mState==STATE_ERROR){
+			Log.d(TAG, "onPlayerStateChanged: ERROR");
+		}else {
+			mState=detectPlaybackStateCompact(playWhenReady, playbackState);
+		}
 		configMediaPlayerState();
 	}
-	private int detectPlaybackStateCompact(boolean playWhenReady, int playbackState){
-		if(playWhenReady && playbackState==ExoPlayer.STATE_IDLE){
-			return PlaybackStateCompat.STATE_BUFFERING;
-		}else if(playWhenReady && playbackState==ExoPlayer.STATE_BUFFERING){
-			return PlaybackStateCompat.STATE_BUFFERING;
-		}else if(playWhenReady && playbackState==ExoPlayer.STATE_READY){
-			return PlaybackStateCompat.STATE_PLAYING;
-		}else if(!playWhenReady && (playbackState==ExoPlayer.STATE_IDLE ||
-				playbackState==ExoPlayer.STATE_ENDED  ||
-				playbackState==ExoPlayer.STATE_READY)){
-			return PlaybackStateCompat.STATE_PAUSED;
-		}
-		return PlaybackStateCompat.STATE_ERROR;
-	}
+
 
 	@Override
 	public void onPlayerError(ExoPlaybackException error) {
@@ -491,9 +482,11 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 		Timber.w("onPlayerError %b %d", b, i);
 		mState=PlaybackStateCompat.STATE_ERROR;
 		if (mCallback != null) {
-			//mCallback.onPlaybackStatusChanged(mState);
+			mCallback.onPlaybackStatusChanged(mState);
 			mCallback.onError("MediaPlayer error " +  error.getMessage());
+
 		}
+
 	}
 
 	@Override

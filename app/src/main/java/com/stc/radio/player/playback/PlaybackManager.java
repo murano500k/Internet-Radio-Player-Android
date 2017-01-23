@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.stc.radio.player.R;
 import com.stc.radio.player.model.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
@@ -61,6 +62,8 @@ public class PlaybackManager implements Playback.Callback {
     public Playback getPlayback() {
         return mPlayback;
     }
+
+
 
     public MediaSessionCompat.Callback getMediaSessionCallback() {
         return mMediaSessionCallback;
@@ -168,6 +171,37 @@ public class PlaybackManager implements Playback.Callback {
                 .setExtras(customActionExtras)
                 .build());
     }
+    public static int detectPlaybackStateCompact(boolean playWhenReady, int playbackState){
+	    if(playWhenReady && playbackState== ExoPlayer.STATE_IDLE) {
+		    return PlaybackStateCompat.STATE_BUFFERING;
+	    }else if(playWhenReady && playbackState==ExoPlayer.STATE_BUFFERING) {
+		    return PlaybackStateCompat.STATE_BUFFERING;
+	    }else if(playWhenReady && playbackState==ExoPlayer.STATE_READY) {
+		    return PlaybackStateCompat.STATE_PLAYING;
+	    }else if(!playWhenReady && playbackState==ExoPlayer.STATE_READY) {
+		    return PlaybackStateCompat.STATE_PAUSED;
+	    }else if(playWhenReady && playbackState==ExoPlayer.STATE_ENDED) {
+		    return PlaybackStateCompat.STATE_STOPPED;
+	    }
+	    return PlaybackStateCompat.STATE_ERROR;
+    }
+
+	public static int getPlayPauseIcon(int state){
+		switch (state){
+			case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
+			case PlaybackStateCompat.STATE_BUFFERING:
+				return R.drawable.ic_buffering;
+			case PlaybackStateCompat.STATE_PLAYING:
+				return android.R.drawable.ic_media_pause;
+			case PlaybackStateCompat.STATE_ERROR:
+				return R.drawable.ic_error;
+			case PlaybackStateCompat.STATE_PAUSED:
+			case PlaybackStateCompat.STATE_STOPPED:
+			case PlaybackStateCompat.STATE_NONE:
+				return android.R.drawable.ic_media_play;
+		}
+		return R.drawable.ic_error;
+	}
 
     private long getAvailableActions() {
         long actions =

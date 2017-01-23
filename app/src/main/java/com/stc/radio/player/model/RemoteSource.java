@@ -56,10 +56,6 @@ public class RemoteSource implements MusicProviderSource {
 				allTracks.addAll(sourceTracks);
 			else Timber.e(TAG, "sourceTracks %s empty",source.getName() );
 		}
-		//Collections.sort(allTracks, comparatorDBMediaItem);
-		//allTracks= RatingHelper.sortByRating(allTracks);
-
-		//Timber.w("list size=%d", allTracks.size());
 		return allTracks.iterator();
 	}
 	static Comparator<MediaMetadataCompat> comparatorDBMediaItem=new Comparator<MediaMetadataCompat>() {

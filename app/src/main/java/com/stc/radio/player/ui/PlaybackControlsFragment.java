@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ import com.stc.radio.player.AlbumArtCache;
 import com.stc.radio.player.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.model.MyMetadata;
+import com.stc.radio.player.playback.PlaybackManager;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.OnSwipeListener;
 
@@ -191,7 +193,7 @@ public class PlaybackControlsFragment extends Fragment {
 				art = cache.getIconImage(this.artUrl);
 			}
 			if (art != null) {
-				mAlbumArt.setImageBitmap(art);
+				animateAlbumArt(art);
 			} else {
 				cache.fetch(artUrl, new AlbumArtCache.FetchListener() {
 							@Override
@@ -201,7 +203,7 @@ public class PlaybackControlsFragment extends Fragment {
 									LogHelper.d(TAG, "album art icon of w=", icon.getWidth(),
 											" h=", icon.getHeight());
 									if (isAdded()) {
-										mAlbumArt.setImageBitmap(icon);
+										animateAlbumArt(icon);
 									}
 								}
 							}
@@ -209,6 +211,12 @@ public class PlaybackControlsFragment extends Fragment {
 				);
 			}
 		}
+	}
+
+	private void animateAlbumArt(Bitmap art) {
+		mAlbumArt.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.album_art_fade_out));
+		mAlbumArt.setImageBitmap(art);
+		mAlbumArt.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.album_art_fade_in));
 	}
 
 	public void setExtraInfo(String extraInfo) {
@@ -249,28 +257,8 @@ public class PlaybackControlsFragment extends Fragment {
 	}
 
 	public void updateButtonState(int state){
-		switch (state){
-			case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
-			case PlaybackStateCompat.STATE_BUFFERING:
-				mPlayPause.setImageDrawable(
-						ContextCompat.getDrawable(getActivity(), R.drawable.ic_buffering));
-				break;
-			case PlaybackStateCompat.STATE_PLAYING:
-				mPlayPause.setImageDrawable(
-						ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
-				break;
-			case PlaybackStateCompat.STATE_ERROR:
-				mPlayPause.setImageDrawable(
-						ContextCompat.getDrawable(getActivity(), R.drawable.ic_error));
-				break;
-
-			case PlaybackStateCompat.STATE_PAUSED:
-			case PlaybackStateCompat.STATE_STOPPED:
-			case PlaybackStateCompat.STATE_NONE:
-				mPlayPause.setImageDrawable(
-						ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
-				break;
-		}
+		mPlayPause.setImageDrawable(
+				ContextCompat.getDrawable(getActivity(), PlaybackManager.getPlayPauseIcon(state)));
 	}
 
 	public OnSwipeListener getOnSwipeListener(View rootView) {

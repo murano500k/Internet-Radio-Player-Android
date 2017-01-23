@@ -70,7 +70,6 @@ public class AudioAddictSource extends BaseRemoteSource {
         String source = StationsManager.getUrl(pls, item.getKey());
         String iconUrl = StationsManager.getArtUrl(item);
         String title =pls+" - "+item.getName();
-        //Timber.w("Parsed: title=%s url=%s",title,source);
         return createMetadata(source, title, iconUrl);
     }
 

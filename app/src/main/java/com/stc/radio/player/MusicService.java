@@ -16,9 +16,13 @@
 
 package com.stc.radio.player;
 
+ import android.app.Activity;
+ import android.app.AlarmManager;
+ import android.app.AlertDialog;
  import android.app.PendingIntent;
  import android.content.BroadcastReceiver;
  import android.content.Context;
+ import android.content.DialogInterface;
  import android.content.Intent;
  import android.content.IntentFilter;
  import android.content.pm.PackageInfo;
@@ -35,6 +39,12 @@ package com.stc.radio.player;
  import android.support.v4.media.session.MediaSessionCompat;
  import android.support.v4.media.session.PlaybackStateCompat;
  import android.support.v7.media.MediaRouter;
+ import android.util.Log;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.widget.SeekBar;
+ import android.widget.TextView;
+ import android.widget.Toast;
 
  import com.stc.radio.player.model.MusicProvider;
  import com.stc.radio.player.playback.ExoPlayback;
@@ -43,11 +53,14 @@ package com.stc.radio.player;
  import com.stc.radio.player.ui.MusicPlayerActivity;
  import com.stc.radio.player.utils.CarHelper;
  import com.stc.radio.player.utils.LogHelper;
+ import com.stc.radio.player.utils.SettingsProvider;
 
  import java.lang.ref.WeakReference;
+ import java.util.GregorianCalendar;
  import java.util.List;
- import java.util.TimerTask;
 
+ import static com.stc.radio.player.AlarmReceiver.SLEEP_TIMER_CANCEL;
+ import static com.stc.radio.player.AlarmReceiver.SLEEP_TIMER_START;
  import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
@@ -114,23 +127,23 @@ package com.stc.radio.player;
      private static final String TAG = LogHelper.makeLogTag(MusicService.class);
 
      // Extra on MediaSession that contains the Cast device name currently connected to
-     public static final String EXTRA_CONNECTED_CAST = "com.example.android.uamp.CAST_NAME";
+     public static final String EXTRA_CONNECTED_CAST = "com.stc.radio.player.CAST_NAME";
      // The action of the incoming Intent indicating that it contains a command
      // to be executed (see {@link #onStartCommand})
-     public static final String ACTION_CMD = "com.example.android.uamp.ACTION_CMD";
+     public static final String ACTION_CMD = "com.stc.radio.player.ACTION_CMD";
      // The key in the extras of the incoming Intent indicating the command that
      // should be executed (see {@link #onStartCommand})
-     public static final String CMD_NAME = "CMD_NAME";
+     public static final String CMD_NAME = "com.stc.radio.player.CMD_NAME";
      // A value of a CMD_NAME key in the extras of the incoming Intent that
      // indicates that the music playback should be paused (see {@link #onStartCommand})
-     public static final String CMD_PAUSE = "CMD_PAUSE";
+     public static final String CMD_PAUSE = "com.stc.radio.player.CMD_PAUSE";
      // A value of a CMD_NAME key that indicates that the music playback should switch
      // to local playback from cast playback.
-     public static final String CMD_STOP_CASTING = "CMD_STOP_CASTING";
+     public static final String CMD_STOP_CASTING = "com.stc.radio.player.CMD_STOP_CASTING";
      // Delay stopSelf by using a handler.
      private static final int STOP_DELAY = 30000;
 
-     private MusicProvider mMusicProvider;
+	 private MusicProvider mMusicProvider;
      private PlaybackManager mPlaybackManager;
 
      private MediaSessionCompat mSession;
@@ -434,12 +447,88 @@ package com.stc.radio.player;
              }
          }
      }
-	 public class SleepTimerTask extends TimerTask {
 
-		 @Override
-		 public void run() {
 
-		 }
+	 public static void scheduleAlarm(Context context) {
+		 AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		 LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+		if(SettingsProvider.getTimerValueMinutes()!=0) {
+			scheduleAlarm(context, 0);
+			return;
+		}else {
+			View v = inflater.inflate(R.layout.sleep_time_selector_dialog, null);
+			SeekBar seekBar = (SeekBar) v.findViewById(R.id.seekBar);
+			TextView textView = (TextView) v.findViewById(R.id.textMinutes);
+			seekBar.setMax(100);
+			seekBar.setProgress(0);
+			textView.setText("20 minutes");
+			seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+				@Override
+				public void onStopTrackingTouch(SeekBar seekBar) {
+				}
+
+				@Override
+				public void onStartTrackingTouch(SeekBar seekBar) {
+				}
+
+				@Override
+				public void onProgressChanged(SeekBar seekBar, int progress,
+				                              boolean fromUser) {
+					int val = seekBar.getProgress()+20;
+					String text = val + " minutes";
+					textView.setText(text);
+				}
+			});
+			builder.setView(v)
+					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialogInterface, int i) {
+							String stringVal = textView.getText().toString();
+							int intVal = Integer.parseInt(stringVal.substring(
+									0,
+									stringVal.indexOf(" ")
+							));
+							if (intVal < 0)
+								Toast.makeText(context, "Incorrect value", Toast.LENGTH_SHORT).show();
+							else scheduleAlarm(context, intVal);
+							dialogInterface.dismiss();
+						}
+					})
+					.setCancelable(true)
+					.setTitle("Select minutes before sleep");
+			builder.create();
+			builder.show();
+		}
+
+
 	 }
+
+		 public static void scheduleAlarm(Context context, int timeInMinutes ) {
+		    Log.d(TAG, "scheduleAlarm: "+timeInMinutes);
+		    Long time = new GregorianCalendar().getTimeInMillis()+timeInMinutes*60*1000;
+		    SettingsProvider.setTimerValueMinutes(timeInMinutes);
+			 Intent intentAlarm = new Intent(context, AlarmReceiver.class);
+			 intentAlarm.setAction(timeInMinutes==0 ? SLEEP_TIMER_CANCEL: SLEEP_TIMER_START);
+			 //context.sendBroadcast(intentAlarm);
+
+			 PendingIntent pendingIntent=PendingIntent.getBroadcast(
+			 		context.getApplicationContext(),
+					 1,
+					 intentAlarm,
+					 PendingIntent.FLAG_ONE_SHOT);
+			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+			if(timeInMinutes!=0) {
+				Log.d(TAG, "scheduleAlarm: run");
+				alarmManager.set(AlarmManager.RTC_WAKEUP,time, pendingIntent);
+				Toast.makeText(context, "Alarm Scheduled for " + timeInMinutes + " minutes", Toast.LENGTH_SHORT).show();
+			}
+			else {
+				Log.d(TAG, "scheduleAlarm: cancel");
+				alarmManager.cancel(pendingIntent);
+			}
+		 }
+
+
+
 
  }

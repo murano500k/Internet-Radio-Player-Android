@@ -30,9 +30,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 
+import com.stc.radio.player.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.SettingsProvider;
 
 import timber.log.Timber;
 
@@ -219,6 +221,8 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
             }
 
 	        initNavMenuItem(navigationView,R.id.shuffle);
+	        //initNavMenuItem(navigationView,R.id.sleep);
+
 
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 mToolbar, R.string.open_content_drawer, R.string.close_content_drawer);
@@ -247,9 +251,19 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 				}
 			});
 		}
-		/*else if(resId==R.id.sleep){
+		else if(resId==R.id.sleep){
+			MenuItem itemShuffle = navigationView.getMenu().findItem(R.id.sleep);
+			itemShuffle.setActionView(new Switch(this));
+			int isRunning= SettingsProvider.getTimerValueMinutes();
+			((Switch)itemShuffle.getActionView()).setChecked(isRunning>0);
+			itemShuffle.getActionView().setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					MusicService.scheduleAlarm(ActionBarCastActivity.this);
 
-		}*/
+				}
+			});
+		}
 	}
 
     private void populateDrawerItems(NavigationView navigationView) {
@@ -260,7 +274,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
 	                    Timber.w("test");
 
-	                    //mDrawerLayout.closeDrawers();
+
                         return true;
                     }
                 });

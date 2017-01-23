@@ -35,6 +35,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.app.NotificationCompat;
 
+import com.stc.radio.player.playback.PlaybackManager;
 import com.stc.radio.player.ui.MusicPlayerActivity;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.ResourceHelper;
@@ -50,11 +51,12 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private static final int NOTIFICATION_ID = 412;
     private static final int REQUEST_CODE = 100;
 
-    public static final String ACTION_PAUSE = "com.example.android.uamp.pause";
-    public static final String ACTION_PLAY = "com.example.android.uamp.play";
-    public static final String ACTION_PREV = "com.example.android.uamp.prev";
-    public static final String ACTION_NEXT = "com.example.android.uamp.next";
-    public static final String ACTION_STOP_CASTING = "com.example.android.uamp.stop_cast";
+    public static final String ACTION_PAUSE = "com.stc.radio.player.pause";
+    public static final String ACTION_STOP = "com.stc.radio.player.stop";
+    public static final String ACTION_PLAY = "com.stc.radio.player.play";
+    public static final String ACTION_PREV = "com.stc.radio.player.prev";
+    public static final String ACTION_NEXT = "com.stc.radio.player.next";
+    public static final String ACTION_STOP_CASTING = "com.stc.radio.player.stop_cast";
 
     private final MusicService mService;
     private MediaSessionCompat.Token mSessionToken;
@@ -70,6 +72,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private final PendingIntent mPlayIntent;
     private final PendingIntent mPreviousIntent;
     private final PendingIntent mNextIntent;
+    private final PendingIntent mStopIntent;
 
     private final PendingIntent mStopCastIntent;
 
@@ -95,6 +98,8 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 new Intent(ACTION_PREV).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
         mNextIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
                 new Intent(ACTION_NEXT).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
+	    mStopIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
+			    new Intent(ACTION_STOP).setPackage(pkg), PendingIntent.FLAG_CANCEL_CURRENT);
         mStopCastIntent = PendingIntent.getBroadcast(mService, REQUEST_CODE,
                 new Intent(ACTION_STOP_CASTING).setPackage(pkg),
                 PendingIntent.FLAG_CANCEL_CURRENT);
@@ -123,6 +128,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 filter.addAction(ACTION_PAUSE);
                 filter.addAction(ACTION_PLAY);
                 filter.addAction(ACTION_PREV);
+                filter.addAction(ACTION_STOP);
                 filter.addAction(ACTION_STOP_CASTING);
                 mService.registerReceiver(this, filter);
 
@@ -155,6 +161,9 @@ public class MediaNotificationManager extends BroadcastReceiver {
         final String action = intent.getAction();
         LogHelper.d(TAG, "Received intent with action " + action);
         switch (action) {
+            case ACTION_STOP:
+                mTransportControls.stop();
+                break;
             case ACTION_PAUSE:
                 mTransportControls.pause();
                 break;
@@ -335,18 +344,33 @@ public class MediaNotificationManager extends BroadcastReceiver {
         String label;
         int icon;
         PendingIntent intent;
-        if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
-            label = mService.getString(R.string.label_pause);
-            icon = R.drawable.uamp_ic_pause_white_24dp;
-            intent = mPauseIntent;
-        } else {
-            label = mService.getString(R.string.label_play);
-            icon = R.drawable.uamp_ic_play_arrow_white_24dp;
-            intent = mPlayIntent;
-        }
+	    icon= PlaybackManager.getPlayPauseIcon(mPlaybackState.getState());
+	    switch (icon) {
+		    case R.drawable.ic_error:
+		    	label="Stop";
+			    intent=mStopIntent;
+			    break;
+		    case android.R.drawable.ic_media_pause:
+		    	label="Pause";
+			    icon=R.drawable.uamp_ic_pause_white_24dp;
+			    intent=mPauseIntent;
+			    break;
+		    case android.R.drawable.ic_media_play:
+		    	label="Play";
+			    icon=R.drawable.uamp_ic_play_arrow_white_24dp;
+			    intent=mPlayIntent;
+			    break;
+		    case R.drawable.ic_buffering:
+		    	label="Pause";
+			    intent=mPauseIntent;
+			    break;
+		    default:
+			    label="Stop";
+			    intent=mStopIntent;
+			    break;
+	    }
         builder.addAction(new NotificationCompat.Action(icon, label, intent));
     }
-
     private void setNotificationPlaybackState(NotificationCompat.Builder builder) {
         LogHelper.d(TAG, "updateNotificationPlaybackState. mPlaybackState=" + mPlaybackState);
         if (mPlaybackState == null || !mStarted) {
@@ -354,6 +378,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             mService.stopForeground(true);
             return;
         }
+
         if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING
                 && mPlaybackState.getPosition() >= 0) {
             LogHelper.d(TAG, "updateNotificationPlaybackState. updating playback position to ",

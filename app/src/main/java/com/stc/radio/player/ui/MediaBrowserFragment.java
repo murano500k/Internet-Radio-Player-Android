@@ -16,7 +16,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,13 +27,11 @@ import android.widget.Toast;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.FastItemAdapter;
-import com.mikepenz.fastadapter_extensions.drag.SimpleDragCallback;
 import com.stc.radio.player.AutoFitGridRecyclerView;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
 import com.stc.radio.player.utils.NetworkHelper;
-import com.turingtechnologies.materialscrollbar.DragScrollBar;
 
 import java.util.List;
 
@@ -45,24 +43,12 @@ public class MediaBrowserFragment extends Fragment{
 
 	private static final String ARG_MEDIA_ID = "media_id";
 	private String mMediaId;
-	private static final String LIST_KEY = "com.stc.radio.player.LIST_KEY";
 	private MediaFragmentListener mListener;
 	private FastItemAdapter<MediaListItem> fastItemAdapter;
 	private RecyclerView recyclerView;
-	private SimpleDragCallback touchCallback;
-	private ItemTouchHelper touchHelper;
 	private View mErrorView;
 	private TextView mErrorMessage;
 	private ProgressBar progressBar;
-	private DragScrollBar scrollBar;
-
-
-
-	List<MediaListItem> list;
-	/**
-	 * Mandatory empty constructor for the fragment manager to instantiate the
-	 * fragment (e.g. upon screen orientation changes).
-	 */
 	public MediaBrowserFragment() {
 
 	}
@@ -70,10 +56,6 @@ public class MediaBrowserFragment extends Fragment{
 	public void onScrollToItem(String query) {
 		for(MediaListItem listItem :    fastItemAdapter.getAdapterItems()){
 			String title=listItem.getMediaItem().getDescription().getTitle().toString();
-			//String name=title.substring(title.indexOf(" - ")+3).trim();
-			//String simpleQuery=query.trim();
-			//Timber.w("name=%s", name);
-			//Timber.w("title=%s", title);
 			if (title.equalsIgnoreCase(query)){
 				recyclerView.smoothScrollToPosition(
 						fastItemAdapter.getAdapterPosition(listItem)
@@ -86,10 +68,8 @@ public class MediaBrowserFragment extends Fragment{
 		private boolean oldOnline = false;
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			// We don't care about network changes while this fragment is not associated
-			// with a media ID (for example, while it is being initialized)
 			if (mMediaId != null) {
-				boolean isOnline = com.stc.radio.player.utils.NetworkHelper.isOnline(context);
+				boolean isOnline =  NetworkHelper.isOnline(context);
 				if (isOnline != oldOnline) {
 					oldOnline = isOnline;
 					checkForUserVisibleErrors(false);
@@ -101,8 +81,6 @@ public class MediaBrowserFragment extends Fragment{
 		}
 	};
 
-	// Receive callbacks from the MediaController. Here we update our state such as which queue
-	// is being shown, the current title and description and the PlaybackState.
 	private final MediaControllerCompat.Callback mMediaControllerCallback =
 			new MediaControllerCompat.Callback() {
 				@Override
@@ -121,7 +99,10 @@ public class MediaBrowserFragment extends Fragment{
 				public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
 					super.onPlaybackStateChanged(state);
 					LogHelper.d(TAG, "Received state change: ", state);
-					checkForUserVisibleErrors(false);
+					if(state.getState()==PlaybackStateCompat.STATE_ERROR
+							&& state.getErrorMessage()!=null){
+						checkForUserVisibleErrors(true);
+					}else checkForUserVisibleErrors(false);
 					fastItemAdapter.notifyDataSetChanged();
 				}
 			};
@@ -132,22 +113,13 @@ public class MediaBrowserFragment extends Fragment{
 				public void onChildrenLoaded(@NonNull String parentId,
 				                             @NonNull List<MediaBrowserCompat.MediaItem> children) {
 					try {
-
 						progressBar.setVisibility(View.GONE);
-
-						//Log.w(TAG, "fragment onChildrenLoaded, parentId=" + parentId +
-						//		"  count=" + children.size());
 						Timber.w("child hierarchy : %s", children.get(0).getMediaId());
 						checkForUserVisibleErrors(children.isEmpty());
 						fastItemAdapter.clear();
-
-
-
 						for (MediaBrowserCompat.MediaItem item : children) {
 							int itemState = MediaListItem.STATE_NONE;
 							boolean isFavorite=false;
-							//Timber.w("LISTFRAGMENT NEW ITEM: id=%s title=%s desc=%s", item.getMediaId(),item.getDescription().getTitle()
-							//,item.toString());
 							String musicId = MediaIDHelper.extractMusicIDFromMediaID(
 									item.getDescription().getMediaId());
 							//isFavorite= RatingHelper.isFavorite(musicId);
@@ -173,7 +145,6 @@ public class MediaBrowserFragment extends Fragment{
 									}
 								}
 							}
-
 							fastItemAdapter.add(new MediaListItem(
 									item,
 									itemState,
@@ -215,30 +186,20 @@ public class MediaBrowserFragment extends Fragment{
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		setRetainInstance(true);
-
 		View view = inflater.inflate(R.layout.fragment_list_uamp, container, false);
 		mErrorView = view.findViewById(R.id.playback_error);
 		mErrorMessage = (TextView) mErrorView.findViewById(R.id.error_message);
 		Context context = view.getContext();
 		progressBar=(ProgressBar)view.findViewById(R.id.progress_bar);
-		scrollBar=(DragScrollBar)view.findViewById(R.id.dragScrollBar);
 			recyclerView = (AutoFitGridRecyclerView)view.findViewById(R.id.recyclerViewAutoFit);
-			//scrollBar.setIndicator(new AlphabetIndicator(getActivity()),true);
 			recyclerView.setItemAnimator(new DefaultItemAnimator());
 			recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
-			//final FastScrollIndicatorAdapter<MediaListItem> fastScrollIndicatorAdapter = new FastScrollIndicatorAdapter<>();
-
 			fastItemAdapter = new FastItemAdapter<>();
 			fastItemAdapter.withSelectable(false);
 			fastItemAdapter.withMultiSelect(false);
 			fastItemAdapter.select(true);
 			fastItemAdapter.withOnClickListener(listItemOnClickListener);
 			recyclerView.setAdapter(fastItemAdapter);
-			//DragScrollBar materialScrollBar = new DragScrollBar(context, recyclerView, true);
-			//materialScrollBar.addIndicator(new AlphabetIndicator(context), true);
-
-			//fastItemAdapter.notifyAdapterDataSetChanged();
-			//EventBus.getDefault().post(fastItemAdapter);
 
 		return view;
 	}
@@ -246,21 +207,17 @@ public class MediaBrowserFragment extends Fragment{
 	@Override
 	public void onStart() {
 		super.onStart();
-
-		// fetch browsing information to fill the listview:
 		MediaBrowserCompat mediaBrowser = mListener.getMediaBrowser();
-
-
-
 		LogHelper.d(TAG, "fragment.onStart, mediaId=", mMediaId,
 				"  onConnected=" + mediaBrowser.isConnected());
-
 		if (mediaBrowser.isConnected()) {
 			onConnected();
 			progressBar.setVisibility(View.GONE);
-		}else progressBar.setVisibility(View.VISIBLE);
-
-		// Registers BroadcastReceiver to track network connection changes.
+		}else if(fastItemAdapter!=null && fastItemAdapter.getAdapterItemCount()>1) {
+			Log.d(TAG, "onStart: list not empty");
+		}else {
+			progressBar.setVisibility(View.VISIBLE);
+		}
 		this.getActivity().registerReceiver(mConnectivityChangeReceiver,
 				new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
@@ -300,9 +257,6 @@ public class MediaBrowserFragment extends Fragment{
 		setArguments(args);
 	}
 
-	// Called when the MediaBrowser is connected. This method is either called by the
-	// fragment.onStart() or explicitly by the activity in the case where the connection
-	// completes after the onStart()
 	public void onConnected() {
 		if (isDetached()) {
 			return;
@@ -316,8 +270,6 @@ public class MediaBrowserFragment extends Fragment{
 		mListener.getMediaBrowser().unsubscribe(mMediaId);
 
 		mListener.getMediaBrowser().subscribe(mMediaId, mSubscriptionCallback);
-
-		// Add MediaController callback so we can redraw the list when metadata changes:
 		MediaControllerCompat controller = ((FragmentActivity) getActivity())
 				.getSupportMediaController();
 		if (controller != null) {
@@ -349,6 +301,13 @@ public class MediaBrowserFragment extends Fragment{
 			}
 		}
 		mErrorView.setVisibility(showError ? View.VISIBLE : View.GONE);
+		if(showError) {
+			String stringError="ERROR";
+			if(mErrorMessage!=null && mErrorMessage.getText()!=null && mErrorMessage.getText().length()>0){
+				stringError=mErrorMessage.getText().toString();
+			}
+			Toast.makeText(getActivity(), stringError, Toast.LENGTH_SHORT).show();
+		}
 		LogHelper.d(TAG, "checkForUserVisibleErrors. forceError=", forceError,
 				" showError=", showError,
 				" isOnline=", NetworkHelper.isOnline(getActivity()));
@@ -386,103 +345,4 @@ public class MediaBrowserFragment extends Fragment{
 			return true;
 		}
 	};
-
-/*
-
-@Override
-public void itemsFiltered() {
-	Timber.v("filtered items count: %d", fastItemAdapter.getItemCount() );
-	Toast.makeText(getActivity(), "filtered items count: " + fastItemAdapter.getItemCount(), Toast.LENGTH_SHORT).show();
-}
-	@Override
-	public boolean itemTouchOnMove(int oldPosition, int newPosition) {
-		if(newPosition!=oldPosition) {
-
-			Collections.swap(fastItemAdapter.getAdapterItems(), oldPosition, newPosition); // change position
-			fastItemAdapter.notifyAdapterItemMoved(oldPosition, newPosition);
-		}
-		return true;
-	}
-*/
-
-/*
-
-
-	public void filter(String s) {
-		if(fastItemAdapter!=null){
-			fastItemAdapter.filter(s);
-		}
-	}*/
-
-
-	/*
-	public void restoreState(int position){
-		if(position>-1 && fastItemAdapter!=null){
-			MediaListItem item = getSelectedItem();
-			if(item !=null && fastItemAdapter.getAdapterPosition(item)!=position)
-				fastItemAdapter.deselect();
-			fastItemAdapter.select(position, false);
-			if(recyclerView!=null) recyclerView.smoothScrollToPosition(position);
-		}
-	}
-	public void selectNextItem() {
-		MediaListItem item=null;
-		int pos=-1;
-		List list=  fastItemAdapter.getAdapterItems();
-		assertNotNull(list);
-		assertFalse(list.isEmpty());
-		if(!DbHelper.isShuffle()) {
-			MediaListItem oldSelection = getSelectedItem();
-			Iterator iterator = list.iterator();
-			while (iterator.hasNext()) {
-				item = (MediaListItem) iterator.next();
-				if (item.getStation().getName().equals(oldSelection.getStation().getName())) {
-					if (iterator.hasNext()) item = (MediaListItem) iterator.next();
-					break;
-				}
-			}
-			assertNotNull(item);
-			pos=fastItemAdapter.getAdapterPosition(item);
-		}else pos=new Random().nextInt(fastItemAdapter.getAdapterItemCount()-1);
-		assertTrue(pos>=0);
-		Timber.d("newpos %d", pos);
-		fastItemAdapter.deselect();
-		fastItemAdapter.select(pos, true);
-		if(getSelectedItem()!=null) DbHelper.setUrl(getSelectedItem().getStation().url);
-		if(recyclerView!=null) recyclerView.smoothScrollToPosition(pos);
-	}
-
-	public void selectPrevItem() {
-		MediaListItem item=null;
-		List list=  fastItemAdapter.getAdapterItems();
-		assertNotNull(list);
-		assertFalse(list.isEmpty());
-		MediaListItem oldSelection = getSelectedItem();
-
-		Iterator iterator = list.iterator();
-		item = (MediaListItem) iterator.next();
-		while (iterator.hasNext()) {
-			MediaListItem tempitem = (MediaListItem) iterator.next();
-			if (tempitem.getStation().getName().equals(oldSelection.getStation().getName())) {
-				break;
-			}
-			item=tempitem;
-		}
-		assertNotNull(item);
-		int pos=fastItemAdapter.getAdapterPosition(item);
-		assertTrue(pos>=0);
-		Timber.d("newpos %d", pos);
-		fastItemAdapter.deselect();
-		fastItemAdapter.select(pos, true);
-		if(getSelectedItem()!=null) DbHelper.setUrl(getSelectedItem().getStation().url);
-		if(recyclerView!=null) recyclerView.smoothScrollToPosition(pos);
-
-		*//*if(oldSelection!=null) {
-			int oldpos=fastItemAdapter.getAdapterPosition(oldSelection);
-			if(oldpos>0) {
-				fastItemAdapter.set(oldpos, oldSelection);
-				fastItemAdapter.notifyAdapterItemChanged(oldpos);
-			}
-		}*//*
-	}*/
 }
