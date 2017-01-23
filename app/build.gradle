@@ -103,6 +103,10 @@ dependencies {
 
 
     compile 'junit:junit:4.12'
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'org.mockito:mockito-core:1.10.19'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     debugCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
 
@@ -114,10 +118,11 @@ dependencies {
     compile 'com.android.support:palette-v7:25.1.0'
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'com.android.support:support-annotations:25.1.0'
+    androidTestCompile 'com.android.support:support-annotations:25.1.0'
     compile 'com.android.support:support-v13:25.1.0'
+    androidTestCompile 'com.android.support:support-v13:25.1.0'
 
     compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
-    androidTestCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

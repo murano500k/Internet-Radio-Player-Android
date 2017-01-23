@@ -194,12 +194,14 @@ public class MusicPlayerActivity extends BaseActivity
 			@Override
 			public boolean onQueryTextChange(String s) {
 				Log.d(TAG, "onQueryTextChange: "+s);
-				if(s.length()>1){
+				if( s==null || s.length()==0){
+					KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+					menu.findItem(R.id.search).collapseActionView();
+					return false;
+				}else if(s.length()>2){
 					getBrowseFragment().onScrollToItem(s);
 					return true;
 				}else {
-					KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-					menu.findItem(R.id.search).collapseActionView();
 					return false;
 				}
 			}
