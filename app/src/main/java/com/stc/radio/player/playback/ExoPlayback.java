@@ -100,9 +100,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	MappingTrackSelector trackSelector;
 	LoadControl loadControl;
 
-	//##################################################
-	private Timeline.Window window;
-
 	private DebugTextViewHelper debugViewHelper;
 	private DefaultDataSourceFactory dataSourceFactory;
 	private DefaultExtractorsFactory extractorsFactory;
@@ -223,7 +220,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
             mCurrentPosition = 0;
             mCurrentMediaId = mediaId;
         }
-	    //Timber.w(" isPlaying? %b, state=%d, changed=%b", isPlaying(), mState, mediaHasChanged);
         if (mState == PlaybackStateCompat.STATE_PAUSED && !mediaHasChanged && mMediaPlayer != null) {
 	        mState = PlaybackStateCompat.STATE_BUFFERING;
 	        mMediaPlayer.setPlayWhenReady(true);
@@ -441,7 +437,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	@Override
 	public void onTimelineChanged(Timeline timeline, Object manifest) {
 		Timber.w("onTimelineChanged");
-
 	}
 
 	@Override
@@ -488,7 +483,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 		Timber.w("onPlayerError %b %d", b, i);
 		mState=PlaybackStateCompat.STATE_ERROR;
 		if (mCallback != null) {
-			mCallback.onPlaybackStatusChanged(mState);
+			//mCallback.onPlaybackStatusChanged(mState);
 			mCallback.onError("MediaPlayer error " +  error.getMessage());
 		}
 	}
