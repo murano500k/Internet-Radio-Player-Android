@@ -179,6 +179,15 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
     public int getState() {
         return mState;
     }
+    public int getExoState(){
+	    if(mMediaPlayer==null)return -1;
+	    return mMediaPlayer.getPlaybackState();
+    }
+	public boolean getExoPlayWhenReady(){
+		if(mMediaPlayer==null)return false;
+
+		return mMediaPlayer.getPlayWhenReady();
+    }
 
     @Override
     public boolean isConnected() {
@@ -488,16 +497,19 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 
 
 
+
 	}
 
 	@Override
 	public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-		Timber.w("onTracksChanged");
+		Timber.w("onTracksChanged: %b %d",mMediaPlayer.getPlayWhenReady(),mMediaPlayer.getPlaybackState());
+		mState=PlaybackStateCompat.STATE_SKIPPING_TO_NEXT;
 
 	}
 
 	@Override
 	public void onLoadingChanged(boolean isLoading) {
+		Timber.w("onLoadingChanged isLoading=%b",isLoading);
 		//if(isLoading) mState=PlaybackStateCompat.STATE_BUFFERING;
 	}
 
@@ -512,9 +524,36 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 		}
 		configMediaPlayerState();
 	}
+	private int detectPlaybackStateCompact(boolean playWhenReady, int playbackState){
+
+		if(playWhenReady && playbackState==ExoPlayer.STATE_IDLE){
+			return PlaybackStateCompat.STATE_BUFFERING;
+		}else if(playWhenReady && playbackState==ExoPlayer.STATE_BUFFERING){
+			return PlaybackStateCompat.STATE_BUFFERING;
+		}else if(playWhenReady && playbackState==ExoPlayer.STATE_READY){
+			return PlaybackStateCompat.STATE_PLAYING;
+		}else if(!playWhenReady && playbackState==ExoPlayer.STATE_READY){
+			return PlaybackStateCompat.STATE_BUFFERING;//PAUSING
+		}/*else if(playWhenReady && playbackState==ExoPlayer.STATE_BUFFERING){
+			return PlaybackStateCompat.STATE_BUFFERING;
+		}else if(playWhenReady && playbackState==ExoPlayer.STATE_BUFFERING){
+			return PlaybackStateCompat.STATE_BUFFERING;
+		}else if(playWhenReady && playbackState==ExoPlayer.STATE_BUFFERING) {
+			return PlaybackStateCompat.STATE_BUFFERING;
+		}*/
+		return -1;
+	}
 
 	@Override
 	public void onPlayerError(ExoPlaybackException error) {
+		int i = -1;
+		boolean b = false;
+		if (mMediaPlayer != null) {
+			b = mMediaPlayer.getPlayWhenReady();
+			i=mMediaPlayer.getPlaybackState();
+		}
+		Timber.w("onPlayerError %b %d", b, i);
+
 		mState=PlaybackStateCompat.STATE_ERROR;
 		if(error.getRendererException()!=null)Timber.e(error.getRendererException());
 		if(error.getSourceException()!=null)Timber.e(error.getSourceException());

@@ -308,6 +308,7 @@ public class PlaybackControlsFragment extends Fragment {
 			mPlayPause.setImageDrawable(
 					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
 		}
+
 		for(PlaybackStateCompat.CustomAction action: state.getCustomActions())
 		if(action.getAction().contains(CUSTOM_ACTION_THUMBS_UP)) {
 			isFav=action.getExtras().containsKey(IS_FAVORITE) && action.getExtras().getBoolean(IS_FAVORITE);
@@ -323,6 +324,35 @@ public class PlaybackControlsFragment extends Fragment {
 			}
 		}
 		setExtraInfo(extraInfo);
+	}
+
+	public void updateButtonState(int state){
+		boolean enablePlay = false;
+		/*switch (state.getState()) {
+			case PlaybackStateCompat.STATE_PAUSED:
+			case PlaybackStateCompat.STATE_STOPPED:
+				enablePlay = true;
+				break;
+			case PlaybackStateCompat.STATE_ERROR:
+				enablePlay = true;
+				LogHelper.e(TAG, "error playbackstate: ", state.getErrorMessage());
+				Toast.makeText(getActivity(), state.getErrorMessage(), Toast.LENGTH_LONG).show();
+				break;
+		}
+		MediaControllerCompat controller = ((FragmentActivity) getActivity())
+				.getSupportMediaController();
+		String extraInfo = null;
+		if (enablePlay) {
+			mPlayPause.setImageDrawable(
+					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_play));
+		} else {
+			mPlayPause.setImageDrawable(
+					ContextCompat.getDrawable(getActivity(), android.R.drawable.ic_media_pause));
+		}*/
+
+		switch (state){
+
+		}
 	}
 
 	public OnSwipeListener getOnSwipeListener(View rootView) {

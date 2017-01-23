@@ -17,6 +17,8 @@ package com.stc.radio.player.playback;
 
 import android.support.v4.media.session.MediaSessionCompat;
 
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+
 class SimplePlayback implements Playback {
     @Override
     public void start() {
@@ -92,4 +94,9 @@ class SimplePlayback implements Playback {
     public void setCallback(Callback callback) {
 
     }
+
+	@Override
+	public void setPlayerView(SimpleExoPlayerView playerView) {
+
+	}
 }
