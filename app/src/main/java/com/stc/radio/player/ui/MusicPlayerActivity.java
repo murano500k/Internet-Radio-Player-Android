@@ -25,13 +25,13 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
-import android.view.View;
 import android.view.WindowManager;
 
 import com.mikepenz.materialize.util.KeyboardUtil;
@@ -196,27 +196,14 @@ public class MusicPlayerActivity extends BaseActivity
 				Log.d(TAG, "onQueryTextChange: "+s);
 				if( s==null || s.length()==0){
 					KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-					menu.findItem(R.id.search).collapseActionView();
-					return false;
+					MenuItemCompat.collapseActionView(menu.findItem(R.id.search));
+					return true;
 				}else if(s.length()>2){
 					getBrowseFragment().onScrollToItem(s);
 					return true;
 				}else {
-					return false;
+					return true;
 				}
-			}
-		});
-		searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View view, boolean b) {
-				Log.d(TAG, "onFocusChange: "+b);
-			}
-		});
-		searchView.setOnSearchClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				Log.d(TAG, "onClick: ");
 			}
 		});
 		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
@@ -224,9 +211,8 @@ public class MusicPlayerActivity extends BaseActivity
 			public boolean onClose() {
 				Log.d(TAG, "onClose: ");
 				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-
-				menu.findItem(R.id.search).collapseActionView();
-				return true;
+				MenuItemCompat.collapseActionView(menu.findItem(R.id.search));
+				return false;
 			}
 		});
 		return true;

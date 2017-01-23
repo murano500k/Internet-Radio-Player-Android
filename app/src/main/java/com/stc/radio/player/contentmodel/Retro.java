@@ -24,6 +24,8 @@ import static com.stc.radio.player.utils.SettingsProvider.prefs;
 
 public class Retro {
 
+	private static String token;
+
 	public static StationsInterface getStationsInterface() {
 
 		Gson gson = new GsonBuilder()
@@ -60,11 +62,9 @@ public class Retro {
 
 		return retrofit.create(AuthInterface.class).getAuthData();
 	}
-	public void getAuthData(){
-
-	}
 	public static boolean hasValidToken(){
 		if(prefs.contains(SettingsProvider.AUTH_TOKEN) && prefs.contains(AUTH_EXPIRE_DATE) ){
+			token=prefs.getString(AUTH_TOKEN,null);
 			long now = Calendar.getInstance().getTime().getTime();
 			long willExpire= Long.parseLong(prefs.getString(AUTH_EXPIRE_DATE, "1000000"))-(1000*60*60*24);
 			if(now<willExpire) {
@@ -74,7 +74,7 @@ public class Retro {
 		return false;
 	}
 	public static String updateToken() {
-		String token=null;
+		token=null;
 		try {
 			Response<AuthData> response = getAuthDataCall().execute();
 			if (response.isSuccessful()) {
@@ -90,6 +90,12 @@ public class Retro {
 			Timber.e(e);
 		}
 		return null;
+	}
+	public static String getToken(){
+		if (token == null ){
+			token= prefs.getString(AUTH_TOKEN, null);
+		}
+		return token;
 	}
 }
 

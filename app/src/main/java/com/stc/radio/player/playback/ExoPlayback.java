@@ -25,6 +25,7 @@ import android.os.AsyncTask;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -49,6 +50,7 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.stc.radio.player.MusicService;
+import com.stc.radio.player.contentmodel.Retro;
 import com.stc.radio.player.model.MusicProvider;
 import com.stc.radio.player.model.MusicProviderSource;
 import com.stc.radio.player.utils.LogHelper;
@@ -244,7 +246,13 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         }
     }
 	private void tryToPlayAsync(String url)  {
-
+		Log.d(TAG, "tryToPlayAsync: "+url);
+		String token = Retro.getToken();
+		if(url.contains("?") && !url.contains(token)){
+			String oldToken = url.substring(url.indexOf("?")+1);
+			url=url.replace(oldToken, token);
+			Log.d(TAG, "tryToPlayAsync: newUrl="+url);
+		}
 		if (checkSuffix(url)) {
 			decodeStremLink(url);
 			return;
