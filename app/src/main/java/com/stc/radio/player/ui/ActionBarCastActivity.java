@@ -15,28 +15,46 @@
  */
 package com.stc.radio.player.ui;
 
+import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
 import android.app.FragmentManager;
+import android.app.NotificationManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.service.notification.StatusBarNotification;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.stc.radio.player.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.db.DbHelper;
 import com.stc.radio.player.utils.LogHelper;
-import com.stc.radio.player.utils.SettingsProvider;
 
 import timber.log.Timber;
+
+import static com.stc.radio.player.MusicService.ACTION_CMD;
+import static com.stc.radio.player.MusicService.CMD_NAME;
+import static com.stc.radio.player.MusicService.CMD_SLEEP_CANCEL;
+import static com.stc.radio.player.MusicService.CMD_SLEEP_START;
+import static com.stc.radio.player.MusicService.EXTRA_TIME_TO_SLEEP;
+import static com.stc.radio.player.MusicService.SleepCountdownTimer.NOTIFICATION_ID_SLEEP;
 
 /**
  * Abstract activity with toolbar, navigation drawer and cast support. Needs to be extended by
@@ -60,6 +78,8 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
 
     private boolean mToolbarInitialized;
+
+	private NavigationView navigationView;
 
     private int mItemToOpenWhenDrawerCloses = -1;
 	protected boolean isRoot;
@@ -94,6 +114,12 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
             if (mDrawerToggle != null) mDrawerToggle.onDrawerOpened(drawerView);
             if (getSupportActionBar() != null) getSupportActionBar()
                     .setTitle(R.string.app_name);
+	        if(navigationView==null){
+		        Log.e(TAG, "onDrawerOpened: navView == null");
+	        }else {
+		        initNavMenuItem(navigationView, R.id.sleep);
+		        initNavMenuItem(navigationView, R.id.shuffle);
+	        }
         }
     };
 
@@ -105,7 +131,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
             }
         };
 
-    @Override
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LogHelper.d(TAG, "Activity onCreate");
@@ -214,14 +240,14 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         mToolbar.inflateMenu(R.menu.search);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            navigationView = (NavigationView) findViewById(R.id.nav_view);
             if (navigationView == null) {
                 throw new IllegalStateException("Layout requires a NavigationView " +
                         "with id 'nav_view'");
             }
 
 	        initNavMenuItem(navigationView,R.id.shuffle);
-	        //initNavMenuItem(navigationView,R.id.sleep);
+	        initNavMenuItem(navigationView,R.id.sleep);
 
 
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
@@ -252,20 +278,111 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 			});
 		}
 		else if(resId==R.id.sleep){
-			MenuItem itemShuffle = navigationView.getMenu().findItem(R.id.sleep);
-			itemShuffle.setActionView(new Switch(this));
-			int isRunning= SettingsProvider.getTimerValueMinutes();
-			((Switch)itemShuffle.getActionView()).setChecked(isRunning>0);
-			itemShuffle.getActionView().setOnClickListener(new View.OnClickListener() {
+			MenuItem itemSleep = navigationView.getMenu().findItem(R.id.sleep);
+			itemSleep.setActionView(new Switch(this));
+			boolean isRunning = false;
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+				isRunning=isSleepTimerRunning();
+			}
+			((Switch)itemSleep.getActionView()).setChecked(isRunning);
+			itemSleep.getActionView().setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					MusicService.scheduleAlarm(ActionBarCastActivity.this);
-
+					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+						Log.d(TAG, "onClick: isRunning="+isSleepTimerRunning());
+						if(isSleepTimerRunning()) {
+							Intent intentSleep = new Intent(getApplicationContext(), MusicService.class);
+							intentSleep.setAction(ACTION_CMD);
+							intentSleep.putExtra(CMD_NAME, CMD_SLEEP_CANCEL);
+							startService(intentSleep);
+							if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+								mDrawerLayout.closeDrawers();
+								return;
+							}
+						}else {
+							showDialogSetSleepTimer();
+						}
+					}else {
+						Toast.makeText(view.getContext(), "This feature require minimum Android version 6.0 Marshmallow", Toast.LENGTH_SHORT).show();
+					}
 				}
 			});
 		}
 	}
 
+	private void showDialogSetSleepTimer() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		LayoutInflater inflater = ((Activity) this).getLayoutInflater();
+		View v = inflater.inflate(R.layout.sleep_time_selector_dialog, null);
+		SeekBar seekBar = (SeekBar) v.findViewById(R.id.seekBar);
+		TextView textView = (TextView) v.findViewById(R.id.textMinutes);
+		seekBar.setMax(100);
+		seekBar.setProgress(0);
+		textView.setText("20 minutes");
+		seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+			}
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+			                              boolean fromUser) {
+				int val = seekBar.getProgress() + 20;
+				String text = val + " minutes";
+				textView.setText(text);
+			}
+		});
+		builder.setView(v)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int i) {
+						String stringVal = textView.getText().toString();
+						int intVal = Integer.parseInt(stringVal.substring(
+								0,
+								stringVal.indexOf(" ")
+						));
+						if (intVal < 20)
+							Toast.makeText(getApplicationContext(), "Incorrect value", Toast.LENGTH_SHORT).show();
+						else {
+							Intent intentSleep = new Intent(getApplicationContext(), MusicService.class);
+							intentSleep.setAction(ACTION_CMD);
+							intentSleep.putExtra(CMD_NAME, CMD_SLEEP_START);
+							intentSleep.putExtra(EXTRA_TIME_TO_SLEEP, intVal*60000);
+							startService(intentSleep);
+							dialogInterface.dismiss();
+							if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+								mDrawerLayout.closeDrawers();
+								return;
+							}
+						}
+					}
+				})
+				.setCancelable(true)
+				.setTitle("Select minutes before sleep");
+		builder.create();
+		builder.show();
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.M)
+	boolean isSleepTimerRunning(){
+		NotificationManager nm=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		boolean isRunning=false;
+			StatusBarNotification[] notifications=nm.getActiveNotifications();
+			if(notifications !=null){
+				for(StatusBarNotification notification: notifications){
+					if(notification.getId()==NOTIFICATION_ID_SLEEP) {
+						isRunning=true;
+						break;
+					}
+				}
+			}
+
+		return isRunning;
+	}
     private void populateDrawerItems(NavigationView navigationView) {
 
         navigationView.setNavigationItemSelectedListener(
@@ -273,9 +390,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
 	                    Timber.w("test");
-
-
-                        return true;
+	                    return true;
                     }
                 });
 

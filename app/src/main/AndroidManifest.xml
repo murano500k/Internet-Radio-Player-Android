@@ -130,6 +130,9 @@
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.stc.radio.player.ACTION_CMD" />
+            </intent-filter>
         </service>
 
         <!--              (REQUIRED) use this meta data to to declare the app OptionsProvider. -->
@@ -160,14 +163,6 @@
         <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".AlarmReceiver"
-                  android:enabled="true"
-                  android:exported="true">
-            <intent-filter>
-                <action android:name="com.stc.radio.player.SLEEP_TIMER_CANCEL" />
-                <action android:name="com.stc.radio.player.SLEEP_TIMER_START" />
             </intent-filter>
         </receiver>
 

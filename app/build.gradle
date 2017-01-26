@@ -20,8 +20,8 @@ android {
         applicationId "com.stc.radio.player"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 16
-        versionName "2.3.0"
+        versionCode 17
+        versionName "2.3.1"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         jackOptions {
@@ -34,6 +34,7 @@ android {
         ignore 'InvalidPackage'
         abortOnError false
     }
+\
 
 
     buildTypes {
@@ -73,7 +74,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.dagger:dagger:2.7'
+    compile 'com.google.dagger:dagger:2.8'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.7'
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
@@ -85,7 +86,7 @@ dependencies {
     }
     compile 'com.turingtechnologies.materialscrollbar:lib:10.1.4'
     compile 'com.github.jd-alexander:LikeButton:0.2.0'
-    compile 'com.jakewharton.timber:timber:4.3.1'
+    compile 'com.jakewharton.timber:timber:4.5.1'
     compile 'com.mikepenz:materialize:1.0.0@aar'
     compile 'com.mikepenz:fastadapter-extensions:1.8.0@aar'
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
@@ -93,7 +94,7 @@ dependencies {
     compile 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
     compile 'com.wang.avi:library:1.0.5'
-    compile 'com.github.pwittchen:reactivenetwork:0.6.0'
+    compile 'com.github.pwittchen:reactivenetwork:0.7.0'
     compile 'com.cantrowitz:rxbroadcast:2.0.0'
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
@@ -103,10 +104,6 @@ dependencies {
 
 
     compile 'junit:junit:4.12'
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test:runner:0.5'
-    androidTestCompile 'com.android.support.test:rules:0.5'
-    androidTestCompile 'org.mockito:mockito-core:1.10.19'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     debugCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
 
@@ -118,14 +115,19 @@ dependencies {
     compile 'com.android.support:palette-v7:25.1.0'
     compile 'com.android.support:recyclerview-v7:25.1.0'
     compile 'com.android.support:support-annotations:25.1.0'
-    androidTestCompile 'com.android.support:support-annotations:25.1.0'
     compile 'com.android.support:support-v13:25.1.0'
-    androidTestCompile 'com.android.support:support-v13:25.1.0'
 
-    compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.3-alpha', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    androidTestCompile 'com.android.support:support-annotations:25.1.0'
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support.test:runner:0.6-alpha'
+    androidTestCompile 'com.android.support.test:rules:0.6-alpha'
+    androidTestCompile 'org.mockito:mockito-core:1.10.19'
+    androidTestCompile 'com.android.support:support-v13:25.1.0'
+
+
 
 
 }

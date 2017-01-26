@@ -185,7 +185,7 @@ public class PlaybackControlsFragment extends Fragment {
 			artUrl = metadata.getDescription().getIconUri().toString();
 		}
 
-		if (true || !TextUtils.equals(artUrl, this.artUrl)) {
+		if (!TextUtils.equals(artUrl, this.artUrl)) {
 			this.artUrl = artUrl;
 			Bitmap art = metadata.getDescription().getIconBitmap();
 			com.stc.radio.player.AlbumArtCache cache = AlbumArtCache.getInstance();

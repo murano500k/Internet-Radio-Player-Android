@@ -1,9 +1,14 @@
 package com.stc.radio.player;
 
 import android.app.Instrumentation;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.SystemClock;
+import android.service.notification.StatusBarNotification;
+import android.support.annotation.RequiresApi;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.idling.CountingIdlingResource;
@@ -27,6 +32,13 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.stc.radio.player.MusicService.ACTION_CMD;
+import static com.stc.radio.player.MusicService.CMD_NAME;
+import static com.stc.radio.player.MusicService.CMD_SLEEP_CANCEL;
+import static com.stc.radio.player.MusicService.CMD_SLEEP_START;
+import static com.stc.radio.player.MusicService.EXTRA_TIME_TO_SLEEP;
+import static com.stc.radio.player.MusicService.SleepCountdownTimer.NOTIFICATION_ID_SLEEP;
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -52,7 +64,9 @@ public class GeneralTest {
 		instrumentation= InstrumentationRegistry.getInstrumentation();
 		context=instrumentation.getTargetContext();
 		audioManager=(AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-		}
+		idlingResource= new CountingIdlingResource("test");
+		Espresso.registerIdlingResources(idlingResource);
+	}
 
 	public void initTest(){
 		MusicProviderSource source= new RemoteSource();
@@ -203,6 +217,69 @@ public class GeneralTest {
 		assertTrue(!audioManager.isMusicActive());
 		//playNoWait(0);
 
+
+	}
+
+	@Test
+	@RequiresApi(api = Build.VERSION_CODES.M)
+	public void testSleepTimer(){
+		Intent intentSleep = new Intent(instrumentation.getTargetContext(), MusicService.class);
+		intentSleep.setAction(ACTION_CMD);
+		intentSleep.putExtra(CMD_NAME, CMD_SLEEP_START);
+		intentSleep.putExtra(EXTRA_TIME_TO_SLEEP, 60000);
+		idlingResource.increment();
+
+		instrumentation.runOnMainSync(new Runnable() {
+			@Override
+			public void run() {
+				Log.d(TAG, "Start service");
+
+				instrumentation.getTargetContext().startService(intentSleep);
+				SystemClock.sleep(5000);
+				NotificationManager nm=(NotificationManager)instrumentation.getTargetContext()
+				.getSystemService(NOTIFICATION_SERVICE);
+				boolean isRunning=false;
+				StatusBarNotification[] notifications=nm.getActiveNotifications();
+				if(notifications !=null){
+					for(StatusBarNotification notification: notifications){
+						if(notification.getId()==NOTIFICATION_ID_SLEEP) {
+							isRunning=true;
+							break;
+						}
+					}
+				}
+				assertTrue(isRunning);
+				idlingResource.decrement();
+			}
+		});
+
+		instrumentation.waitForIdleSync();
+
+		Intent intentSleepCancel = new Intent(instrumentation.getTargetContext(), MusicService.class);
+		intentSleep.setAction(ACTION_CMD);
+		intentSleep.putExtra(CMD_NAME, CMD_SLEEP_CANCEL);
+		idlingResource.increment();
+		instrumentation.runOnMainSync(new Runnable() {
+			@Override
+			public void run() {
+				instrumentation.getTargetContext().startService(intentSleepCancel);
+				NotificationManager nm=(NotificationManager)instrumentation.getTargetContext()
+						.getSystemService(NOTIFICATION_SERVICE);
+				boolean isRunning=false;
+				StatusBarNotification[] notifications=nm.getActiveNotifications();
+				if(notifications !=null){
+					for(StatusBarNotification notification: notifications){
+						if(notification.getId()==NOTIFICATION_ID_SLEEP) {
+							isRunning=true;
+							break;
+						}
+					}
+				}
+				assertTrue(!isRunning);
+				idlingResource.decrement();
+			}
+		});
+		instrumentation.waitForIdleSync();
 
 	}
 }

@@ -16,53 +16,41 @@
 
 package com.stc.radio.player;
 
- import android.app.Activity;
- import android.app.AlarmManager;
- import android.app.AlertDialog;
- import android.app.PendingIntent;
- import android.content.BroadcastReceiver;
- import android.content.Context;
- import android.content.DialogInterface;
- import android.content.Intent;
- import android.content.IntentFilter;
- import android.content.pm.PackageInfo;
- import android.content.pm.PackageManager;
- import android.os.Bundle;
- import android.os.Handler;
- import android.os.Message;
- import android.os.RemoteException;
- import android.support.annotation.NonNull;
- import android.support.v4.media.MediaBrowserCompat.MediaItem;
- import android.support.v4.media.MediaBrowserServiceCompat;
- import android.support.v4.media.MediaMetadataCompat;
- import android.support.v4.media.session.MediaButtonReceiver;
- import android.support.v4.media.session.MediaSessionCompat;
- import android.support.v4.media.session.PlaybackStateCompat;
- import android.support.v7.media.MediaRouter;
+ import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
+import android.support.annotation.NonNull;
+import android.support.v4.media.MediaBrowserCompat.MediaItem;
+import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v7.media.MediaRouter;
  import android.util.Log;
- import android.view.LayoutInflater;
- import android.view.View;
- import android.widget.SeekBar;
- import android.widget.TextView;
  import android.widget.Toast;
 
- import com.stc.radio.player.model.MusicProvider;
- import com.stc.radio.player.playback.ExoPlayback;
- import com.stc.radio.player.playback.PlaybackManager;
- import com.stc.radio.player.playback.QueueManager;
- import com.stc.radio.player.ui.MusicPlayerActivity;
- import com.stc.radio.player.utils.CarHelper;
- import com.stc.radio.player.utils.LogHelper;
- import com.stc.radio.player.utils.SettingsProvider;
+import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.playback.ExoPlayback;
+import com.stc.radio.player.playback.PlaybackManager;
+import com.stc.radio.player.playback.QueueManager;
+import com.stc.radio.player.ui.MusicPlayerActivity;
+import com.stc.radio.player.utils.CarHelper;
+import com.stc.radio.player.utils.LogHelper;
 
- import java.lang.ref.WeakReference;
- import java.util.GregorianCalendar;
- import java.util.List;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
- import static com.stc.radio.player.AlarmReceiver.SLEEP_TIMER_CANCEL;
- import static com.stc.radio.player.AlarmReceiver.SLEEP_TIMER_START;
- import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
-
+import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
  /**
@@ -137,7 +125,11 @@ package com.stc.radio.player;
      // A value of a CMD_NAME key in the extras of the incoming Intent that
      // indicates that the music playback should be paused (see {@link #onStartCommand})
      public static final String CMD_PAUSE = "com.stc.radio.player.CMD_PAUSE";
-     // A value of a CMD_NAME key that indicates that the music playback should switch
+	 public static final String CMD_SLEEP_CANCEL = "com.stc.radio.player.CMD_SLEEP_CANCEL";
+	 public static final String CMD_SLEEP_START = "com.stc.radio.player.CMD_SLEEP_START";
+	 public static final String EXTRA_TIME_TO_SLEEP = "com.stc.radio.player.EXTRA_TIME_TO_SLEEP";
+
+	 // A value of a CMD_NAME key that indicates that the music playback should switch
      // to local playback from cast playback.
      public static final String CMD_STOP_CASTING = "com.stc.radio.player.CMD_STOP_CASTING";
      // Delay stopSelf by using a handler.
@@ -154,59 +146,16 @@ package com.stc.radio.player;
      private PackageValidator mPackageValidator;
      private boolean mIsConnectedToCar;
      private BroadcastReceiver mCarConnectionReceiver;
+	 private SleepCountdownTimer sleepTimer;
 
-	 public void checkDBVersion(){
-		 /*if(getVersionCode()<6) {
-			 ActiveAndroid.beginTransaction();
-			 try {
-				 From from=new Delete().from(DBMediaItem.class);
-				 if(from.exists())from.execute();
-				 from=new Delete().from(DBUserPrefsItem.class);
-				 if(from.exists())from.execute();
-			 }catch (Exception e){
 
-			 }
-			 finally {
-				 ActiveAndroid.endTransaction();
-			 }
-		 }
-*/
-	 }
-
-	 private String getAppVersion(){
-		 try {
-			 PackageInfo _info = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0);
-			 return _info.versionName;
-		 } catch (PackageManager.NameNotFoundException e) {
-			 e.printStackTrace();
-			 return "";
-		 }
-	 }
-
-	 private int getVersionCode(){
-		 try {
-			 PackageInfo _info = getApplicationContext().getPackageManager().getPackageInfo(getApplicationContext().getPackageName(), 0);
-			 return _info.versionCode;
-		 } catch (PackageManager.NameNotFoundException e) {
-			 e.printStackTrace();
-			 return -1;
-		 }
-	 }
-     /*
-      * (non-Javadoc)
-      * @see android.app.Service#onCreate()
-      */
      @Override
      public void onCreate() {
          super.onCreate();
-	     checkDBVersion();
          LogHelper.d(TAG, "onCreate");
 
          mMusicProvider = new MusicProvider();
 
-         // To make the app more responsive, fetch and cache catalog information now.
-         // This can help improve the response time in the method
-         // {@link #onLoadChildren(String, Result<List<MediaItem>>) onLoadChildren()}.
          mMusicProvider.retrieveMediaAsync(null /* Callback */);
 
          mPackageValidator = new PackageValidator(this);
@@ -239,7 +188,6 @@ package com.stc.radio.player;
 
 
 
-         //MyLocalPlayback playback = new MyLocalPlayback(this, mMusicProvider);
 	     ExoPlayback playback = new ExoPlayback(this, mMusicProvider);
          mPlaybackManager = new PlaybackManager(this, getResources(), mMusicProvider, queueManager,
                  playback);
@@ -284,12 +232,20 @@ package com.stc.radio.player;
       */
      @Override
      public int onStartCommand(Intent startIntent, int flags, int startId) {
-         if (startIntent != null) {
-             String action = startIntent.getAction();
+	     if (startIntent != null) {
+
+
+		     String action = startIntent.getAction();
              String command = startIntent.getStringExtra(CMD_NAME);
+		     Log.d(TAG, "onStartCommand: action="+action);
+		     Log.d(TAG, "onStartCommand: cmd="+command);
              if (ACTION_CMD.equals(action)) {
                  if (CMD_PAUSE.equals(command)) {
                      mPlaybackManager.handlePauseRequest();
+                 }else if(CMD_SLEEP_START.equals(command)){
+	                startSleepTimer(startIntent);
+                 }else if(CMD_SLEEP_CANCEL.equals(command)){
+					cancelSleepTimer();
                  }
              } else {
                  // Try to handle the intent as a media button event wrapped by MediaButtonReceiver
@@ -303,7 +259,30 @@ package com.stc.radio.player;
          return START_STICKY;
      }
 
-     /**
+	 private void cancelSleepTimer() {
+		 if(sleepTimer !=null) {
+			 Toast.makeText(this, "Sleep timer cancelled", Toast.LENGTH_SHORT).show();
+			 sleepTimer.cancelTimer();
+			 sleepTimer=null;
+		 }
+	 }
+
+	 public void startSleepTimer(Intent startIntent) {
+		 cancelSleepTimer();
+		 int timeToSleep=1200000;
+		 if(startIntent.getExtras().containsKey(EXTRA_TIME_TO_SLEEP)){
+			 timeToSleep=startIntent.getExtras().getInt(EXTRA_TIME_TO_SLEEP);
+		 }
+		 if(timeToSleep<30000 || timeToSleep>90000000){
+			 timeToSleep=1200000;
+		 }
+		 Log.d(TAG, "startSleepTimer: "+timeToSleep);
+		 sleepTimer=new SleepCountdownTimer(timeToSleep,this);
+		 sleepTimer.start();
+
+	 }
+
+	 /**
       * (non-Javadoc)
       * @see android.app.Service#onDestroy()
       */
@@ -449,86 +428,82 @@ package com.stc.radio.player;
      }
 
 
-	 public static void scheduleAlarm(Context context) {
-		 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		 LayoutInflater inflater = ((Activity) context).getLayoutInflater();
-		if(SettingsProvider.getTimerValueMinutes()!=0) {
-			scheduleAlarm(context, 0);
-			return;
-		}else {
-			View v = inflater.inflate(R.layout.sleep_time_selector_dialog, null);
-			SeekBar seekBar = (SeekBar) v.findViewById(R.id.seekBar);
-			TextView textView = (TextView) v.findViewById(R.id.textMinutes);
-			seekBar.setMax(100);
-			seekBar.setProgress(0);
-			textView.setText("20 minutes");
-			seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-				@Override
-				public void onStopTrackingTouch(SeekBar seekBar) {
-				}
-
-				@Override
-				public void onStartTrackingTouch(SeekBar seekBar) {
-				}
-
-				@Override
-				public void onProgressChanged(SeekBar seekBar, int progress,
-				                              boolean fromUser) {
-					int val = seekBar.getProgress()+20;
-					String text = val + " minutes";
-					textView.setText(text);
-				}
-			});
-			builder.setView(v)
-					.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialogInterface, int i) {
-							String stringVal = textView.getText().toString();
-							int intVal = Integer.parseInt(stringVal.substring(
-									0,
-									stringVal.indexOf(" ")
-							));
-							if (intVal < 0)
-								Toast.makeText(context, "Incorrect value", Toast.LENGTH_SHORT).show();
-							else scheduleAlarm(context, intVal);
-							dialogInterface.dismiss();
-						}
-					})
-					.setCancelable(true)
-					.setTitle("Select minutes before sleep");
-			builder.create();
-			builder.show();
-		}
 
 
-	 }
+	 public class SleepCountdownTimer extends CountDownTimer
+	 {
+		 public static final int NOTIFICATION_ID_SLEEP = 125;
+		 private static final String TAG = "SleepCountdownTimer";
+		 private final Context mContext;
+		 NotificationManager notificationManager;
+		 Notification notification;
+		 private static final int TIMER_UPDATE_INTERVAL=1000;
 
-		 public static void scheduleAlarm(Context context, int timeInMinutes ) {
-		    Log.d(TAG, "scheduleAlarm: "+timeInMinutes);
-		    Long time = new GregorianCalendar().getTimeInMillis()+timeInMinutes*60*1000;
-		    SettingsProvider.setTimerValueMinutes(timeInMinutes);
-			 Intent intentAlarm = new Intent(context, AlarmReceiver.class);
-			 intentAlarm.setAction(timeInMinutes==0 ? SLEEP_TIMER_CANCEL: SLEEP_TIMER_START);
-			 //context.sendBroadcast(intentAlarm);
 
-			 PendingIntent pendingIntent=PendingIntent.getBroadcast(
-			 		context.getApplicationContext(),
-					 1,
-					 intentAlarm,
-					 PendingIntent.FLAG_ONE_SHOT);
-			AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-			if(timeInMinutes!=0) {
-				Log.d(TAG, "scheduleAlarm: run");
-				alarmManager.set(AlarmManager.RTC_WAKEUP,time, pendingIntent);
-				Toast.makeText(context, "Alarm Scheduled for " + timeInMinutes + " minutes", Toast.LENGTH_SHORT).show();
-			}
-			else {
-				Log.d(TAG, "scheduleAlarm: cancel");
-				alarmManager.cancel(pendingIntent);
-			}
+		 public SleepCountdownTimer(long startTime, Context c)
+		 {
+			 super(startTime, TIMER_UPDATE_INTERVAL);
+
+			 notificationManager=(NotificationManager) c.getSystemService(NOTIFICATION_SERVICE);
+			 this.mContext =c;
+			 if(notification!=null){
+				 notificationManager.cancel(NOTIFICATION_ID_SLEEP);
+			 }
+
+			 String string = startTime/60000+" minutes left";
+			 notification=createNotification(string);
+			 notificationManager.notify(NOTIFICATION_ID_SLEEP, notification);
+
+		 }
+		 private Intent getCmdIntent(String cmd ){
+			 Intent i = new Intent(mContext, MusicService.class);
+			 i.setAction(MusicService.ACTION_CMD);
+			 i.putExtra(MusicService.CMD_NAME, cmd);
+			 return i;
 		 }
 
+		 @Override
+		 public void onFinish()
+		 {
+			 notificationManager.cancel(NOTIFICATION_ID_SLEEP);
+			 Toast.makeText(mContext, "Sleep timer finished", Toast.LENGTH_SHORT).show();
+			 mContext.startService(getCmdIntent(CMD_PAUSE));
+		 }
 
+		 @Override
+		 public void onTick(long millisUntilFinished)
+		 {
+			 String string;
+			 long secondsUntilFinished=millisUntilFinished/1000;
+			 long minsLft=secondsUntilFinished/60;
+			 long secsLeft=secondsUntilFinished%60;
+
+			 if(minsLft == 0) string="less than a minute remaining";
+			 else string =  minsLft+" minutes "+secsLeft+" seconds left";
+
+			 /*if(notification!=null){
+				 notificationManager.cancel(NOTIFICATION_ID_SLEEP);
+			 }*/
+			 notification=createNotification(string);
+			 notificationManager.notify(NOTIFICATION_ID_SLEEP, notification);
+		 }
+
+		 private Notification createNotification(String string) {
+			 PendingIntent pendingIntent=PendingIntent.getService(mContext, 0,
+					 getCmdIntent(CMD_SLEEP_CANCEL),
+					 PendingIntent.FLAG_CANCEL_CURRENT);
+			 return new Notification.Builder(mContext)
+					 .setContentIntent(pendingIntent)
+					 .setSmallIcon(R.drawable.ic_timer)
+					 .setContentTitle("Sleep timer is running. Click to cancel" )
+					 .setContentText(string)
+					 .build();
+		 }
+		 public void cancelTimer(){
+				notificationManager.cancel(NOTIFICATION_ID_SLEEP);
+			 this.cancel();
+		 }
+	 }
 
 
  }
