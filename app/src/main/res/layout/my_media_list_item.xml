@@ -4,84 +4,99 @@
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
+    android:background="@drawable/fullscreen_bg_gradient"
     android:clickable="true"
-    android:elevation="100dp"
 
-    android:background="@drawable/fullscreen_bg_gradient">
+    android:elevation="100dp">
 
-    <RelativeLayout
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
 
         <com.like.LikeButton
             android:id="@+id/fav_button"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="4dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:elevation="20dp"
             android:visibility="gone"
             app:icon_size="16dp"
             app:icon_type="star"
             app:is_enabled="true"
-/>
+            tools:layout_editor_absoluteX="24dp"
+            tools:layout_editor_absoluteY="174dp"/>
 
         <com.stc.radio.player.GridItemImageView
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/icon_list_item"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/colorSecondary"
-
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginTop="0dp"
+            android:background="@color/colorAccent"
             android:clickable="false"
             android:focusable="false"
             android:scaleType="centerCrop"
-            />
+            android:transitionName="@string/art_transition"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title"
+            app:layout_constraintVertical_bias="0.0"/>
 
-        <RelativeLayout
 
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/play_eq"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:contentDescription="@string/play_item"
+            android:elevation="20dp"
+            android:src="@drawable/ic_play"
+            android:tintMode="src_in"
+            app:layout_constraintBottom_toBottomOf="@+id/icon_list_item"
+            app:layout_constraintLeft_toLeftOf="@+id/title"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+            android:layout_marginRight="8dp"
+            app:layout_constraintRight_toRightOf="@+id/icon_list_item"/>
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:gravity="top|center_vertical">
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginTop="0dp"
+            android:background="@color/transparent_black"
+            android:elegantTextHeight="true"
 
-            <ImageView
-                android:id="@+id/play_eq"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_centerInParent="false"
-                android:layout_centerVertical="true"
-                android:contentDescription="@string/play_item"
-                android:elevation="20dp"
-                android:src="@drawable/ic_play"
-                android:tintMode="src_in"
-                android:layout_margin="4dp"/>
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:elegantTextHeight="true"
-                android:padding="4dp"
-                android:layout_marginBottom="4dp"
-                android:lines="2"
-                android:text="di\ndrumandbass"
-                android:background="@color/transparent_black"
-
-                android:textAlignment="viewEnd"
-                android:textSize="14sp"
-                android:textColor="@color/colorTextAccent"
-                android:layout_alignParentTop="true"/>
-
-        </RelativeLayout>
+            android:lines="2"
+            android:padding="4dp"
+            android:text="di\ndrumandbass"
+            android:textColor="@color/colorTextAccent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_conversion_absoluteHeight="41dp"
+            tools:layout_conversion_absoluteWidth="376dp"
+            tools:layout_conversion_absoluteX="0dp"
+            tools:layout_conversion_absoluteY="0dp"/>
 
 
-    </RelativeLayout>
+    </android.support.constraint.ConstraintLayout>
 
 </android.support.v7.widget.CardView>
 

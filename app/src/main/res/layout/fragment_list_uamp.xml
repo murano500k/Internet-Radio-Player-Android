@@ -69,7 +69,7 @@
         android:columnWidth="@dimen/movie_grid_item_width"
         android:orientation="vertical"
         tools:listitem="@layout/grid_item"
-        android:background="@color/md_black_1000"/>
+        android:background="@color/colorPrimaryDark"/>
 
     <com.turingtechnologies.materialscrollbar.DragScrollBar
         android:id="@+id/dragScrollBar"

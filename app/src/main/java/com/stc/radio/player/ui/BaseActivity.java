@@ -27,6 +27,9 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.transition.ChangeBounds;
+import android.transition.Slide;
+import android.view.Gravity;
 
 import com.stc.radio.player.MusicService;
 import com.stc.radio.player.R;
@@ -76,6 +79,13 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
 
         mControlsFragment = (PlaybackControlsFragment) getFragmentManager()
             .findFragmentById(R.id.fragment_playback_controls);
+        Slide slideTransition = new Slide(Gravity.BOTTOM);
+        slideTransition.setDuration(getResources().getInteger(R.integer.anim_duration_long));
+        mControlsFragment.setReenterTransition(slideTransition);
+        mControlsFragment.setEnterTransition(slideTransition);
+        mControlsFragment.setExitTransition(slideTransition);
+        mControlsFragment.setSharedElementEnterTransition(new ChangeBounds());
+
         if (mControlsFragment == null) {
             throw new IllegalStateException("Mising fragment with id 'controls'. Cannot continue.");
         }
@@ -110,11 +120,10 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
     protected void showPlaybackControls() {
         LogHelper.d(TAG, "showPlaybackControls");
         if (com.stc.radio.player.utils.NetworkHelper.isOnline(this)) {
+
             getFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                    R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom,
-                    R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom)
                 .show(mControlsFragment)
+                    .addSharedElement(mControlsFragment.mAlbumArt, getString(R.string.art_transition))
                 .commit();
         }
     }

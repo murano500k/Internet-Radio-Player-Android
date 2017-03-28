@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#19181b</color>
-    <color name="colorPrimaryDark">#30324c</color>
-    <color name="colorSecondary">#666666</color>
-    <color name="colorAccent">#17947f</color>
-    <color name="colorText">#b7b4f1</color>
-    <color name="colorTextAccent">#aeeee3</color>
+    <color name="colorPrimary">#424242</color>
+    <color name="colorPrimaryDark">#212121</color>
+    <color name="colorPrimaryLight">#616161</color>
+    <color name="colorSecondary">#212121</color>
+    <color name="colorAccent">#009688</color>
+    <color name="colorText">#eeeeee</color>
+    <color name="colorTextAccent">#f5f5f5</color>
     <color name="tv_branding_dark">#ffbf360c</color>
     <color name="tv_branding_accent">#00B8D4</color>
     <color name="bt_accent">#00B8D4</color>
@@ -17,6 +18,9 @@
     <color name="tv_search_button">#ff0097A7</color>
     <color name="default_background">#0096a6</color>
     <color name="transparent_black">#99000000</color>
+
+    <color name="icons">#212121</color>
+    <color name="divider">#BDBDBD</color>
 
 
 </resources>

@@ -28,7 +28,11 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -61,7 +65,7 @@ public class PlaybackControlsFragment extends Fragment {
 
 	private TextView mArtist;
 	private TextView mStation;
-	private ImageView mAlbumArt;
+	public ImageView mAlbumArt;
 	private View rootView;
 
 	String artUrl;
@@ -214,10 +218,34 @@ public class PlaybackControlsFragment extends Fragment {
 	}
 
 	private void animateAlbumArt(Bitmap art) {
-		mAlbumArt.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.album_art_fade_out));
-		mAlbumArt.setImageBitmap(art);
-		mAlbumArt.startAnimation(AnimationUtils.loadAnimation(getActivity(), R.anim.album_art_fade_in));
+             animate(mAlbumArt, art);
 	}
+    private void animate(final ImageView imageView,Bitmap endImage) {
+
+
+        int fadeInDuration = 500; // Configure time values here
+        int timeBetween = 3000;
+        int fadeOutDuration = 1000;
+
+        imageView.setVisibility(View.INVISIBLE);    //Visible or invisible by default - this will apply when the animation ends
+        imageView.setImageBitmap(endImage);
+
+        Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new DecelerateInterpolator()); // add this
+        fadeIn.setDuration(fadeInDuration);
+
+        Animation fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setInterpolator(new AccelerateInterpolator()); // and this
+        fadeOut.setStartOffset(fadeInDuration + timeBetween);
+        fadeOut.setDuration(fadeOutDuration);
+
+        AnimationSet animation = new AnimationSet(false); // change to false
+        animation.addAnimation(fadeIn);
+        animation.addAnimation(fadeOut);
+        animation.setRepeatCount(1);
+        imageView.setAnimation(animation);
+
+    }
 
 	public void setExtraInfo(String extraInfo) {
 		if (extraInfo!= null) {

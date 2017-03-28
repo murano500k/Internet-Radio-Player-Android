@@ -28,9 +28,12 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.transition.ChangeBounds;
+import android.transition.Slide;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.WindowManager;
 
@@ -82,7 +85,7 @@ public class MusicPlayerActivity extends BaseActivity
 
 
         initializeFromParams(savedInstanceState, getIntent());
-	    initializeToolbar();
+	      initializeToolbar();
         // Only check if a full screen player is needed on the first time:
         if (savedInstanceState == null) {
             startFullScreenActivityIfNeeded(getIntent());
@@ -225,12 +228,19 @@ public class MusicPlayerActivity extends BaseActivity
 	    isRoot=false;
         MediaBrowserFragment fragment = getBrowseFragment();
         if (fragment == null || !TextUtils.equals(fragment.getMediaId(), mediaId)) {
+            Slide slideTransition = new Slide(Gravity.LEFT);
+            slideTransition.setDuration(getResources().getInteger(R.integer.anim_duration_long));
+
             fragment = new MediaBrowserFragment();
             fragment.setMediaId(mediaId);
+
+            fragment.setReenterTransition(slideTransition);
+            fragment.setExitTransition(slideTransition);
+            fragment.setSharedElementEnterTransition(new ChangeBounds());
+
+
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(
-                R.animator.slide_in_from_right, R.animator.slide_out_to_left,
-                R.animator.slide_in_from_left, R.animator.slide_out_to_right);
+
             transaction.replace(R.id.container, fragment, FRAGMENT_TAG);
             // If this is not the top level media (root), we add it to the fragment back stack,
             // so that actionbar toggle and Back will work appropriately:

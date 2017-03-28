@@ -9,8 +9,17 @@
         <item name="android:textColor">@color/colorText</item>
         <item name="android:textColorHighlight">@color/colorTextAccent</item>
         <item name="android:windowActionBar">false</item>
+        <item name="android:windowContentTransitions">true</item>
+
 
     </style>
+    <style name="AppTheme.TextApperarance.Label" parent="AppTheme.TextApperarance.Label">
+        <!-- Customize your theme here. -->
+
+        <item name="android:windowActionBar">false</item>
+
+    </style>
+
     <!-- <style name="AppTheme.PopupOverlay" parent="AppTheme">
          <item name="windowActionModeOverlay">true</item>
          <item name="colorPrimary">@color/colorPrimary</item>
