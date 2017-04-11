@@ -8,7 +8,7 @@
                                              android:name="com.stc.radio.player.ui.PlaybackControlsFragment"
                                              android:layout_width="match_parent"
                                              android:layout_height="wrap_content"
-                                             android:background="@color/colorAccent"
+                                             android:background="@color/colorPrimary"
                                              android:elevation="6dp"
                                              tools:context="com.stc.radio.player.ui.ActionBarCastActivity"
                                              tools:layout_editor_absoluteX="0dp"
@@ -18,10 +18,12 @@
         android:id="@+id/title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
 
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:contentDescription="@string/currently_playing_song"
         android:ellipsize="end"
         android:maxLines="1"
@@ -31,6 +33,8 @@
         app:layout_constraintLeft_toRightOf="@+id/album_art"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
         tools:text="The Best Music EVAH1111 THE BEST"/>
 
     <TextView
@@ -45,8 +49,14 @@
         android:textColor="@color/colorTextAccent"
         android:textStyle="normal|bold"
         android:visibility="gone"
-        tools:layout_editor_absoluteX="192dp"
-        tools:layout_editor_absoluteY="0dp"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"
         tools:text="casting to MyCast"/>
 
     <TextView
@@ -61,44 +71,62 @@
         android:textColor="@color/md_blue_grey_200"
         android:textStyle="normal|italic"
         android:visibility="gone"
-        tools:layout_editor_absoluteX="192dp"
-        tools:layout_editor_absoluteY="0dp"
+        app:layout_constraintLeft_toRightOf="@+id/station"
+        app:layout_constraintRight_toRightOf="@+id/station"
+        app:layout_constraintTop_toBottomOf="@+id/station"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"
         tools:text="John Doe and Band"/>
 
     <ImageButton
         android:id="@+id/play_prev"
         android:layout_width="67dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="7dp"
         android:layout_marginTop="8dp"
         android:background="?attr/actionBarItemBackground"
         android:elevation="15dp"
         android:src="@android:drawable/ic_media_previous"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/station"
+        app:layout_constraintRight_toRightOf="@+id/station"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        tools:layout_editor_absoluteX="160dp"/>
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"/>
 
     <ImageButton
         android:id="@+id/play_pause"
         android:layout_width="67dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="7dp"
+        android:layout_marginEnd="75dp"
+        android:layout_marginStart="74dp"
         android:layout_marginTop="8dp"
         android:background="?attr/actionBarItemBackground"
         android:elevation="15dp"
         android:src="@android:drawable/ic_media_play"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@+id/play_prev"
+        app:layout_constraintRight_toRightOf="@+id/title"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        tools:layout_editor_absoluteX="234dp"/>
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"/>
 
     <com.like.LikeButton
         android:id="@+id/fav_button_control"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="27dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="27dp"
         android:background="?attr/actionBarItemBackground"
         android:elevation="15dp"
         app:icon_size="16dp"
@@ -107,43 +135,58 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/album_art"
         app:layout_constraintRight_toLeftOf="@+id/play_prev"
-        app:layout_constraintTop_toBottomOf="@+id/title"/>
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"/>
 
     <ImageButton
         android:id="@+id/play_next"
-        android:layout_width="67dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginStart="9dp"
         android:layout_marginTop="8dp"
         android:background="?attr/actionBarItemBackground"
         android:elevation="15dp"
         android:src="@android:drawable/ic_media_next"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/play_pause"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title"
-        tools:layout_editor_absoluteX="310dp"/>
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1"/>
 
     <ImageView
         android:id="@+id/album_art"
         android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_height="0dp"
 
         android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:clickable="true"
         android:scaleType="fitXY"
         android:transitionName="@string/art_transition"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="8dp"
-        tools:src="@mipmap/ic_launcher"/>
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintTop_creator="1"
+        tools:src="@drawable/ic_queue_music_black_24dp"/>
 
     <android.support.constraint.Guideline
-        android:id="@+id/guideline"
         android:layout_width="wrap_content"
         android:layout_height="1dp"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="64dp"
-        />
+        app:layout_constraintGuide_begin="72dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="72dp"/>
 
 
     <!--android:background="@color/colorPrimary"

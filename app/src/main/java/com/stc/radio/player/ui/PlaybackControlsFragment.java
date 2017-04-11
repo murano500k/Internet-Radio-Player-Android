@@ -223,11 +223,11 @@ public class PlaybackControlsFragment extends Fragment {
     private void animate(final ImageView imageView,Bitmap endImage) {
 
 
-        int fadeInDuration = 500; // Configure time values here
+        int fadeInDuration = 1000; // Configure time values here
         int timeBetween = 3000;
         int fadeOutDuration = 1000;
 
-        imageView.setVisibility(View.INVISIBLE);    //Visible or invisible by default - this will apply when the animation ends
+
         imageView.setImageBitmap(endImage);
 
         Animation fadeIn = new AlphaAnimation(0, 1);

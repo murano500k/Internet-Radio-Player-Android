@@ -36,12 +36,12 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/icon_list_item"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="0dp"
             android:layout_marginTop="0dp"
-            android:background="@color/colorAccent"
+            android:background="@color/colorPrimaryDark"
             android:clickable="false"
             android:focusable="false"
             android:scaleType="centerCrop"
@@ -51,29 +51,30 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@+id/title"
-            app:layout_constraintVertical_bias="0.0"/>
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/ic_queue_music_black_24dp"/>
 
 
         <ImageView
             android:id="@+id/play_eq"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
             android:contentDescription="@string/play_item"
             android:elevation="20dp"
-            android:src="@drawable/ic_play"
+            android:src="@drawable/ic_play_arrow_black_36dp"
             android:tintMode="src_in"
-            app:layout_constraintBottom_toBottomOf="@+id/icon_list_item"
-            app:layout_constraintLeft_toLeftOf="@+id/title"
-            app:layout_constraintTop_toBottomOf="@+id/title"
-            android:layout_marginRight="8dp"
-            app:layout_constraintRight_toRightOf="@+id/icon_list_item"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/title"/>
 
         <TextView
             android:id="@+id/title"
-            style="@style/TextAppearance.AppCompat.Medium"
+            style="@style/TextAppearance.AppCompat.Small"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="0dp"

@@ -44,7 +44,7 @@ public class TvVerticalGridActivity extends FragmentActivity
         mMediaId = getIntent().getStringExtra(TvBrowseActivity.SAVED_MEDIA_ID);
         mTitle = getIntent().getStringExtra(TvBrowseActivity.BROWSE_TITLE);
 
-        getWindow().setBackgroundDrawableResource(R.drawable.bg);
+        //getWindow().setBackgroundDrawableResource(R.drawable.bg);
 
         mMediaBrowser = new MediaBrowserCompat(this,
                 new ComponentName(this, MusicService.class),

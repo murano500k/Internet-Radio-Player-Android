@@ -13,12 +13,6 @@
 
 
     </style>
-    <style name="AppTheme.TextApperarance.Label" parent="AppTheme.TextApperarance.Label">
-        <!-- Customize your theme here. -->
-
-        <item name="android:windowActionBar">false</item>
-
-    </style>
 
     <!-- <style name="AppTheme.PopupOverlay" parent="AppTheme">
          <item name="windowActionModeOverlay">true</item>

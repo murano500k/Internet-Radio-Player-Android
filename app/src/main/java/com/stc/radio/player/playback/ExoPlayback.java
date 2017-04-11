@@ -22,6 +22,8 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
@@ -44,7 +46,6 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.DebugTextViewHelper;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -107,6 +108,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	private DebugTextViewHelper debugViewHelper;
 	private DefaultDataSourceFactory dataSourceFactory;
 	private DefaultExtractorsFactory extractorsFactory;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
 
 	private final IntentFilter mAudioNoisyIntentFilter =
@@ -133,7 +135,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         this.mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         // Create the Wifi lock (this does not acquire the lock, this just creates it)
         this.mWifiLock = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
-                .createWifiLock(WifiManager.WIFI_MODE_FULL, "uAmp_lock");
+                .createWifiLock(WifiManager.WIFI_MODE_FULL, "radio_lock");
         this.mState = PlaybackStateCompat.STATE_NONE;
     }
 
@@ -190,28 +192,9 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
     }
 
     @Override
-    public boolean isConnected() {
-        return true;
-    }
-
-    @Override
     public boolean isPlaying() {
         return mMediaPlayer != null && mMediaPlayer.getPlayWhenReady();
     }
-
-    @Override
-    public int getCurrentStreamPosition() {
-        return -1;
-    }
-
-    @Override
-    public void updateLastKnownStreamPosition() {
-
-    }
-	@Override
-	public void setPlayerView(SimpleExoPlayerView playerView) {
-		playerView.setPlayer(mMediaPlayer);
-	}
 
     @Override
     public void play(QueueItem item) {
@@ -324,21 +307,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         this.mCallback = callback;
     }
 
-    @Override
-    public void setCurrentStreamPosition(int pos) {
-        this.mCurrentPosition = pos;
-    }
-
-    @Override
-    public void setCurrentMediaId(String mediaId) {
-        this.mCurrentMediaId = mediaId;
-    }
-
-    @Override
-    public String getCurrentMediaId() {
-        return mCurrentMediaId;
-    }
-
     /**
      * Try to get the system audio focus.
      */
@@ -442,9 +410,11 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         }
     }
 
+
 	@Override
 	public void onTimelineChanged(Timeline timeline, Object manifest) {
 		Timber.w("onTimelineChanged");
+
 	}
 
 	@Override
@@ -456,8 +426,16 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 
 	@Override
 	public void onLoadingChanged(boolean isLoading) {
-		Timber.w("onLoadingChanged isLoading=%b",isLoading);
+		    Timber.w("onLoadingChanged isLoading=%b",isLoading);
+
 	}
+
+	private Runnable loadingUpadter =new Runnable() {
+      @Override
+      public void run() {
+      }
+  };
+
 
 	@Override
 	public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {

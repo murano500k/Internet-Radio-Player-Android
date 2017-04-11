@@ -20,8 +20,8 @@ android {
         applicationId "com.stc.radio.player"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 17
-        versionName "2.3.1"
+        versionCode 18
+        versionName "2.3.2"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         jackOptions {
@@ -34,7 +34,7 @@ android {
         ignore 'InvalidPackage'
         abortOnError false
     }
-\
+
 
 
     buildTypes {
@@ -42,13 +42,12 @@ android {
             applicationIdSuffix ".debug"
         }
         release {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             debuggable false
             jniDebuggable false
             zipAlignEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
             signingConfig signingConfigs.config
         }
 
@@ -97,6 +96,10 @@ dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.google.android.exoplayer:exoplayer:r2.1.1'
+
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.0.6'
+    compile 'org.greenrobot:eventbus:3.0.0'
 
 
     compile 'junit:junit:4.12'

@@ -64,8 +64,7 @@
         the current environment
         -->
         <activity
-            android:name=".ui.NowPlayingActivity"
-            android:icon="@drawable/ic_launcher"></activity>
+            android:name=".ui.NowPlayingActivity"/>
 
         <!-- Main activity for Android TV user interface -->
         <activity

@@ -170,10 +170,10 @@ public class StationListItem
 		});
 		if(station==null )station=getStation();
 		if(station!=null) viewHolder.favButton.setLiked(station.isFavorite());
-		viewHolder.icon.setImageResource( R.drawable.default_art);
+		viewHolder.icon.setImageResource( R.drawable.ic_queue_music_black_24dp);
 		PabloPicasso.with(getContext())
 				.load(artUrl)
-				.error(R.drawable.default_art)
+				.error(R.drawable.ic_queue_music_black_24dp)
 				.tag(key)
 				.into(viewHolder);
 		/*viewHolder.pulsator.setOnTouchListener(new View.OnTouchListener() {

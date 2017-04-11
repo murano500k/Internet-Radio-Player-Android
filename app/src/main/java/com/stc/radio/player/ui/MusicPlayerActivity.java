@@ -35,11 +35,18 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
+import com.stc.radio.player.utils.LoadingEvent;
 import com.stc.radio.player.utils.LogHelper;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import timber.log.Timber;
 
@@ -72,25 +79,45 @@ public class MusicPlayerActivity extends BaseActivity
 
 
     private Bundle mVoiceSearchParams;
-	private SearchView searchView;
+	  private SearchView searchView;
+    private ProgressBar progress;
 
-	@Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 	    if(isTablet()) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 	    else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-        LogHelper.d(TAG, "Activity onCreate");
-
         setContentView(R.layout.activity_player);
-
-
+        LogHelper.d(TAG, "Activity onCreate");
+        progress=(ProgressBar)findViewById(R.id.progressBar);
+        progress.setMax(100);
+        progress.setVisibility(View.GONE);
         initializeFromParams(savedInstanceState, getIntent());
 	      initializeToolbar();
         // Only check if a full screen player is needed on the first time:
         if (savedInstanceState == null) {
             startFullScreenActivityIfNeeded(getIntent());
         }
+
     }
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLoadingChanged(LoadingEvent event){
+        Log.d(TAG, "onLoadingChanged: "+event);
+        progress.setVisibility(event.isLoading() ? View.VISIBLE : View.GONE);
+        progress.setProgress(event.getPercent());
+    }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

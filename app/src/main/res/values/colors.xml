@@ -3,7 +3,6 @@
     <color name="colorPrimary">#424242</color>
     <color name="colorPrimaryDark">#212121</color>
     <color name="colorPrimaryLight">#616161</color>
-    <color name="colorSecondary">#212121</color>
     <color name="colorAccent">#009688</color>
     <color name="colorText">#eeeeee</color>
     <color name="colorTextAccent">#f5f5f5</color>
@@ -18,9 +17,6 @@
     <color name="tv_search_button">#ff0097A7</color>
     <color name="default_background">#0096a6</color>
     <color name="transparent_black">#99000000</color>
-
-    <color name="icons">#212121</color>
-    <color name="divider">#BDBDBD</color>
 
 
 </resources>

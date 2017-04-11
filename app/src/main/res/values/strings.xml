@@ -30,8 +30,6 @@
     <string name="navigation_drawer_open">Open</string>
     <string name="navigation_drawer_close">Close</string>
     <string name="label_previous">Prev</string>
-    <string name="label_pause">Pause</string>
-    <string name="label_play">Play</string>
     <string name="label_next">Next</string>
     <string name="art_transition">ART</string>
 

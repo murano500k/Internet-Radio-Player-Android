@@ -15,7 +15,6 @@
  */
 package com.stc.radio.player.playback;
 
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.stc.radio.player.MusicService;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -50,10 +49,6 @@ public interface Playback {
      */
     int getState();
 
-    /**
-     * @return boolean that indicates that this is ready to be used.
-     */
-    boolean isConnected();
 
     /**
      * @return boolean indicating whether the player is playing or is supposed to be
@@ -61,27 +56,6 @@ public interface Playback {
      */
     boolean isPlaying();
 
-    /**
-     * @return pos if currently playing an item
-     */
-    int getCurrentStreamPosition();
-
-    /**
-     * Set the current position. Typically used when switching players that are in
-     * paused state.
-     *
-     * @param pos position in the stream
-     */
-    void setCurrentStreamPosition(int pos);
-
-    /**
-     * Query the underlying stream and update the internal last known stream position.
-     */
-    void updateLastKnownStreamPosition();
-
-    /**
-     * @param item to play
-     */
     void play(QueueItem item);
 
     /**
@@ -93,20 +67,6 @@ public interface Playback {
      * Seek to the given position
      */
     void seekTo(int position);
-
-    /**
-     * Set the current mediaId. This is only used when switching from one
-     * playback to another.
-     *
-     * @param mediaId to be set as the current.
-     */
-    void setCurrentMediaId(String mediaId);
-
-    /**
-     *
-     * @return the current media Id being processed in any state or null.
-     */
-    String getCurrentMediaId();
 
     interface Callback {
         /**
@@ -125,16 +85,10 @@ public interface Playback {
          */
         void onError(String error);
 
-        /**
-         * @param mediaId being currently played
-         */
-        void setCurrentMediaId(String mediaId);
     }
 
     /**
      * @param callback to be called
      */
     void setCallback(Callback callback);
-
-	void setPlayerView(SimpleExoPlayerView playerView);
 }

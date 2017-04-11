@@ -193,10 +193,10 @@ public class MediaListItem
 		if(viewHolder.itemView!=null) cachedState = (Integer) viewHolder.itemView.getTag(R.id.tag_mediaitem_state_cache);
 
 		if(name!=null && viewHolder.name!=null)viewHolder.name.setText(name);
-		viewHolder.icon.setImageResource( R.drawable.default_art);
+		viewHolder.icon.setImageResource( R.drawable.ic_queue_music_black_24dp);
 		PabloPicasso.with(activity)
 				.load(artUrl)
-				.error(R.drawable.default_art)
+				.error(R.drawable.ic_queue_music_black_24dp)
 				.tag(key)
 				.into(viewHolder);
 		if (cachedState == null || !cachedState.equals(state)) {
