@@ -17,8 +17,6 @@ package com.stc.radio.player.playback;
 
 import android.support.v4.media.session.MediaSessionCompat;
 
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-
 class SimplePlayback implements Playback {
     @Override
     public void start() {
@@ -41,29 +39,10 @@ class SimplePlayback implements Playback {
     }
 
     @Override
-    public boolean isConnected() {
-        return false;
-    }
-
-    @Override
     public boolean isPlaying() {
         return false;
     }
 
-    @Override
-    public int getCurrentStreamPosition() {
-        return 0;
-    }
-
-    @Override
-    public void setCurrentStreamPosition(int pos) {
-
-    }
-
-    @Override
-    public void updateLastKnownStreamPosition() {
-
-    }
 
     @Override
     public void play(MediaSessionCompat.QueueItem item) {
@@ -81,22 +60,8 @@ class SimplePlayback implements Playback {
     }
 
     @Override
-    public void setCurrentMediaId(String mediaId) {
-
-    }
-
-    @Override
-    public String getCurrentMediaId() {
-        return null;
-    }
-
-    @Override
     public void setCallback(Callback callback) {
 
     }
 
-	@Override
-	public void setPlayerView(SimpleExoPlayerView playerView) {
-
-	}
 }

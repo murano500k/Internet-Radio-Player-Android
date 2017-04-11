@@ -88,10 +88,6 @@ public class GeneralTest {
 				Log.e(TAG, "onError: "+error);
 			}
 
-			@Override
-			public void setCurrentMediaId(String mediaId) {
-				Log.d(TAG, "setCurrentMediaId: ");
-			}
 		});
 
 		queueManager=new QueueManager(musicProvider, context.getResources(), new QueueManager.MetadataUpdateListener() {

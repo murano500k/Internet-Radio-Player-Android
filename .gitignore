@@ -16,3 +16,6 @@ app/src/androidTest/java/com/stc/radio/player/StationTest.java
 app/src/main/java/com/stc/radio/player/playback/EventLogger.java
 app/src/test/
 gen/
+aacdecoder-sources/
+src/main/assests/
+src/main/res/drawable-ldpi/
