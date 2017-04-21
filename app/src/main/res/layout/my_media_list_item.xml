@@ -31,7 +31,7 @@
             tools:layout_editor_absoluteX="24dp"
             tools:layout_editor_absoluteY="174dp"/>
 
-        <com.stc.radio.player.GridItemImageView
+        <com.stc.radio.player.ui.customviews.GridItemImageView
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/icon_list_item"

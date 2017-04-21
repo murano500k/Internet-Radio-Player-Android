@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 
-import com.stc.radio.player.MusicService;
+import com.stc.radio.player.service.MusicService;
 
 public class CarHelper {
     private static final String TAG = LogHelper.makeLogTag(CarHelper.class);

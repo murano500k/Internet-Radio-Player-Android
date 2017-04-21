@@ -23,10 +23,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import com.stc.radio.player.AlbumArtCache;
+import com.stc.radio.player.utils.AlbumArtCache;
 import com.stc.radio.player.R;
 import com.stc.radio.player.db.DbHelper;
-import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.source.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
 import com.stc.radio.player.utils.QueueHelper;

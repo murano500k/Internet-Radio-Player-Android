@@ -37,12 +37,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.like.LikeButton;
-import com.stc.radio.player.AlbumArtCache;
-import com.stc.radio.player.MusicService;
 import com.stc.radio.player.R;
-import com.stc.radio.player.model.MyMetadata;
 import com.stc.radio.player.playback.PlaybackManager;
+import com.stc.radio.player.service.MusicService;
+import com.stc.radio.player.utils.AlbumArtCache;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.OnSwipeListener;
 
@@ -55,19 +55,16 @@ import static com.stc.radio.player.playback.PlaybackManager.IS_FAVORITE;
  * A class that shows the Media Queue to the user.
  */
 public class PlaybackControlsFragment extends Fragment {
-	private String musicId;
 
 	private static final String TAG = LogHelper.makeLogTag(PlaybackControlsFragment.class);
 	private ImageButton mPlayPrev, mPlayPause, mPlayNext;
-	private TextView mSong;
+	private TextView mNowPlayingTitle;
 	LikeButton favButton;
 	private boolean isFav;
 
-	private TextView mArtist;
-	private TextView mStation;
 	public ImageView mAlbumArt;
 	private View rootView;
-
+	private FirebaseAnalytics mFirebaseAnalytics;
 	String artUrl;
 	private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
 		@Override
@@ -88,14 +85,12 @@ public class PlaybackControlsFragment extends Fragment {
 		}
 	};
 
-	public void onMyMetadataUpdate(MyMetadata myMetadata){
-		CharSequence s = "" + myMetadata;
-		if(mArtist!=null) mArtist.setText(s);
-	}
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
+		mFirebaseAnalytics=FirebaseAnalytics.getInstance(getActivity());
 		setRetainInstance(true);
 		rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
 		mPlayPause = (ImageButton) rootView.findViewById(R.id.play_pause);
@@ -120,9 +115,7 @@ public class PlaybackControlsFragment extends Fragment {
 			}
 		});
 		favButton = (LikeButton) rootView.findViewById(R.id.fav_button_control);
-		mSong = (TextView) rootView.findViewById(R.id.title);
-		mArtist = (TextView) rootView.findViewById(R.id.artist);
-		mStation = (TextView) rootView.findViewById(R.id.station);
+		mNowPlayingTitle = (TextView) rootView.findViewById(R.id.title);
 		favButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -192,7 +185,7 @@ public class PlaybackControlsFragment extends Fragment {
 		if (!TextUtils.equals(artUrl, this.artUrl)) {
 			this.artUrl = artUrl;
 			Bitmap art = metadata.getDescription().getIconBitmap();
-			com.stc.radio.player.AlbumArtCache cache = AlbumArtCache.getInstance();
+			AlbumArtCache cache = AlbumArtCache.getInstance();
 			if (art == null) {
 				art = cache.getIconImage(this.artUrl);
 			}
@@ -249,8 +242,8 @@ public class PlaybackControlsFragment extends Fragment {
 
 	public void setExtraInfo(String extraInfo) {
 		if (extraInfo!= null) {
-			mSong.setVisibility(View.VISIBLE);
-			mSong.setText(extraInfo);
+			mNowPlayingTitle.setVisibility(View.VISIBLE);
+			mNowPlayingTitle.setText(extraInfo);
 		}
 	}
 
@@ -347,11 +340,17 @@ public class PlaybackControlsFragment extends Fragment {
 				.getSupportMediaController();
 		if (controller != null) {
 			Bundle customActionExtras=new Bundle();
-			//favButton.setLiked(!favButton.isActivated());
 			customActionExtras.putBoolean(IS_FAVORITE, !favButton.isActivated());
-
+			logStationSelected(controller.getMetadata().getDescription().getTitle(), !favButton.isActivated());
 			controller.getTransportControls().sendCustomAction(CUSTOM_ACTION_THUMBS_UP,customActionExtras);
 		}
+	}
+
+	private void logStationSelected(CharSequence title, boolean state){
+		Bundle bundle = new Bundle();
+		bundle.putBoolean(FirebaseAnalytics.Param.VALUE, state);
+		bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, title.toString());
+		mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.ADD_TO_WISHLIST, bundle);
 	}
 
 

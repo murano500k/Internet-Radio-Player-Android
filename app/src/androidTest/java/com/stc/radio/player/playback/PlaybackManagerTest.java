@@ -24,7 +24,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.test.mock.MockResources;
 
 import com.stc.radio.player.TestSetupHelper;
-import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.source.MusicProvider;
 import com.stc.radio.player.utils.MediaIDHelper;
 import com.stc.radio.player.utils.SimpleMusicProviderSource;
 

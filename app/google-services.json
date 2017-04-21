@@ -1,27 +1,35 @@
 {
   "project_info": {
-    "project_number": "847008257196",
-    "firebase_url": "https://internet-radio-834d4.firebaseio.com",
-    "project_id": "internet-radio-834d4",
-    "storage_bucket": "internet-radio-834d4.appspot.com"
+    "project_number": "745581765942",
+    "firebase_url": "https://internet-radio-2b5bc.firebaseio.com",
+    "project_id": "internet-radio-2b5bc",
+    "storage_bucket": "internet-radio-2b5bc.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:847008257196:android:52efa1d24ad10316",
+        "mobilesdk_app_id": "1:745581765942:android:3ad970054b75cd28",
         "android_client_info": {
           "package_name": "com.stc.radio.player"
         }
       },
       "oauth_client": [
         {
-          "client_id": "847008257196-n303bmimduha13n5adlcjrg7pn9vg0j0.apps.googleusercontent.com",
+          "client_id": "745581765942-7t1119mhh9mf7t1j5jjuprg3chk9l3hk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stc.radio.player",
+            "certificate_hash": "a6fc7ba1c0cac9489c70a916e8f9c39b31ff917e"
+          }
+        },
+        {
+          "client_id": "745581765942-mu9ph6r1le29h14lko6obk4s6fgmse7q.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCp3vtO2uIfBN_3PmR35gDlJ42k3x-v5iE"
+          "current_key": "AIzaSyCiUcoEep9faTZ6DRaS_o8nHw7vzvqIj5s"
         }
       ],
       "services": {
@@ -31,6 +39,50 @@
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745581765942:android:dcc9caa1e2a584f8",
+        "android_client_info": {
+          "package_name": "com.stc.radio.player.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "745581765942-tk3dhldsbku49bm03hqn26dsnop49vv9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stc.radio.player.debug",
+            "certificate_hash": "b87bea89170c0477dbd5600fd0870943b5d33fad"
+          }
+        },
+        {
+          "client_id": "745581765942-mu9ph6r1le29h14lko6obk4s6fgmse7q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiUcoEep9faTZ6DRaS_o8nHw7vzvqIj5s"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745581765942-mu9ph6r1le29h14lko6obk4s6fgmse7q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

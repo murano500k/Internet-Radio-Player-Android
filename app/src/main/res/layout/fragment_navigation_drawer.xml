@@ -6,7 +6,7 @@
           android:choiceMode="singleChoice"
           android:divider="@android:color/black"
           android:dividerHeight="1dp"
-          tools:context="com.stc.radio.player.NavigationDrawerFragment"/>
+          tools:context="com.stc.radio.player.ui.NavigationDrawerFragment"/>
 
 
     <!--android:id="@+id/fragment_naivgation_drawer"-->

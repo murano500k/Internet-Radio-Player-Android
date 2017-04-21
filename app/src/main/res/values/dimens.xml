@@ -19,10 +19,6 @@
     <!-- Margins for the ShowcaseView button -->
 
     <!-- Margins for full screen activity-->
-    <dimen name="text_view_margin">16dp</dimen>
-    <dimen name="end_text_margin">16dp</dimen>
-
-    <dimen name="movie_grid_item_width">120dp</dimen>
 
     <!-- Scale animation for grid_item_movie click-->
 

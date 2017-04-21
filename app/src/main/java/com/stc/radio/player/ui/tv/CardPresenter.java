@@ -34,7 +34,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.stc.radio.player.AlbumArtCache;
+import com.stc.radio.player.utils.AlbumArtCache;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 

@@ -14,19 +14,13 @@
     <string name="currently_playing_artist">Artist of currently playing song</string>
     <string name="currently_playing_extra_info">Extra info for currently playing song</string>
     <string name="play_item">Play item</string>
-    <string name="play_pause">play or pause</string>
-    <string name="skip_next">skip to next</string>
-    <string name="skip_prev">skip to previous</string>
     <!-- Use the default receiver. To customize a styled media receiver, you can use
          the css and images under <project-root>/docs/cast_styled_receiver -->
     <string name="home_title">Home</string>
     <string name="open_content_drawer">Open the main menu</string>
     <string name="close_content_drawer">Close the main menu</string>
-    <string name="placeholder_message">This is a placeholder for your application code.</string>
     <string name="now_playing">Now Playing</string>
-    <string name="background_image_str">Background image for album art</string>
     <string name="search_queue_title">Search results</string>
-    <string name="loading">Loading…</string>
     <string name="navigation_drawer_open">Open</string>
     <string name="navigation_drawer_close">Close</string>
     <string name="label_previous">Prev</string>

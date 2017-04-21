@@ -1,29 +1,16 @@
-package com.stc.radio.player.playback;/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.stc.radio.player.playback;
+
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
@@ -45,44 +32,36 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
-import com.stc.radio.player.MusicService;
-import com.stc.radio.player.contentmodel.Retro;
-import com.stc.radio.player.model.MusicProvider;
-import com.stc.radio.player.model.MusicProviderSource;
+import com.stc.radio.player.model.Retro;
+import com.stc.radio.player.service.MusicService;
+import com.stc.radio.player.source.MusicProvider;
+import com.stc.radio.player.source.MusicProviderSource;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
 import com.stc.radio.player.utils.StreamLinkDecoder;
 
+import io.reactivex.disposables.CompositeDisposable;
 import timber.log.Timber;
 
+import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import static android.support.v4.media.session.PlaybackStateCompat.STATE_ERROR;
 import static com.google.android.exoplayer2.C.STREAM_TYPE_MUSIC;
 import static com.stc.radio.player.playback.PlaybackManager.detectPlaybackStateCompact;
 
-/**
- * A class that implements local media playback using {@link android.media.MediaPlayer}
- */
+
 public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeListener, ExoPlayer.EventListener {
 
-    private static final String TAG = "LocalPlayback";
+    private static final String TAG = "ExoPlayback";
 
-    // The volume we set the media player to when we lose audio focus, but are
-    // allowed to reduce the volume instead of stopping playback.
     public static final float VOLUME_DUCK = 0.2f;
-    // The volume we set the media player when we have audio focus.
     public static final float VOLUME_NORMAL = 1.0f;
-
-    // we don't have audio focus, and can't duck (play at a low volume)
     private static final int AUDIO_NO_FOCUS_NO_DUCK = 0;
-    // we don't have focus, but can duck (play at a low volume)
     private static final int AUDIO_NO_FOCUS_CAN_DUCK = 1;
-    // we have full audio focus
     private static final int AUDIO_FOCUSED  = 2;
 
     private final Context mContext;
@@ -94,25 +73,21 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
     private volatile boolean mAudioNoisyReceiverRegistered;
     private volatile int mCurrentPosition;
     private volatile String mCurrentMediaId;
+    private volatile String mCurrentSource;
 
-    // Type of audio focus we have:
     private int mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
     private final AudioManager mAudioManager;
     private SimpleExoPlayer mMediaPlayer;
 
-	BandwidthMeter bandwidthMeter;
-	TrackSelection.Factory videoTrackSelectionFactory;
-	MappingTrackSelector trackSelector;
-	LoadControl loadControl;
-
-	private DebugTextViewHelper debugViewHelper;
-	private DefaultDataSourceFactory dataSourceFactory;
+    private DefaultDataSourceFactory dataSourceFactory;
 	private DefaultExtractorsFactory extractorsFactory;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
 
 
 	private final IntentFilter mAudioNoisyIntentFilter =
             new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
+
+    private CompositeDisposable mDisposables;
+
 
     private final BroadcastReceiver mAudioNoisyReceiver = new BroadcastReceiver() {
         @Override
@@ -129,14 +104,14 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         }
     };
 
-	public ExoPlayback(Context context, MusicProvider musicProvider) {
+    public ExoPlayback(Context context, MusicProvider musicProvider) {
         this.mContext = context;
         this.mMusicProvider = musicProvider;
         this.mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        // Create the Wifi lock (this does not acquire the lock, this just creates it)
         this.mWifiLock = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "radio_lock");
         this.mState = PlaybackStateCompat.STATE_NONE;
+        mDisposables=new CompositeDisposable();
     }
 
     @Override
@@ -151,7 +126,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 		mState = PlaybackStateCompat.STATE_PAUSED;
 		if(mMediaPlayer!=null && mMediaPlayer.getPlayWhenReady()){
 			mMediaPlayer.setPlayWhenReady(false);
-			//mMediaPlayer.stop();
 		}
 		if (mCallback != null) {
 			mCallback.onPlaybackStatusChanged(mState);
@@ -243,6 +217,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 		}
 		MediaSource audioSource = new ExtractorMediaSource(Uri.parse(url),
 				dataSourceFactory, extractorsFactory, null, null);
+        mCurrentSource=url;
 		mMediaPlayer.prepare(audioSource);
 		mMediaPlayer.setPlayWhenReady(true);
 	}
@@ -307,9 +282,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         this.mCallback = callback;
     }
 
-    /**
-     * Try to get the system audio focus.
-     */
     private void tryToGetAudioFocus() {
         LogHelper.d(TAG, "tryToGetAudioFocus");
         if (mAudioFocus != AUDIO_FOCUSED) {
@@ -321,9 +293,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         }
     }
 
-    /**
-     * Give up the audio focus.
-     */
     private void giveUpAudioFocus() {
         LogHelper.d(TAG, "giveUpAudioFocus");
         if (mAudioFocus == AUDIO_FOCUSED) {
@@ -364,12 +333,10 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
     private void createMediaPlayerIfNeeded() {
         LogHelper.d(TAG, "createMediaPlayerIfNeeded. needed? ", (mMediaPlayer==null));
         if (mMediaPlayer == null) {
-	        bandwidthMeter = new DefaultBandwidthMeter();
-	        videoTrackSelectionFactory =
-			        new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
-	        trackSelector =
-			        new DefaultTrackSelector(videoTrackSelectionFactory);
-	        loadControl = new DefaultLoadControl();
+            BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+            TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
+            MappingTrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+            LoadControl loadControl = new DefaultLoadControl();
 	        mMediaPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector, loadControl);
 	        mMediaPlayer.addListener(this);
 	        mMediaPlayer.setAudioStreamType(STREAM_TYPE_MUSIC);
@@ -384,12 +351,13 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 
     private void relaxResources(boolean releaseMediaPlayer) {
         LogHelper.d(TAG, "relaxResources. releaseMediaPlayer=", releaseMediaPlayer);
-        // stop and release the Media Player, if it's available
         if (releaseMediaPlayer && mMediaPlayer != null) {
             mMediaPlayer.stop();
             mMediaPlayer.release();
             mMediaPlayer = null;
 	        mPlayOnFocusGain = false;
+            mCurrentSource=null;
+            unsubscribe();
         }
 	    if (mWifiLock.isHeld()) {
             mWifiLock.release();
@@ -414,7 +382,6 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	@Override
 	public void onTimelineChanged(Timeline timeline, Object manifest) {
 		Timber.w("onTimelineChanged");
-
 	}
 
 	@Override
@@ -427,52 +394,117 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	@Override
 	public void onLoadingChanged(boolean isLoading) {
 		    Timber.w("onLoadingChanged isLoading=%b",isLoading);
-
 	}
-
-	private Runnable loadingUpadter =new Runnable() {
-      @Override
-      public void run() {
-      }
-  };
-
 
 	@Override
 	public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
 		Timber.w("onPlayerStateChanged %b %d", playWhenReady, playbackState);
-		if(playbackState==ExoPlayer.STATE_IDLE && playWhenReady && mState==STATE_ERROR){
-			Log.d(TAG, "onPlayerStateChanged: ERROR");
-		}else {
-			mState=detectPlaybackStateCompact(playWhenReady, playbackState);
-		}
+		if(playbackState == ExoPlayer.STATE_READY && playWhenReady) {
+            unsubscribe();
+        }
+        if(playbackState==ExoPlayer.STATE_IDLE && playWhenReady && mState==STATE_ERROR){
+            Log.d(TAG, "onPlayerStateChanged: ERROR");
+        }else {
+            mState=detectPlaybackStateCompact(playWhenReady, playbackState);
+        }
+
 		configMediaPlayerState();
 	}
 
+    @Override
+    public void onPositionDiscontinuity() {
+        LogHelper.d(TAG, "onCompletion from MediaPlayer");
+        if (mCallback != null) {
+            mCallback.onCompletion();
+        }
+    }
 
 	@Override
 	public void onPlayerError(ExoPlaybackException error) {
-		int i = -1;
-		boolean b = false;
-		if (mMediaPlayer != null) {
-			b = mMediaPlayer.getPlayWhenReady();
-			i=mMediaPlayer.getPlaybackState();
-		}
-		Timber.w("onPlayerError %b %d", b, i);
-		mState=PlaybackStateCompat.STATE_ERROR;
+        Log.e(TAG, "onPlayerError: ",error );
+        mState=PlaybackStateCompat.STATE_ERROR;
 		if (mCallback != null) {
 			mCallback.onPlaybackStatusChanged(mState);
 			mCallback.onError("MediaPlayer error " +  error.getMessage());
-
 		}
-
+        listenNetworkChanges();
 	}
 
-	@Override
-	public void onPositionDiscontinuity() {
-		LogHelper.d(TAG, "onCompletion from MediaPlayer");
-		if (mCallback != null) {
-			mCallback.onCompletion();
-		}
-	}
+
+    private void resumeAfterError(){
+        if(mCurrentSource!=null) {
+            if (mMediaPlayer != null) {
+                Log.d(TAG, "resumeAfterError: will resume");
+                tryToPlayAsync(mCurrentSource);
+            }else Log.e(TAG, "resumeAfterError: mediaplayer null" );
+        }else {
+            Log.e(TAG, "resumeAfterError: nothing to resume" );
+        }
+    }
+    private void unsubscribe(){
+        Log.d(TAG, "unsubscribe: ");
+        if(mNetworkChangeReciever!=null) {
+            mContext.unregisterReceiver(mNetworkChangeReciever);
+            mNetworkChangeReciever=null;
+        }
+        mDisposables.dispose();
+    }
+    private void listenNetworkChanges(){
+        Log.d(TAG, "listenNetworkChanges");
+        if(mNetworkChangeReciever!=null){
+            Log.w(TAG, "listenNetworkChanges: already listening" );
+        }else {
+            Log.d(TAG, "subscribe to network changes");
+            mNetworkChangeReciever=new NetworkChangeReciever();
+            mContext.registerReceiver(mNetworkChangeReciever, new IntentFilter(CONNECTIVITY_ACTION));
+        }
+    }
+    private NetworkChangeReciever mNetworkChangeReciever;
+
+    public class NetworkChangeReciever extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+
+        /*for(String key : intent.getExtras().keySet()){
+            Log.d(TAG, "onReceive: "+key+": "+intent.getExtras().get(key));
+        }*/
+            Bundle bundle=intent.getExtras();
+            NetworkInfo info = (NetworkInfo) bundle.get("networkInfo");
+            if(info!=null && info.getState()== NetworkInfo.State.CONNECTED) {
+                Log.d(TAG, "onReceive: CONNECTED");
+                resumeAfterError();
+            }else {
+                Log.d(TAG, "onReceive: NOT CONNECTED");
+            }
+        }
+    }
+    /*
+
+    private void checkStreamOnline(){
+        if(mCurrentSource!=null && !mCurrentSource.isEmpty()){
+            Log.d(TAG, "checkStreamOnline");
+            mDisposables.add(
+            ReactiveNetwork.observeNetworkConnectivity(mContext)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(connectivity -> {
+                        Log.d(TAG, "checkStreamOnline on result:"+connectivity.toString());
+                        if(connectivity.getState()== NetworkInfo.State.CONNECTED){
+                            Log.d(TAG, "checkStreamOnline: Success");
+                            resumeAfterError();
+                        }else {
+                            Log.d(TAG, "checkStreamOnline: Error");
+                            listenNetworkChanges();
+                        }
+                    },throwable -> {
+                        throwable.printStackTrace();
+                        listenNetworkChanges();
+                    })
+            );
+        }else {
+            Log.e(TAG, "checkStreamOnline: no stream url" );
+        }
+    }
+*/
 
 }

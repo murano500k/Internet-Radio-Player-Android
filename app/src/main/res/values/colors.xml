@@ -12,8 +12,6 @@
     <color name="media_item_icon_playing">@color/bt_accent</color>
     <color name="media_item_icon_not_playing">#ccc</color>
     <color name="error_message_background">#ffff1600</color>
-    <color name="fullscreen_secondary_line_color">#E5CCCCCC</color>
-    <color name="fullscreen_line_color">#E5FFFFFF</color>
     <color name="tv_search_button">#ff0097A7</color>
     <color name="default_background">#0096a6</color>
     <color name="transparent_black">#99000000</color>

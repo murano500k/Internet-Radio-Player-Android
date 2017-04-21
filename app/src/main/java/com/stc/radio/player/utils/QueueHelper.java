@@ -20,8 +20,7 @@ import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import com.stc.radio.player.VoiceSearchParams;
-import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.source.MusicProvider;
 
 import java.util.ArrayList;
 import java.util.List;

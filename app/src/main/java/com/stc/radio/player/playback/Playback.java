@@ -15,7 +15,7 @@
  */
 package com.stc.radio.player.playback;
 
-import com.stc.radio.player.MusicService;
+import com.stc.radio.player.service.MusicService;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
 

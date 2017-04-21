@@ -16,8 +16,8 @@
 
 package com.stc.radio.player;
 
-import com.stc.radio.player.model.MusicProvider;
-import com.stc.radio.player.model.MusicProviderSource;
+import com.stc.radio.player.source.MusicProvider;
+import com.stc.radio.player.source.MusicProviderSource;
 
 import java.util.concurrent.CountDownLatch;
 

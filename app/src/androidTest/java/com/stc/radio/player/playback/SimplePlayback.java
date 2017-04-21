@@ -38,11 +38,11 @@ class SimplePlayback implements Playback {
         return 0;
     }
 
+
     @Override
     public boolean isPlaying() {
         return false;
     }
-
 
     @Override
     public void play(MediaSessionCompat.QueueItem item) {
@@ -59,9 +59,9 @@ class SimplePlayback implements Playback {
 
     }
 
+
     @Override
     public void setCallback(Callback callback) {
 
     }
-
 }

@@ -7,13 +7,17 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.stc.radio.player.utils.SettingsProvider;
+
+import java.util.UUID;
 
 import timber.log.Timber;
 
 
 public class RadioApp extends com.activeandroid.app.Application {
 	protected String userAgent;
+	private FirebaseAnalytics mFirebaseAnalytics;
 
 	@Override
 	public void onTerminate() {
@@ -23,8 +27,8 @@ public class RadioApp extends com.activeandroid.app.Application {
 	public void onCreate() {
 		super.onCreate();
 		userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
-
-
+		mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+		mFirebaseAnalytics.setUserId(UUID.randomUUID().toString());
 		ActiveAndroid.initialize(this);
 		SettingsProvider.init(getApplicationContext());
 

@@ -5,7 +5,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.stc.radio.player.model.MusicProviderSource;
+import com.stc.radio.player.source.MusicProviderSource;
 
 /**
  * Created by artem on 10/22/16.

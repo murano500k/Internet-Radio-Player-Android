@@ -3,7 +3,7 @@ package com.stc.radio.player.db;
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.From;
 import com.activeandroid.query.Select;
-import com.stc.radio.player.contentmodel.ParsedPlaylistItem;
+import com.stc.radio.player.model.ParsedPlaylistItem;
 
 import java.util.ArrayList;
 import java.util.List;

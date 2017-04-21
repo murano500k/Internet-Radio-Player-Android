@@ -3,8 +3,8 @@ package com.stc.radio.player.db;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
-import com.stc.radio.player.contentmodel.ParsedPlaylistItem;
-import com.stc.radio.player.contentmodel.StationsManager;
+import com.stc.radio.player.model.ParsedPlaylistItem;
+import com.stc.radio.player.model.StationsManager;
 
 import timber.log.Timber;
 

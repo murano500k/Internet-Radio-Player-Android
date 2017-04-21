@@ -23,6 +23,11 @@
             android:id="@+id/sleep"
             android:title="Sleep Timer"
             android:visible="true"/>
+
+        <item
+            android:id="@+id/large_columns"
+            android:title="Large grid size"
+            android:visible="true"/>
 <!--
     <item
         android:id="@+id/sleep"

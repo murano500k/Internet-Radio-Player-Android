@@ -17,7 +17,6 @@
 package com.stc.radio.player.playback;
 
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -26,7 +25,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.google.android.exoplayer2.ExoPlayer;
 import com.stc.radio.player.R;
-import com.stc.radio.player.model.MusicProvider;
+import com.stc.radio.player.source.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
 
@@ -337,19 +336,6 @@ public class PlaybackManager implements Playback.Callback {
             }
         }
 
-        /**
-         * Handle free and contextual searches.
-         * <p/>
-         * All voice searches on Android Auto are sent to this method through a connected
-         * {@link android.support.v4.media.session.MediaControllerCompat}.
-         * <p/>
-         * Threads and async handling:
-         * Search, as a potentially slow operation, should run in another thread.
-         * <p/>
-         * Since this method runs on the main thread, most apps with non-trivial metadata
-         * should defer the actual search to another thread (for example, by using
-         * an {@link AsyncTask} as we do here).
-         **/
         @Override
         public void onPlayFromSearch(final String query, final Bundle extras) {
             LogHelper.d(TAG, "playFromSearch  query=", query, " extras=", extras);

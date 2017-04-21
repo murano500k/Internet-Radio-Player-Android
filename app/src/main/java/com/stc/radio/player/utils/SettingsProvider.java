@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import static com.stc.radio.player.contentmodel.StationsManager.PLAYLISTS.DI;
+import static com.stc.radio.player.model.StationsManager.PLAYLISTS.DI;
 
 /**
  * Created by artem on 10/12/16.

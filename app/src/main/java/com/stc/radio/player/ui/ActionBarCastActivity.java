@@ -20,7 +20,6 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.NotificationManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -42,19 +41,20 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.stc.radio.player.MusicService;
+import com.stc.radio.player.service.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.db.DbHelper;
+import com.stc.radio.player.utils.ListColumnsCounter;
 import com.stc.radio.player.utils.LogHelper;
 
 import timber.log.Timber;
 
-import static com.stc.radio.player.MusicService.ACTION_CMD;
-import static com.stc.radio.player.MusicService.CMD_NAME;
-import static com.stc.radio.player.MusicService.CMD_SLEEP_CANCEL;
-import static com.stc.radio.player.MusicService.CMD_SLEEP_START;
-import static com.stc.radio.player.MusicService.EXTRA_TIME_TO_SLEEP;
-import static com.stc.radio.player.MusicService.SleepCountdownTimer.NOTIFICATION_ID_SLEEP;
+import static com.stc.radio.player.service.MusicService.ACTION_CMD;
+import static com.stc.radio.player.service.MusicService.CMD_NAME;
+import static com.stc.radio.player.service.MusicService.CMD_SLEEP_CANCEL;
+import static com.stc.radio.player.service.MusicService.CMD_SLEEP_START;
+import static com.stc.radio.player.service.MusicService.EXTRA_TIME_TO_SLEEP;
+import static com.stc.radio.player.service.MusicService.SleepCountdownTimer.NOTIFICATION_ID_SLEEP;
 
 /**
  * Abstract activity with toolbar, navigation drawer and cast support. Needs to be extended by
@@ -117,19 +117,12 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 	        if(navigationView==null){
 		        Log.e(TAG, "onDrawerOpened: navView == null");
 	        }else {
-		        initNavMenuItem(navigationView, R.id.sleep);
-		        initNavMenuItem(navigationView, R.id.shuffle);
+		        initNavMenuItems(navigationView);
 	        }
         }
     };
 
-    private final FragmentManager.OnBackStackChangedListener mBackStackChangedListener =
-        new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                updateDrawerToggle();
-            }
-        };
+    private final FragmentManager.OnBackStackChangedListener mBackStackChangedListener = this::updateDrawerToggle;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -158,10 +151,6 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-        // Whenever the fragment back stack changes, we may need to update the
-        // action bar toggle: only top level screens show the hamburger-like icon, inner
-        // screens - either Activities or fragments - show the "Up" icon instead.
         getFragmentManager().addOnBackStackChangedListener(mBackStackChangedListener);
     }
 
@@ -203,17 +192,14 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // If the drawer is open, back will close it
         if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawers();
             return;
         }
-        // Otherwise, it may return to the previous fragment stack
         FragmentManager fragmentManager = getFragmentManager();
         if (fragmentManager.getBackStackEntryCount() > 1) {
             fragmentManager.popBackStack();
         } else {
-            // Lastly, it will rely on the system behavior for back
             super.onBackPressed();
 	        finish();
         }
@@ -245,11 +231,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
                 throw new IllegalStateException("Layout requires a NavigationView " +
                         "with id 'nav_view'");
             }
-
-	        initNavMenuItem(navigationView,R.id.shuffle);
-	        initNavMenuItem(navigationView,R.id.sleep);
-
-
+	        initNavMenuItems(navigationView);
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
                 mToolbar, R.string.open_content_drawer, R.string.close_content_drawer);
             mDrawerLayout.setDrawerListener(mDrawerListener);
@@ -262,55 +244,58 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
         mToolbarInitialized = true;
     }
-	public void initNavMenuItem(NavigationView navigationView,int resId){
-		if(resId==R.id.shuffle) {
-			MenuItem itemShuffle = navigationView.getMenu().findItem(R.id.shuffle);
-			itemShuffle.setActionView(new Switch(this));
-			((Switch)itemShuffle.getActionView()).setChecked(DbHelper.isShuffle());
-			itemShuffle.getActionView().setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					boolean isShuffle = !DbHelper.isShuffle();
-					Timber.w("new is shuffle=%b", isShuffle);
-					DbHelper.setShuffle(isShuffle);
+	public void initNavMenuItems(NavigationView navigationView){
 
-				}
-			});
-		}
-		else if(resId==R.id.sleep){
-			MenuItem itemSleep = navigationView.getMenu().findItem(R.id.sleep);
-			itemSleep.setActionView(new Switch(this));
-			boolean isRunning = false;
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-				isRunning=isSleepTimerRunning();
-			}
-			((Switch)itemSleep.getActionView()).setChecked(isRunning);
-			itemSleep.getActionView().setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View view) {
-					if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-						Log.d(TAG, "onClick: isRunning="+isSleepTimerRunning());
-						if(isSleepTimerRunning()) {
-							Intent intentSleep = new Intent(getApplicationContext(), MusicService.class);
-							intentSleep.setAction(ACTION_CMD);
-							intentSleep.putExtra(CMD_NAME, CMD_SLEEP_CANCEL);
-							startService(intentSleep);
-							if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-								mDrawerLayout.closeDrawers();
-								return;
-							}
-						}else {
-							showDialogSetSleepTimer();
-						}
-					}else {
-						Toast.makeText(view.getContext(), "This feature require minimum Android version 6.0 Marshmallow", Toast.LENGTH_SHORT).show();
-					}
-				}
-			});
-		}
-	}
+        MenuItem itemShuffle = navigationView.getMenu().findItem(R.id.shuffle);
+        itemShuffle.setActionView(new Switch(this));
+        ((Switch)itemShuffle.getActionView()).setChecked(DbHelper.isShuffle());
+        itemShuffle.getActionView().setOnClickListener(view -> {
+            boolean isShuffle = !DbHelper.isShuffle();
+            Timber.w("new is shuffle=%b", isShuffle);
+            DbHelper.setShuffle(isShuffle);
 
-	private void showDialogSetSleepTimer() {
+        });
+
+        MenuItem itemLargeColumns = navigationView.getMenu().findItem(R.id.large_columns);
+        itemLargeColumns.setActionView(new Switch(this));
+        ((Switch) itemLargeColumns.getActionView()).setChecked(ListColumnsCounter.isUsingLargeColumns(this));
+        itemLargeColumns.getActionView().setOnClickListener(view -> {
+            boolean isUsingLargeColumns = ListColumnsCounter.isUsingLargeColumns(getApplicationContext());
+            Log.d(TAG, "onClick: isUsingLargeColumns=" + isUsingLargeColumns);
+            ListColumnsCounter.setUseLargeColumns(getApplicationContext(), !isUsingLargeColumns);
+            recreate();
+        });
+
+        MenuItem itemSleep = navigationView.getMenu().findItem(R.id.sleep);
+        itemSleep.setActionView(new Switch(this));
+        boolean isRunning = false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            isRunning = isSleepTimerRunning();
+        }
+        ((Switch) itemSleep.getActionView()).setChecked(isRunning);
+        itemSleep.getActionView().setOnClickListener(view -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Log.d(TAG, "onClick: isRunning=" + isSleepTimerRunning());
+                if (isSleepTimerRunning()) {
+                    Intent intentSleep = new Intent(getApplicationContext(), MusicService.class);
+                    intentSleep.setAction(ACTION_CMD);
+                    intentSleep.putExtra(CMD_NAME, CMD_SLEEP_CANCEL);
+                    startService(intentSleep);
+                    if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        mDrawerLayout.closeDrawers();
+                        return;
+                    }
+                } else {
+                    showDialogSetSleepTimer();
+                }
+            } else {
+                Toast.makeText(view.getContext(), "This feature require minimum Android version 6.0 Marshmallow", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void showDialogSetSleepTimer() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		LayoutInflater inflater = ((Activity) this).getLayoutInflater();
 		View v = inflater.inflate(R.layout.sleep_time_selector_dialog, null);
@@ -337,30 +322,27 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 			}
 		});
 		builder.setView(v)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
-						String stringVal = textView.getText().toString();
-						int intVal = Integer.parseInt(stringVal.substring(
-								0,
-								stringVal.indexOf(" ")
-						));
-						if (intVal < 20)
-							Toast.makeText(getApplicationContext(), "Incorrect value", Toast.LENGTH_SHORT).show();
-						else {
-							Intent intentSleep = new Intent(getApplicationContext(), MusicService.class);
-							intentSleep.setAction(ACTION_CMD);
-							intentSleep.putExtra(CMD_NAME, CMD_SLEEP_START);
-							intentSleep.putExtra(EXTRA_TIME_TO_SLEEP, intVal*60000);
-							startService(intentSleep);
-							dialogInterface.dismiss();
-							if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-								mDrawerLayout.closeDrawers();
-								return;
-							}
-						}
-					}
-				})
+				.setPositiveButton("OK", (dialogInterface, i) -> {
+                    String stringVal = textView.getText().toString();
+                    int intVal = Integer.parseInt(stringVal.substring(
+                            0,
+                            stringVal.indexOf(" ")
+                    ));
+                    if (intVal < 20)
+                        Toast.makeText(getApplicationContext(), "Incorrect value", Toast.LENGTH_SHORT).show();
+                    else {
+                        Intent intentSleep = new Intent(getApplicationContext(), MusicService.class);
+                        intentSleep.setAction(ACTION_CMD);
+                        intentSleep.putExtra(CMD_NAME, CMD_SLEEP_START);
+                        intentSleep.putExtra(EXTRA_TIME_TO_SLEEP, intVal*60000);
+                        startService(intentSleep);
+                        dialogInterface.dismiss();
+                        if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                            mDrawerLayout.closeDrawers();
+                            return;
+                        }
+                    }
+                })
 				.setCancelable(true)
 				.setTitle("Select minutes before sleep");
 		builder.create();
@@ -386,12 +368,9 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     private void populateDrawerItems(NavigationView navigationView) {
 
         navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-	                    Timber.w("test");
-	                    return true;
-                    }
+                menuItem -> {
+                    Timber.w("test");
+                    return true;
                 });
 
     }

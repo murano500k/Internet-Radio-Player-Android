@@ -24,7 +24,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 
-import com.stc.radio.player.MusicService;
+import com.stc.radio.player.service.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 

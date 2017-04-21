@@ -15,13 +15,9 @@
  */
 package com.stc.radio.player.ui;
 
-import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
@@ -30,35 +26,22 @@ import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.transition.ChangeBounds;
 import android.transition.Slide;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
-import com.stc.radio.player.utils.LoadingEvent;
 import com.stc.radio.player.utils.LogHelper;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import timber.log.Timber;
 
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
-/**
- * Main activity for the music player.
- * This class hold the MediaBrowser and the MediaController instances. It will create a MediaBrowser
- * when it is created and connect/disconnect on start/stop. Thus, a MediaBrowser will be always
- * connected while this activity is running.
- */
 public class MusicPlayerActivity extends BaseActivity
         implements MediaBrowserFragment.MediaFragmentListener {
 
@@ -69,11 +52,6 @@ public class MusicPlayerActivity extends BaseActivity
     public static final String EXTRA_START_FULLSCREEN =
             "com.stc.radio.player.EXTRA_START_FULLSCREEN";
 
-    /**
-     * Optionally used with {@link #EXTRA_START_FULLSCREEN} to carry a MediaDescription to
-     * the {@link FullScreenPlayerActivity}, speeding up the screen rendering
-     * while the {@link android.support.v4.media.session.MediaControllerCompat} is connecting.
-     */
     public static final String EXTRA_CURRENT_MEDIA_DESCRIPTION =
         "com.stc.radio.player.CURRENT_MEDIA_DESCRIPTION";
 
@@ -81,12 +59,12 @@ public class MusicPlayerActivity extends BaseActivity
     private Bundle mVoiceSearchParams;
 	  private SearchView searchView;
     private ProgressBar progress;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-	    if(isTablet()) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-	    else setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         setContentView(R.layout.activity_player);
         LogHelper.d(TAG, "Activity onCreate");
         progress=(ProgressBar)findViewById(R.id.progressBar);
@@ -94,30 +72,16 @@ public class MusicPlayerActivity extends BaseActivity
         progress.setVisibility(View.GONE);
         initializeFromParams(savedInstanceState, getIntent());
 	      initializeToolbar();
-        // Only check if a full screen player is needed on the first time:
-        if (savedInstanceState == null) {
-            startFullScreenActivityIfNeeded(getIntent());
-        }
-
     }
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
     }
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLoadingChanged(LoadingEvent event){
-        Log.d(TAG, "onLoadingChanged: "+event);
-        progress.setVisibility(event.isLoading() ? View.VISIBLE : View.GONE);
-        progress.setProgress(event.getPercent());
-    }
-
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -128,12 +92,19 @@ public class MusicPlayerActivity extends BaseActivity
         super.onSaveInstanceState(outState);
     }
 
+    private void logStationSelected(MediaBrowserCompat.MediaItem item){
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, item.getDescription().getMediaId());
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, item.getDescription().getTitle().toString());
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+    }
+
     @Override
     public void onMediaItemSelected(MediaBrowserCompat.MediaItem item) {
 	    KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-
 	    LogHelper.d(TAG, "onMediaItemSelected, mediaId=" + item.getMediaId());
         if (item.isPlayable()) {
+            logStationSelected(item);
             getSupportMediaController().getTransportControls()
                     .playFromMediaId(item.getMediaId(), null);
         } else if (item.isBrowsable()) {
@@ -162,25 +133,11 @@ public class MusicPlayerActivity extends BaseActivity
     protected void onNewIntent(Intent intent) {
         LogHelper.d(TAG, "onNewIntent, intent=" + intent);
         initializeFromParams(null, intent);
-        startFullScreenActivityIfNeeded(intent);
     }
 
-    private void startFullScreenActivityIfNeeded(Intent intent) {
-        if (intent != null && intent.getBooleanExtra(EXTRA_START_FULLSCREEN, false)) {
-            Intent fullScreenIntent = new Intent(this, FullScreenPlayerActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION,
-		                String.valueOf(intent.getParcelableExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION)));
-            startActivity(fullScreenIntent);
-        }
-    }
 
     protected void initializeFromParams(Bundle savedInstanceState, Intent intent) {
         String mediaId = null;
-        // check if we were started from a "Play XYZ" voice search. If so, we save the extras
-        // (which contain the query details) in a parameter, so we can reuse it later, when the
-        // MediaSession is connected.
         if (intent.getAction() != null
             && intent.getAction().equals(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH)) {
             mVoiceSearchParams = intent.getExtras();
@@ -188,9 +145,7 @@ public class MusicPlayerActivity extends BaseActivity
                 mVoiceSearchParams.getString(SearchManager.QUERY));
 	        String query=mVoiceSearchParams.getString(SearchManager.QUERY);
 			getSupportMediaController().getTransportControls().playFromSearch(query,new Bundle());
-	        //getBrowseFragment().onScrollToItem(query);
         } else if (savedInstanceState != null) {
-                // If there is a saved media ID, use it
                 mediaId = savedInstanceState.getString(SAVED_MEDIA_ID);
         }else {
 	        mediaId = MEDIA_ID_ROOT;
@@ -202,13 +157,10 @@ public class MusicPlayerActivity extends BaseActivity
 		getMenuInflater().inflate(R.menu.search, menu);
 		menu.findItem(R.id.search).setIcon(getDrawable(android.R.drawable.ic_menu_search));
 		searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-			@Override
-			public boolean onClose() {
-				Timber.w("");
-				return false;
-			}
-		});
+		searchView.setOnCloseListener(() -> {
+            Timber.w("");
+            return false;
+        });
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			@Override
 			public boolean onQueryTextSubmit(String query) {
@@ -236,15 +188,12 @@ public class MusicPlayerActivity extends BaseActivity
 				}
 			}
 		});
-		searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-			@Override
-			public boolean onClose() {
-				Log.d(TAG, "onClose: ");
-				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-				MenuItemCompat.collapseActionView(menu.findItem(R.id.search));
-				return false;
-			}
-		});
+		searchView.setOnCloseListener(() -> {
+            Log.d(TAG, "onClose: ");
+            KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+            MenuItemCompat.collapseActionView(menu.findItem(R.id.search));
+            return false;
+        });
 		return true;
 
 	}
@@ -269,11 +218,7 @@ public class MusicPlayerActivity extends BaseActivity
             FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
             transaction.replace(R.id.container, fragment, FRAGMENT_TAG);
-            // If this is not the top level media (root), we add it to the fragment back stack,
-            // so that actionbar toggle and Back will work appropriately:
-            if (mediaId != null) {
-                transaction.addToBackStack(null);
-            }
+            transaction.addToBackStack(null);
             transaction.commit();
         }
     }
@@ -295,9 +240,6 @@ public class MusicPlayerActivity extends BaseActivity
     @Override
     protected void onMediaControllerConnected() {
         if (mVoiceSearchParams != null) {
-            // If there is a bootstrap parameter to start from a search query, we
-            // send it to the media session and set it to null, so it won't play again
-            // when the activity is stopped/started or recreated:
             String query = mVoiceSearchParams.getString(SearchManager.QUERY);
             getSupportMediaController().getTransportControls()
                     .playFromSearch(query, mVoiceSearchParams);
@@ -305,37 +247,4 @@ public class MusicPlayerActivity extends BaseActivity
         }
         getBrowseFragment().onConnected();
     }
-	public boolean isTablet() {
-		return (checkDimension(this)>=7);
-	}
-	private static double checkDimension(Context context) {
-
-		WindowManager windowManager = ((Activity)context).getWindowManager();
-		Display display = windowManager.getDefaultDisplay();
-		DisplayMetrics displayMetrics = new DisplayMetrics();
-		display.getMetrics(displayMetrics);
-
-		// since SDK_INT = 1;
-		int mWidthPixels = displayMetrics.widthPixels;
-		int mHeightPixels = displayMetrics.heightPixels;
-
-		// includes window decorations (statusbar bar/menu bar)
-		try
-		{
-			Point realSize = new Point();
-			Display.class.getMethod("getRealSize", Point.class).invoke(display, realSize);
-			mWidthPixels = realSize.x;
-			mHeightPixels = realSize.y;
-		}
-		catch (Exception ignored) {}
-
-		DisplayMetrics dm = new DisplayMetrics();
-		windowManager.getDefaultDisplay().getMetrics(dm);
-		double x = Math.pow(mWidthPixels/dm.xdpi,2);
-		double y = Math.pow(mHeightPixels/dm.ydpi,2);
-		double screenInches = Math.sqrt(x+y);
-		//Timber.d("Screen inches : %d", screenInches);
-		return screenInches;
-	}
-
 }

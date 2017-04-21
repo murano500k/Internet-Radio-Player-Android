@@ -35,7 +35,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.view.View;
 
-import com.stc.radio.player.MusicService;
+import com.stc.radio.player.service.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;

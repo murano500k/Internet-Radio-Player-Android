@@ -25,7 +25,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import com.stc.radio.player.MusicService;
+import com.stc.radio.player.service.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 

@@ -52,24 +52,20 @@
         android:indeterminate="true"
         android:visibility="gone"
         android:elevation="100dp"/>
-    <!--<ListView
-        android:id="@+id/list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/playback_error">
-    </ListView>-->
-    <com.stc.radio.player.AutoFitGridRecyclerView
+
+    <com.stc.radio.player.ui.customviews.AutoFitGridRecyclerView
         android:id="@+id/recyclerViewAutoFit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_below="@id/playback_error"
         android:layout_marginEnd="4dp"
-        android:columnWidth="@dimen/movie_grid_item_width"
+        android:minWidth="120dp"
+        android:numColumns="auto_fit"
+        android:stretchMode="columnWidth"
         android:orientation="vertical"
-        tools:listitem="@layout/grid_item"
-        android:background="@color/colorPrimaryDark"/>
+        tools:listitem="@layout/my_media_list_item"
+        android:background="@color/cardview_light_background"/>
 
     <com.turingtechnologies.materialscrollbar.DragScrollBar
         android:layout_width="wrap_content"

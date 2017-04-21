@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="fastadapter_sample_item_id" type="id">12345</item>
     <item name="mediaitem_id" type="id">17256</item>
 
     <item name="tag_mediaitem_state_cache" type="id"/>

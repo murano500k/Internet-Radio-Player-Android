@@ -31,7 +31,8 @@ import android.transition.ChangeBounds;
 import android.transition.Slide;
 import android.view.Gravity;
 
-import com.stc.radio.player.MusicService;
+import com.stc.radio.player.model.MediaBrowserProvider;
+import com.stc.radio.player.service.MusicService;
 import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.ResourceHelper;
@@ -120,7 +121,6 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
     protected void showPlaybackControls() {
         LogHelper.d(TAG, "showPlaybackControls");
         if (com.stc.radio.player.utils.NetworkHelper.isOnline(this)) {
-
             getFragmentManager().beginTransaction()
                 .show(mControlsFragment)
                     .addSharedElement(mControlsFragment.mAlbumArt, getString(R.string.art_transition))

@@ -27,8 +27,10 @@ import android.widget.Toast;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.FastItemAdapter;
-import com.stc.radio.player.AutoFitGridRecyclerView;
 import com.stc.radio.player.R;
+import com.stc.radio.player.model.MediaBrowserProvider;
+import com.stc.radio.player.ui.customviews.AutoFitGridRecyclerView;
+import com.stc.radio.player.utils.ListColumnsCounter;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
 import com.stc.radio.player.utils.NetworkHelper;
@@ -148,8 +150,7 @@ public class MediaBrowserFragment extends Fragment{
 							fastItemAdapter.add(new MediaListItem(
 									item,
 									itemState,
-									getActivity(),
-									isFavorite
+									getActivity()
 							));
 						}
 						fastItemAdapter.notifyDataSetChanged();
@@ -191,15 +192,15 @@ public class MediaBrowserFragment extends Fragment{
 		mErrorMessage = (TextView) mErrorView.findViewById(R.id.error_message);
 		Context context = view.getContext();
 		progressBar=(ProgressBar)view.findViewById(R.id.progress_bar);
-			recyclerView = (AutoFitGridRecyclerView)view.findViewById(R.id.recyclerViewAutoFit);
-			recyclerView.setItemAnimator(new DefaultItemAnimator());
-			recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
-			fastItemAdapter = new FastItemAdapter<>();
-			fastItemAdapter.withSelectable(false);
-			fastItemAdapter.withMultiSelect(false);
-			fastItemAdapter.select(true);
-			fastItemAdapter.withOnClickListener(listItemOnClickListener);
-			recyclerView.setAdapter(fastItemAdapter);
+		recyclerView = (AutoFitGridRecyclerView)view.findViewById(R.id.recyclerViewAutoFit);
+		recyclerView.setItemAnimator(new DefaultItemAnimator());
+		recyclerView.setLayoutManager(new GridLayoutManager(context, ListColumnsCounter.calculateNoOfColumns(context)));
+		fastItemAdapter = new FastItemAdapter<>();
+		fastItemAdapter.withSelectable(false);
+		fastItemAdapter.withMultiSelect(false);
+		fastItemAdapter.select(true);
+		fastItemAdapter.withOnClickListener(listItemOnClickListener);
+		recyclerView.setAdapter(fastItemAdapter);
 
 		return view;
 	}
