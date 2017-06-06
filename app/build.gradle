@@ -42,8 +42,8 @@ android {
             applicationIdSuffix ".debug"
         }
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             debuggable false
             jniDebuggable false
             zipAlignEnabled false

@@ -209,9 +209,10 @@ public class MediaBrowserFragment extends Fragment{
 	public void onStart() {
 		super.onStart();
 		MediaBrowserCompat mediaBrowser = mListener.getMediaBrowser();
-		LogHelper.d(TAG, "fragment.onStart, mediaId=", mMediaId,
-				"  onConnected=" + mediaBrowser.isConnected());
-		if (mediaBrowser.isConnected()) {
+
+		if (mediaBrowser!=null && mediaBrowser.isConnected()) {
+			LogHelper.d(TAG, "fragment.onStart, mediaId=", mMediaId,
+					"  onConnected=" + mediaBrowser.isConnected());
 			onConnected();
 			progressBar.setVisibility(View.GONE);
 		}else if(fastItemAdapter!=null && fastItemAdapter.getAdapterItemCount()>1) {
