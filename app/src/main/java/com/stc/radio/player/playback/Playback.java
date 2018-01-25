@@ -15,6 +15,7 @@
  */
 package com.stc.radio.player.playback;
 
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.stc.radio.player.service.MusicService;
 
 import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -83,7 +84,7 @@ public interface Playback {
         /**
          * @param error to be added to the PlaybackState
          */
-        void onError(String error);
+        void onError(ExoPlaybackException error);
 
     }
 

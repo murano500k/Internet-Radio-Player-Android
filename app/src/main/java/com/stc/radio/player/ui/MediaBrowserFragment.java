@@ -208,18 +208,20 @@ public class MediaBrowserFragment extends Fragment{
 	@Override
 	public void onStart() {
 		super.onStart();
-		MediaBrowserCompat mediaBrowser = mListener.getMediaBrowser();
+        if(mListener !=null){
+            MediaBrowserCompat mediaBrowser = mListener.getMediaBrowser();
+            if (mediaBrowser.isConnected()) {
+                LogHelper.d(TAG, "fragment.onStart, mediaId=", mMediaId,
+                        "  onConnected=" + mediaBrowser.isConnected());
+                onConnected();
+                progressBar.setVisibility(View.GONE);
+            }else if(fastItemAdapter!=null && fastItemAdapter.getAdapterItemCount()>1) {
+                Log.d(TAG, "onStart: list not empty");
+            }else {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        }
 
-		if (mediaBrowser!=null && mediaBrowser.isConnected()) {
-			LogHelper.d(TAG, "fragment.onStart, mediaId=", mMediaId,
-					"  onConnected=" + mediaBrowser.isConnected());
-			onConnected();
-			progressBar.setVisibility(View.GONE);
-		}else if(fastItemAdapter!=null && fastItemAdapter.getAdapterItemCount()>1) {
-			Log.d(TAG, "onStart: list not empty");
-		}else {
-			progressBar.setVisibility(View.VISIBLE);
-		}
 		this.getActivity().registerReceiver(mConnectivityChangeReceiver,
 				new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
@@ -227,9 +229,11 @@ public class MediaBrowserFragment extends Fragment{
 	@Override
 	public void onStop() {
 		super.onStop();
-		MediaBrowserCompat mediaBrowser = mListener.getMediaBrowser();
-		if (mediaBrowser != null && mediaBrowser.isConnected() && mMediaId != null) {
-			mediaBrowser.unsubscribe(mMediaId);
+		if(mListener!=null) {
+			MediaBrowserCompat mediaBrowser = mListener.getMediaBrowser();
+			if (mediaBrowser != null && mediaBrowser.isConnected() && mMediaId != null) {
+				mediaBrowser.unsubscribe(mMediaId);
+			}
 		}
 		MediaControllerCompat controller = ((FragmentActivity) getActivity())
 				.getSupportMediaController();
@@ -264,7 +268,6 @@ public class MediaBrowserFragment extends Fragment{
 			return;
 		}
 		mMediaId = getMediaId();
-		mListener.getMediaBrowser();
 		if (mMediaId == null) {
 			mMediaId = mListener.getMediaBrowser().getRoot();
 		}

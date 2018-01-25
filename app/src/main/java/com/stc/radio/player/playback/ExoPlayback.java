@@ -425,8 +425,9 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
         mState=PlaybackStateCompat.STATE_ERROR;
 		if (mCallback != null) {
 			mCallback.onPlaybackStatusChanged(mState);
-			mCallback.onError("MediaPlayer error " +  error.getMessage());
+			mCallback.onError(error);
 		}
+
         listenNetworkChanges();
 	}
 
