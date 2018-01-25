@@ -17,6 +17,8 @@ package com.stc.radio.player.playback;
 
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import com.google.android.exoplayer2.ExoPlaybackException;
+
 class SimplePlaybackServiceCallback implements PlaybackManager.PlaybackServiceCallback {
     @Override
     public void onPlaybackStart() {
@@ -35,6 +37,11 @@ class SimplePlaybackServiceCallback implements PlaybackManager.PlaybackServiceCa
 
     @Override
     public void onPlaybackStateUpdated(PlaybackStateCompat newState) {
+
+    }
+
+    @Override
+    public void onError(ExoPlaybackException e) {
 
     }
 }

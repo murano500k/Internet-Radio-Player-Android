@@ -39,6 +39,8 @@ import android.support.v7.media.MediaRouter;
  import android.util.Log;
  import android.widget.Toast;
 
+ import com.google.android.exoplayer2.ExoPlaybackException;
+ import com.stc.radio.player.ErrorHandler;
  import com.stc.radio.player.utils.PackageValidator;
  import com.stc.radio.player.R;
  import com.stc.radio.player.source.MusicProvider;
@@ -49,7 +51,8 @@ import com.stc.radio.player.ui.MusicPlayerActivity;
 import com.stc.radio.player.utils.CarHelper;
 import com.stc.radio.player.utils.LogHelper;
 
-import java.lang.ref.WeakReference;
+ import java.io.IOException;
+ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
@@ -149,12 +152,14 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
      private boolean mIsConnectedToCar;
      private BroadcastReceiver mCarConnectionReceiver;
 	 private SleepCountdownTimer sleepTimer;
+	 private ErrorHandler mErrorHandler;
 
 
      @Override
      public void onCreate() {
          super.onCreate();
          LogHelper.d(TAG, "onCreate");
+         mErrorHandler=new ErrorHandler(this);
 
          mMusicProvider = new MusicProvider();
 
@@ -300,6 +305,11 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
          mDelayedStopHandler.removeCallbacksAndMessages(null);
          mSession.release();
+         try {
+             mErrorHandler.writeErrorsToFile();
+         } catch (IOException e) {
+             e.printStackTrace();
+         }
      }
 
 
@@ -370,6 +380,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
       */
      @Override
      public void onPlaybackStop() {
+         Log.w(TAG, "onPlaybackStop: ");
          // Reset the delayed stop handler, so after STOP_DELAY it will be executed again,
          // potentially stopping the service.
          mDelayedStopHandler.removeCallbacksAndMessages(null);
@@ -385,6 +396,11 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
      @Override
      public void onPlaybackStateUpdated(PlaybackStateCompat newState) {
          mSession.setPlaybackState(newState);
+     }
+
+     @Override
+     public void onError(ExoPlaybackException e) {
+        mErrorHandler.addError(e);
      }
 
      private void registerCarConnectionReceiver() {

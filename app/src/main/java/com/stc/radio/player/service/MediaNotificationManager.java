@@ -316,11 +316,11 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 .setColor(mNotificationColor)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setUsesChronometer(true)
                 .setContentIntent(createContentIntent(description))
                 .setContentTitle(description.getTitle())
                 .setContentText(description.getSubtitle())
-                .setLargeIcon(art);
+                .setDeleteIntent(mPauseIntent).setOngoing(false);
+
 
         if (mController != null && mController.getExtras() != null) {
             String castName = mController.getExtras().getString(MusicService.EXTRA_CONNECTED_CAST);
@@ -381,7 +381,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             return;
         }
 
-        if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING
+        /*if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING
                 && mPlaybackState.getPosition() >= 0) {
             LogHelper.d(TAG, "updateNotificationPlaybackState. updating playback position to ",
                     (System.currentTimeMillis() - mPlaybackState.getPosition()) / 1000, " seconds");
@@ -395,10 +395,11 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 .setWhen(0)
                 .setShowWhen(false)
                 .setUsesChronometer(false);
-        }
+        }*/
 
         // Make sure that the notification can be dismissed by the user when we are not playing:
-        builder.setOngoing(mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING);
+        //builder.setOngoing(mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING);
+
     }
 
     private void fetchBitmapFromURLAsync(final String bitmapUrl,

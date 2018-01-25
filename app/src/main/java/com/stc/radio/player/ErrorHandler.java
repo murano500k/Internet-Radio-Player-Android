@@ -1,5 +1,7 @@
 package com.stc.radio.player;
 
+import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -16,33 +18,58 @@ import java.util.HashMap;
 
 public class ErrorHandler {
     private static final String TAG = "ErrorHandler";
-    private static final String ERROR_LOG_FILE = "/sdcard/irp_error_log/log_";
+    private static final String ERROR_LOG_DIR = "/sdcard/irp_error_log";
+    private final Context mContext;
 
     HashMap<String,ExoPlaybackException>errorsMap;
 
-    public ErrorHandler(){
+    public ErrorHandler(Context context){
+        this.mContext=context;
         errorsMap=new HashMap<>();
+        File dir = new File(ERROR_LOG_DIR);
+
+        if(!dir.exists()) {
+            dir.mkdirs();
+        }
+
     }
     public void addError(ExoPlaybackException e){
         String timestamp=new Date().toString();
         errorsMap.put(timestamp,e);
         Log.e(TAG, "addError: "+timestamp+" ", e);
+        e.printStackTrace();
     }
 
 
     public void writeErrorsToFile() throws IOException {
-        String logFile=ERROR_LOG_FILE+new Date().getTime();
-        File file = new File(logFile);
-        if(!file.exists()) {
-            file.createNewFile();
+
+        String logFile= "log_"+new Date().getTime();
+        File file = new File(mContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES),"error_log");
+        if(!file.exists()){
+            file.mkdir();
         }
-        FileWriter fileWriter = new FileWriter(logFile, true);
-        for (String timestamp :
-                errorsMap.keySet()) {
-            String line = timestamp+" "+errorsMap.get(timestamp).getMessage();
-            fileWriter.append(line);
+
+        try{
+            File gpxfile = new File(file, logFile);
+            Log.w(TAG, "writeErrorsToFile() called"+gpxfile.getAbsolutePath());
+            FileWriter writer = new FileWriter(gpxfile);
+            for (String timestamp :
+                    errorsMap.keySet()) {
+                ExoPlaybackException e=errorsMap.get(timestamp);
+                String line = timestamp+"\n\t"+e.getMessage()+" "+e.getCause().toString()+"\n\t"+
+                        e.getCause().getCause().toString()
+                        +"\n\n";
+                writer.append(line);
+                Log.w(TAG, "writeErrorsToFile: "+line );
+            }
+            writer.flush();
+            writer.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+
         }
-        fileWriter.flush();
+
         errorsMap.clear();
     }
 

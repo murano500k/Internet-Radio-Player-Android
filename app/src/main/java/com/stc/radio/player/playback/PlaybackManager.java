@@ -25,13 +25,10 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.stc.radio.player.ErrorHandler;
 import com.stc.radio.player.R;
 import com.stc.radio.player.source.MusicProvider;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.MediaIDHelper;
-
-import java.io.IOException;
 
 /**
  * Manage the interactions among the container service, the queue manager and the actual playback.
@@ -43,7 +40,6 @@ public class PlaybackManager implements Playback.Callback {
     public static final String CUSTOM_ACTION_THUMBS_UP = "com.stc.radio.player.THUMBS_UP";
 
 	public static final String IS_FAVORITE = "com.stc.radio.player.IS_FAVORITE";
-    private final ErrorHandler errorHandler;
     private MusicProvider mMusicProvider;
     private QueueManager mQueueManager;
     private Resources mResources;
@@ -61,7 +57,6 @@ public class PlaybackManager implements Playback.Callback {
         mMediaSessionCallback = new MediaSessionCallback( );
         mPlayback = playback;
         mPlayback.setCallback(this);
-        errorHandler=new ErrorHandler();
     }
 
     public Playback getPlayback() {
@@ -106,11 +101,7 @@ public class PlaybackManager implements Playback.Callback {
      */
     public void handleStopRequest(String withError) {
         LogHelper.d(TAG, "handleStopRequest: mState=" + mPlayback.getState() + " error=", withError);
-        try {
-            errorHandler.writeErrorsToFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         mPlayback.stop(true);
         mServiceCallback.onPlaybackStop();
         updatePlaybackState(withError);
@@ -248,9 +239,11 @@ public class PlaybackManager implements Playback.Callback {
 
     @Override
     public void onError(ExoPlaybackException error) {
-        errorHandler.addError(error);
         updatePlaybackState(error.getMessage());
+        mServiceCallback.onError(error);
     }
+
+
 
 
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
@@ -372,5 +365,6 @@ public class PlaybackManager implements Playback.Callback {
         void onPlaybackStop();
 
         void onPlaybackStateUpdated(PlaybackStateCompat newState);
+        void onError(ExoPlaybackException e);
     }
 }

@@ -56,7 +56,7 @@ public class Retro {
 		OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
 		Retrofit retrofit = new Retrofit.Builder()
-				.baseUrl("http://api.friezy.ru")
+				.baseUrl("https://api.friezy.ru")
 				.addConverterFactory(GsonConverterFactory.create(gson))
 				.client(httpClient.build()).build();
 
