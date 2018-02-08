@@ -36,8 +36,38 @@ public class ErrorHandler {
     public void addError(ExoPlaybackException e){
         String timestamp=new Date().toString();
         errorsMap.put(timestamp,e);
-        Log.e(TAG, "addError: "+timestamp+" ", e);
-        e.printStackTrace();
+        Log.e(TAG, "addError: "+timestamp+"| "+getReadableError(e));
+    }
+    public static String getReadableError(ExoPlaybackException e){
+        switch (e.type){
+            case ExoPlaybackException.TYPE_RENDERER:
+                return e.getRendererException().getMessage();
+            case ExoPlaybackException.TYPE_SOURCE:
+                return e.getSourceException().getMessage();
+            case ExoPlaybackException.TYPE_UNEXPECTED:
+                return e.getUnexpectedException().getMessage();
+        }
+        return "no data";
+    }
+    public static boolean sameErrors(ExoPlaybackException e1,ExoPlaybackException e2){
+        if(e1==null && e2==null)return true;
+        else if(e1==null || e2==null) return false;
+        if(e1.type!=e2.type)return false;
+        switch (e1.type) {
+            case ExoPlaybackException.TYPE_RENDERER:
+                return e1.getRendererException().getMessage().contains(
+                        e2.getRendererException().getMessage()
+                );
+            case ExoPlaybackException.TYPE_SOURCE:
+                return e1.getSourceException().getMessage().contains(
+                        e2.getSourceException().getMessage()
+                );
+            case ExoPlaybackException.TYPE_UNEXPECTED:
+                return e1.getUnexpectedException().getMessage().contains(
+                        e2.getUnexpectedException().getMessage()
+                );
+        }
+        return false;
     }
 
 
@@ -51,7 +81,7 @@ public class ErrorHandler {
 
         try{
             File gpxfile = new File(file, logFile);
-            Log.w(TAG, "writeErrorsToFile() called"+gpxfile.getAbsolutePath());
+           // Log.w(TAG, "writeErrorsToFile() called"+gpxfile.getAbsolutePath());
             FileWriter writer = new FileWriter(gpxfile);
             for (String timestamp :
                     errorsMap.keySet()) {
@@ -60,7 +90,7 @@ public class ErrorHandler {
                         e.getCause().getCause().toString()
                         +"\n\n";
                 writer.append(line);
-                Log.w(TAG, "writeErrorsToFile: "+line );
+               // Log.w(TAG, "writeErrorsToFile: "+line );
             }
             writer.flush();
             writer.close();

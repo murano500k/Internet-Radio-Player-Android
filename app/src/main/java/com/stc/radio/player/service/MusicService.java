@@ -401,6 +401,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
      @Override
      public void onError(ExoPlaybackException e) {
         mErrorHandler.addError(e);
+
      }
 
      private void registerCarConnectionReceiver() {

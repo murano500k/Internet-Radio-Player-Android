@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -36,6 +37,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.stc.radio.player.ErrorHandler;
 import com.stc.radio.player.model.Retro;
 import com.stc.radio.player.service.MusicService;
 import com.stc.radio.player.source.MusicProvider;
@@ -65,6 +67,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
     private static final int AUDIO_FOCUSED  = 2;
 
     private final Context mContext;
+    private ConnectivityManager mConnectivityManager;
     private final WifiManager.WifiLock mWifiLock;
     private int mState;
     private boolean mPlayOnFocusGain;
@@ -103,11 +106,15 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
             }
         }
     };
+    private ExoPlaybackException mLastError;
+
 
     public ExoPlayback(Context context, MusicProvider musicProvider) {
         this.mContext = context;
         this.mMusicProvider = musicProvider;
         this.mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        mConnectivityManager = (ConnectivityManager) mContext
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
         this.mWifiLock = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "radio_lock");
         this.mState = PlaybackStateCompat.STATE_NONE;
@@ -421,26 +428,50 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 
 	@Override
 	public void onPlayerError(ExoPlaybackException error) {
-        Log.e(TAG, "onPlayerError: ",error );
         mState=PlaybackStateCompat.STATE_ERROR;
 		if (mCallback != null) {
 			mCallback.onPlaybackStatusChanged(mState);
 			mCallback.onError(error);
 		}
+		if(error.type==ExoPlaybackException.TYPE_SOURCE){
 
-        listenNetworkChanges();
+            if(isOnline()){
+                resumeAfterError(error, false);
+            }else listenNetworkChanges();
+        }
+
 	}
 
+    public boolean isOnline() {
+        boolean connected=false;
+        try {
 
-    private void resumeAfterError(){
-        if(mCurrentSource!=null) {
-            if (mMediaPlayer != null) {
-                Log.d(TAG, "resumeAfterError: will resume");
-                tryToPlayAsync(mCurrentSource);
-            }else Log.e(TAG, "resumeAfterError: mediaplayer null" );
-        }else {
-            Log.e(TAG, "resumeAfterError: nothing to resume" );
+            NetworkInfo networkInfo = mConnectivityManager.getActiveNetworkInfo();
+            connected = networkInfo != null && networkInfo.isAvailable() &&
+                    networkInfo.isConnected();
+        } catch (Exception e) {
+            System.out.println("CheckConnectivity Exception: " + e.getMessage());
+            Log.v("connectivity", e.toString());
         }
+        Log.w(TAG, "isOnline: "+connected);
+        return connected;
+    }
+
+
+    private void resumeAfterError(ExoPlaybackException error, boolean force){
+        Log.w(TAG, "resumeAfterError: mLastError="+mLastError );
+        Log.w(TAG, "resumeAfterError: Error="+error );
+        if(force || !ErrorHandler.sameErrors(error,mLastError)) {
+	        mLastError=error;
+            if (mCurrentSource != null) {
+                if (mMediaPlayer != null) {
+                    Log.d(TAG, "resumeAfterError: will resume");
+                    tryToPlayAsync(mCurrentSource);
+                } else Log.e(TAG, "resumeAfterError: mediaplayer null");
+            } else {
+                Log.e(TAG, "resumeAfterError: nothing to resume");
+            }
+        }else Log.w(TAG, "resumeAfterError: same error not resuming");
     }
     private void unsubscribe(){
         Log.d(TAG, "unsubscribe: ");
@@ -449,6 +480,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
             mNetworkChangeReciever=null;
         }
         mDisposables.dispose();
+        mLastError=null;
     }
     private void listenNetworkChanges(){
         Log.d(TAG, "listenNetworkChanges");
@@ -473,39 +505,13 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
             NetworkInfo info = (NetworkInfo) bundle.get("networkInfo");
             if(info!=null && info.getState()== NetworkInfo.State.CONNECTED) {
                 Log.d(TAG, "onReceive: CONNECTED");
-                resumeAfterError();
+                resumeAfterError(null,true);
             }else {
                 Log.d(TAG, "onReceive: NOT CONNECTED");
             }
         }
     }
-    /*
 
-    private void checkStreamOnline(){
-        if(mCurrentSource!=null && !mCurrentSource.isEmpty()){
-            Log.d(TAG, "checkStreamOnline");
-            mDisposables.add(
-            ReactiveNetwork.observeNetworkConnectivity(mContext)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(connectivity -> {
-                        Log.d(TAG, "checkStreamOnline on result:"+connectivity.toString());
-                        if(connectivity.getState()== NetworkInfo.State.CONNECTED){
-                            Log.d(TAG, "checkStreamOnline: Success");
-                            resumeAfterError();
-                        }else {
-                            Log.d(TAG, "checkStreamOnline: Error");
-                            listenNetworkChanges();
-                        }
-                    },throwable -> {
-                        throwable.printStackTrace();
-                        listenNetworkChanges();
-                    })
-            );
-        }else {
-            Log.e(TAG, "checkStreamOnline: no stream url" );
-        }
-    }
-*/
+
 
 }
