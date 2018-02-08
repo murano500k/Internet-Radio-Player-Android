@@ -217,7 +217,8 @@ public class MediaBrowserFragment extends Fragment{
                 progressBar.setVisibility(View.GONE);
             }else if(fastItemAdapter!=null && fastItemAdapter.getAdapterItemCount()>1) {
                 Log.d(TAG, "onStart: list not empty");
-            }else {
+
+			}else {
                 progressBar.setVisibility(View.VISIBLE);
             }
         }
@@ -283,6 +284,8 @@ public class MediaBrowserFragment extends Fragment{
 	}
 
 	private void checkForUserVisibleErrors(boolean forceError) {
+		Log.d(TAG, "checkForUserVisibleErrors() called with: forceError = [" + forceError + "]");
+
 		boolean showError = forceError;
 		// If offline, message is about the lack of connectivity:
 		if (!NetworkHelper.isOnline(getActivity())) {
