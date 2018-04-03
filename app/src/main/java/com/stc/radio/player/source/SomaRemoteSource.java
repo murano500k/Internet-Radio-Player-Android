@@ -1,6 +1,7 @@
 package com.stc.radio.player.source;
 
-import android.support.v4.media.MediaMetadataCompat;
+
+import android.media.MediaMetadata;
 
 import com.stc.radio.player.model.StationsManager;
 
@@ -18,8 +19,8 @@ public class SomaRemoteSource extends BaseRemoteSource {
     }
 
     @Override
-    public ArrayList<MediaMetadataCompat> loadStations() {
-        ArrayList<MediaMetadataCompat> tracks = new ArrayList<MediaMetadataCompat>();
+    public ArrayList<MediaMetadata> loadStations() {
+        ArrayList<MediaMetadata> tracks = new ArrayList<MediaMetadata>();
             if (name.equals(SOMA)) {
                 for (String s1 : StationsManager.Soma.somaStations) {
                     tracks.add(buildFromResponce(s1, name));
@@ -28,7 +29,7 @@ public class SomaRemoteSource extends BaseRemoteSource {
         return tracks;
     }
 
-    public MediaMetadataCompat buildFromResponce(String station,  String pls){
+    public MediaMetadata buildFromResponce(String station,  String pls){
         String source = StationsManager.getUrl(pls, station);
         String iconUrl = StationsManager.getArtUrl(station);
         Character character = station.charAt(0);

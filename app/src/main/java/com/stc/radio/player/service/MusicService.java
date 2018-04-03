@@ -23,98 +23,41 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaMetadata;
+import android.media.browse.MediaBrowser;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
+import android.service.media.MediaBrowserService;
 import android.support.annotation.NonNull;
-import android.support.v4.media.MediaBrowserCompat.MediaItem;
-import android.support.v4.media.MediaBrowserServiceCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaButtonReceiver;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.media.MediaRouter;
- import android.util.Log;
- import android.widget.Toast;
+import android.util.Log;
+import android.widget.Toast;
 
- import com.google.android.exoplayer2.ExoPlaybackException;
- import com.stc.radio.player.ErrorHandler;
- import com.stc.radio.player.utils.PackageValidator;
- import com.stc.radio.player.R;
- import com.stc.radio.player.source.MusicProvider;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.stc.radio.player.ErrorHandler;
+import com.stc.radio.player.R;
 import com.stc.radio.player.playback.ExoPlayback;
 import com.stc.radio.player.playback.PlaybackManager;
 import com.stc.radio.player.playback.QueueManager;
+import com.stc.radio.player.source.MusicProvider;
 import com.stc.radio.player.ui.MusicPlayerActivity;
 import com.stc.radio.player.utils.CarHelper;
 import com.stc.radio.player.utils.LogHelper;
+import com.stc.radio.player.utils.PackageValidator;
 
- import java.io.IOException;
- import java.lang.ref.WeakReference;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
 
- /**
-  * This class provides a MediaBrowser through a service. It exposes the media library to a browsing
-  * client, through the onGetRoot and onLoadChildren methods. It also creates a MediaSession and
-  * exposes it through its MediaSession.Token, which allows the client to create a MediaController
-  * that connects to and send control commands to the MediaSession remotely. This is useful for
-  * user interfaces that need to interact with your media session, like Android Auto. You can
-  * (should) also use the same service from your app's UI, which gives a seamless playback
-  * experience to the user.
-  *
-  * To implement a MediaBrowserService, you need to:
-  *
-  * <ul>
-  *
-  * <li> Extend {@link android.service.media.MediaBrowserService}, implementing the media browsing
-  *      related methods {@link android.service.media.MediaBrowserService#onGetRoot} and
-  *      {@link android.service.media.MediaBrowserService#onLoadChildren};
-  * <li> In onCreate, start a new {@link android.media.session.MediaSession} and notify its parent
-  *      with the session's token {@link android.service.media.MediaBrowserService#setSessionToken};
-  *
-  * <li> Set a callback on the
-  *      {@link android.media.session.MediaSession#setCallback(android.media.session.MediaSession.Callback)}.
-  *      The callback will receive all the user's actions, like play, pause, etc;
-  *
-  * <li> Handle all the actual music playing using any method your app prefers (for example,
-  *      {@link android.media.MediaPlayer})
-  *
-  * <li> Update playbackState, "now playing" metadata and queue, using MediaSession proper methods
-  *      {@link android.media.session.MediaSession#setPlaybackState(android.media.session.PlaybackState)}
-  *      {@link android.media.session.MediaSession#setMetadata(android.media.MediaMetadata)} and
-  *      {@link android.media.session.MediaSession#setQueue(List)})
-  *
-  * <li> Declare and export the service in AndroidManifest with an intent receiver for the action
-  *      android.media.browse.MediaBrowserService
-  *
-  * </ul>
-  *
-  * To make your app compatible with Android Auto, you also need to:
-  *
-  * <ul>
-  *
-  * <li> Declare a meta-data tag in AndroidManifest.xml linking to a xml resource
-  *      with a &lt;automotiveApp&gt; root element. For a media app, this must include
-  *      an &lt;uses name="media"/&gt; element as a child.
-  *      For example, in AndroidManifest.xml:
-  *          &lt;meta-data android:name="com.google.android.gms.car.application"
-  *              android:resource="@xml/automotive_app_desc"/&gt;
-  *      And in res/values/automotive_app_desc.xml:
-  *          &lt;automotiveApp&gt;
-  *              &lt;uses name="media"/&gt;
-  *          &lt;/automotiveApp&gt;
-  *
-  * </ul>
-
-  * @see <a href="README.md">README.md</a> for more details.
-  *
-  */
- public class MusicService extends MediaBrowserServiceCompat implements
+ public class MusicService extends MediaBrowserService implements
          PlaybackManager.PlaybackServiceCallback {
 
      private static final String TAG = LogHelper.makeLogTag(MusicService.class);
@@ -143,7 +86,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 	 private MusicProvider mMusicProvider;
      private PlaybackManager mPlaybackManager;
 
-     private MediaSessionCompat mSession;
+     private MediaSession mSession;
      private MediaNotificationManager mMediaNotificationManager;
      private Bundle mSessionExtras;
      private final DelayedStopHandler mDelayedStopHandler = new DelayedStopHandler(this);
@@ -170,7 +113,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
          QueueManager queueManager = new QueueManager(mMusicProvider, getResources(),
                  new QueueManager.MetadataUpdateListener() {
                      @Override
-                     public void onMetadataChanged(MediaMetadataCompat metadata) {
+                     public void onMetadataChanged(MediaMetadata metadata) {
                          mSession.setMetadata(metadata);
                      }
 
@@ -187,7 +130,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
                      @Override
                      public void onQueueUpdated(String title,
-                                                List<MediaSessionCompat.QueueItem> newQueue) {
+                                                List<MediaSession.QueueItem> newQueue) {
                          mSession.setQueue(newQueue);
                          mSession.setQueueTitle(title);
                      }
@@ -200,11 +143,11 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
                  playback);
 
          // Start a new MediaSession
-         mSession = new MediaSessionCompat(this, "MusicService");
+         mSession = new MediaSession(this, "MusicService");
          setSessionToken(mSession.getSessionToken());
          mSession.setCallback(mPlaybackManager.getMediaSessionCallback());
-         mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+         mSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
+                 MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
          Context context = getApplicationContext();
          Intent intent = new Intent(context, MusicPlayerActivity.class);
@@ -256,7 +199,8 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
                  }
              } else {
                  // Try to handle the intent as a media button event wrapped by MediaButtonReceiver
-                 MediaButtonReceiver.handleIntent(mSession, startIntent);
+                 Log.w(TAG, "MediaButtonReceiver.handleIntent: "+startIntent );
+                 //MediaButtonReceiver.handleIntent(mSession, startIntent);
              }
          }
          // Reset the delay handler to enqueue a message to stop the service if
@@ -331,7 +275,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
 
      @Override
      public void onLoadChildren(@NonNull final String parentMediaId,
-                                @NonNull final Result<List<MediaItem>> result) {
+                                @NonNull final Result<List<MediaBrowser.MediaItem>> result) {
          LogHelper.d(TAG, "OnLoadChildren: parentMediaId=", parentMediaId);
          if (mMusicProvider.isInitialized()) {
              // if music library is ready, return immediately
@@ -349,13 +293,13 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
      }
 
 	 @Override
-	 public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaItem>> result, @NonNull Bundle options) {
+	 public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowser.MediaItem>> result, @NonNull Bundle options) {
 
 		 super.onLoadChildren(parentId, result, options);
 	 }
 
 	 @Override
-	 public void onLoadItem(String itemId, Result<MediaItem> result) {
+	 public void onLoadItem(String itemId, Result<MediaBrowser.MediaItem> result) {
 
 
 	 }
@@ -394,7 +338,7 @@ import static com.stc.radio.player.utils.MediaIDHelper.MEDIA_ID_ROOT;
      }
 
      @Override
-     public void onPlaybackStateUpdated(PlaybackStateCompat newState) {
+     public void onPlaybackStateUpdated(PlaybackState newState) {
          mSession.setPlaybackState(newState);
      }
 

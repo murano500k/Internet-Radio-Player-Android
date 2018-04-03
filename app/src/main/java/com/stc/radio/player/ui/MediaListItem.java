@@ -6,13 +6,11 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.browse.MediaBrowser;
+import android.media.session.MediaController;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,6 +27,8 @@ import com.stc.radio.player.utils.PabloPicasso;
 
 import java.util.List;
 
+;
+
 
 public class MediaListItem
 		extends AbstractItem<MediaListItem, MediaListItem.ViewHolder>
@@ -44,10 +44,10 @@ public class MediaListItem
 	public  static ColorStateList sColorStatePlaying;
 	public  static ColorStateList sColorStateNotPlaying;
 	private Integer state;
-	private MediaBrowserCompat.MediaItem mediaItem;
+	private MediaBrowser.MediaItem mediaItem;
 	Activity activity;
 
-	public MediaListItem(MediaBrowserCompat.MediaItem mediaItem, int state, Activity activity) {
+	public MediaListItem(MediaBrowser.MediaItem mediaItem, int state, Activity activity) {
 		this.mediaItem=mediaItem;
 		this.state=state;
 		this.activity=activity;
@@ -83,17 +83,17 @@ public class MediaListItem
 		state = STATE_NONE;
 		if (mediaItem!=null && mediaItem.isPlayable()) {
 			state = STATE_PLAYABLE;
-			MediaControllerCompat controller = ((FragmentActivity) activity)
-					.getSupportMediaController();
+			MediaController controller = ((FragmentActivity) activity)
+					.getMediaController();
 			if (controller != null && controller.getMetadata() != null) {
 				String currentPlaying = controller.getMetadata().getDescription().getMediaId();
 				String musicId = MediaIDHelper.extractMusicIDFromMediaID(key);
 				if (currentPlaying != null && currentPlaying.equals(musicId)) {
-					PlaybackStateCompat pbState = controller.getPlaybackState();
+					PlaybackState pbState = controller.getPlaybackState();
 					if (pbState == null ||
-							pbState.getState() == PlaybackStateCompat.STATE_ERROR) {
+							pbState.getState() == PlaybackState.STATE_ERROR) {
 						state = STATE_NONE;
-					} else if (pbState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+					} else if (pbState.getState() == PlaybackState.STATE_PLAYING) {
 						state = STATE_PLAYING;
 					} else {
 						state = STATE_PAUSED;
@@ -120,24 +120,24 @@ public class MediaListItem
 		if (cachedState == null || !cachedState.equals(state)) {
 			switch (state) {
 				case STATE_PLAYABLE:
-					Drawable pauseDrawable = ContextCompat.getDrawable(ctx,
+					Drawable pauseDrawable = ctx.getDrawable(
 							R.drawable.ic_play_arrow_black_36dp);
-					DrawableCompat.setTintList(pauseDrawable, sColorStateNotPlaying);
+					pauseDrawable.setTintList(sColorStateNotPlaying);
 					viewHolder.playbackIndicator.setImageDrawable(pauseDrawable);
 					viewHolder.playbackIndicator.setVisibility(View.VISIBLE);
 					break;
 				case STATE_PLAYING:
 					AnimationDrawable animation = (AnimationDrawable)
-							ContextCompat.getDrawable(ctx, R.drawable.ic_equalizer_white_36dp);
-					DrawableCompat.setTintList(animation, sColorStatePlaying);
+							ctx.getDrawable(R.drawable.ic_equalizer_white_36dp);
+					animation.setTintList(sColorStatePlaying);
 					viewHolder.playbackIndicator.setImageDrawable(animation);
 					viewHolder.playbackIndicator.setVisibility(View.VISIBLE);
 					animation.start();
 					break;
 				case STATE_PAUSED:
-					Drawable playDrawable = ContextCompat.getDrawable(ctx,
+					Drawable playDrawable = ctx.getDrawable(
 							R.drawable.ic_equalizer1_white_36dp);
-					DrawableCompat.setTintList(playDrawable, sColorStatePlaying);
+					playDrawable.setTintList( sColorStatePlaying);
 					viewHolder.playbackIndicator.setImageDrawable(playDrawable);
 					viewHolder.playbackIndicator.setVisibility(View.VISIBLE);
 					break;
@@ -165,7 +165,7 @@ public class MediaListItem
 		return R.layout.my_media_list_item;
 	}
 
-	public MediaBrowserCompat.MediaItem getMediaItem() {
+	public MediaBrowser.MediaItem getMediaItem() {
 
 		return mediaItem;
 	}

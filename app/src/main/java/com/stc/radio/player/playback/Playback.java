@@ -15,10 +15,11 @@
  */
 package com.stc.radio.player.playback;
 
+import android.media.session.MediaSession;
+
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.stc.radio.player.service.MusicService;
 
-import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
 
 /**
  * Interface representing either Local or Remote Playback. The {@link MusicService} works
@@ -57,7 +58,7 @@ public interface Playback {
      */
     boolean isPlaying();
 
-    void play(QueueItem item);
+    void play(MediaSession.QueueItem item);
 
     /**
      * Pause the current playing item

@@ -16,7 +16,8 @@
 
 package com.stc.radio.player.source;
 
-import android.support.v4.media.MediaMetadataCompat;
+
+import android.media.MediaMetadata;
 
 import com.stc.radio.player.model.Retro;
 import com.stc.radio.player.model.StationsManager;
@@ -38,11 +39,11 @@ public class RemoteSource implements MusicProviderSource {
 	private static final String TAG = LogHelper.makeLogTag(RemoteSource.class);
 
 	@Override
-	public Iterator<MediaMetadataCompat> iterator() {
+	public Iterator<MediaMetadata> iterator() {
 		Retro.updateToken();
 		SettingsProvider.getToken();
 		
-		ArrayList<MediaMetadataCompat> allTracks = new ArrayList<>();
+		ArrayList<MediaMetadata> allTracks = new ArrayList<>();
 		ArrayList<BaseRemoteSource> sources = new ArrayList<>();
 		sources.add(new AudioAddictSource(StationsManager.PLAYLISTS.DI));
 		sources.add(new AudioAddictSource(StationsManager.PLAYLISTS.CLASSIC));
@@ -51,18 +52,18 @@ public class RemoteSource implements MusicProviderSource {
 		sources.add(new AudioAddictSource(StationsManager.PLAYLISTS.RADIOTUNES));
 		sources.add(new SomaRemoteSource(StationsManager.PLAYLISTS.SOMA));
 		for(BaseRemoteSource source: sources){
-			ArrayList<MediaMetadataCompat> sourceTracks = source.getStations();
+			ArrayList<MediaMetadata> sourceTracks = source.getStations();
 			if(sourceTracks!=null && !sourceTracks.isEmpty())
 				allTracks.addAll(sourceTracks);
 			else Timber.e(TAG, "sourceTracks %s empty",source.getName() );
 		}
 		return allTracks.iterator();
 	}
-	static Comparator<MediaMetadataCompat> comparatorDBMediaItem=new Comparator<MediaMetadataCompat>() {
+	static Comparator<MediaMetadata> comparatorDBMediaItem=new Comparator<MediaMetadata>() {
 		@Override
-		public int compare(MediaMetadataCompat item2, MediaMetadataCompat item1) {
-			String title1=item1.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-			String title2=item2.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
+		public int compare(MediaMetadata item2, MediaMetadata item1) {
+			String title1=item1.getString(MediaMetadata.METADATA_KEY_TITLE);
+			String title2=item2.getString(MediaMetadata.METADATA_KEY_TITLE);
 			return(title1.compareToIgnoreCase(title2));
 		}
 	};

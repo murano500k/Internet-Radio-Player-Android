@@ -6,14 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.MediaMetadata;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -49,9 +50,8 @@ import com.stc.radio.player.utils.StreamLinkDecoder;
 import io.reactivex.disposables.CompositeDisposable;
 import timber.log.Timber;
 
+import static android.media.session.PlaybackState.STATE_ERROR;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
-import static android.support.v4.media.session.MediaSessionCompat.QueueItem;
-import static android.support.v4.media.session.PlaybackStateCompat.STATE_ERROR;
 import static com.google.android.exoplayer2.C.STREAM_TYPE_MUSIC;
 import static com.stc.radio.player.playback.PlaybackManager.detectPlaybackStateCompact;
 
@@ -117,7 +117,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         this.mWifiLock = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "radio_lock");
-        this.mState = PlaybackStateCompat.STATE_NONE;
+        this.mState = PlaybackState.STATE_NONE;
         mDisposables=new CompositeDisposable();
     }
 
@@ -130,7 +130,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	public void pause() {
 		Timber.w(" isPlaying? %b, state=%d", isPlaying(), mState);
 
-		mState = PlaybackStateCompat.STATE_PAUSED;
+		mState = PlaybackState.STATE_PAUSED;
 		if(mMediaPlayer!=null && mMediaPlayer.getPlayWhenReady()){
 			mMediaPlayer.setPlayWhenReady(false);
 		}
@@ -144,7 +144,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
     @Override
     public void stop(boolean notifyListeners) {
 	    Timber.w(" isPlaying? %b, state=%d", isPlaying(), mState);
-	    mState = PlaybackStateCompat.STATE_PAUSED;
+	    mState = PlaybackState.STATE_PAUSED;
         if (notifyListeners && mCallback != null) {
             mCallback.onPlaybackStatusChanged(mState);
         }
@@ -178,7 +178,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
     }
 
     @Override
-    public void play(QueueItem item) {
+    public void play(MediaSession.QueueItem item) {
         mPlayOnFocusGain = true;
         tryToGetAudioFocus();
         registerAudioNoisyReceiver();
@@ -188,18 +188,18 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
             mCurrentPosition = 0;
             mCurrentMediaId = mediaId;
         }
-        if (mState == PlaybackStateCompat.STATE_PAUSED && !mediaHasChanged && mMediaPlayer != null) {
-	        mState = PlaybackStateCompat.STATE_BUFFERING;
+        if (mState == PlaybackState.STATE_PAUSED && !mediaHasChanged && mMediaPlayer != null) {
+	        mState = PlaybackState.STATE_BUFFERING;
 	        mMediaPlayer.setPlayWhenReady(true);
 	        configMediaPlayerState();
         } else {
-            mState = PlaybackStateCompat.STATE_PAUSED;
+            mState = PlaybackState.STATE_PAUSED;
             relaxResources(false);
-            MediaMetadataCompat track = mMusicProvider.getMusic(
+            MediaMetadata track = mMusicProvider.getMusic(
                     MediaIDHelper.extractMusicIDFromMediaID(item.getDescription().getMediaId()));
             String source = track.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
 	        createMediaPlayerIfNeeded();
-	        mState = PlaybackStateCompat.STATE_BUFFERING;
+	        mState = PlaybackState.STATE_BUFFERING;
 	        Timber.w("url: %s", source);
 	        tryToPlayAsync(source);
 	        mWifiLock.acquire();
@@ -268,7 +268,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 				if (mMediaPlayer != null && !mMediaPlayer.getPlayWhenReady()) {
 					LogHelper.d(TAG,"configMediaPlayerState startMediaPlayer. seeking to ",
 							mCurrentPosition);
-					mState = PlaybackStateCompat.STATE_BUFFERING;
+					mState = PlaybackState.STATE_BUFFERING;
 					mMediaPlayer.setPlayWhenReady(true);
 				}
 				mPlayOnFocusGain = false;
@@ -394,7 +394,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 	@Override
 	public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
 		Timber.w("onTracksChanged: %b %d",mMediaPlayer.getPlayWhenReady(),mMediaPlayer.getPlaybackState());
-		mState=PlaybackStateCompat.STATE_SKIPPING_TO_NEXT;
+		mState=PlaybackState.STATE_SKIPPING_TO_NEXT;
 		mCallback.onPlaybackStatusChanged(mState);
 	}
 
@@ -428,7 +428,7 @@ public class ExoPlayback implements Playback, AudioManager.OnAudioFocusChangeLis
 
 	@Override
 	public void onPlayerError(ExoPlaybackException error) {
-        mState=PlaybackStateCompat.STATE_ERROR;
+        mState= STATE_ERROR;
 		if (mCallback != null) {
 			mCallback.onPlaybackStatusChanged(mState);
 			mCallback.onError(error);

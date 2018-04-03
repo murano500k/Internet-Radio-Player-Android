@@ -17,11 +17,11 @@
 package com.stc.radio.player.playback;
 
 import android.content.res.Resources;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -65,7 +65,7 @@ public class PlaybackManager implements Playback.Callback {
 
 
 
-    public MediaSessionCompat.Callback getMediaSessionCallback() {
+    public MediaSession.Callback getMediaSessionCallback() {
         return mMediaSessionCallback;
     }
 
@@ -74,7 +74,7 @@ public class PlaybackManager implements Playback.Callback {
      */
     public void handlePlayRequest() {
         LogHelper.d(TAG, "handlePlayRequest: mState=" + mPlayback.getState());
-        MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
+        MediaSession.QueueItem currentMusic = mQueueManager.getCurrentMusic();
         if (currentMusic != null) {
             mServiceCallback.onPlaybackStart();
             mPlayback.play(currentMusic);
@@ -118,7 +118,7 @@ public class PlaybackManager implements Playback.Callback {
 
 
         //noinspection ResourceType
-        PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder()
+        PlaybackState.Builder stateBuilder = new PlaybackState.Builder()
                 .setActions(getAvailableActions());
 
         setCustomAction(stateBuilder);
@@ -129,27 +129,27 @@ public class PlaybackManager implements Playback.Callback {
             // Error states are really only supposed to be used for errors that cause playback to
             // stop unexpectedly and persist until the user takes action to fix it.
             stateBuilder.setErrorMessage(error);
-            state = PlaybackStateCompat.STATE_ERROR;
+            state = PlaybackState.STATE_ERROR;
         }
         //noinspection ResourceType
         stateBuilder.setState(state, -1, 1.0f, SystemClock.elapsedRealtime());
 
         // Set the activeQueueItemId if the current index is valid.
-        MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
+        MediaSession.QueueItem currentMusic = mQueueManager.getCurrentMusic();
         if (currentMusic != null) {
             stateBuilder.setActiveQueueItemId(currentMusic.getQueueId());
         }
 
         mServiceCallback.onPlaybackStateUpdated(stateBuilder.build());
 
-        if (state == PlaybackStateCompat.STATE_PLAYING ||
-                state == PlaybackStateCompat.STATE_PAUSED) {
+        if (state == PlaybackState.STATE_PLAYING ||
+                state == PlaybackState.STATE_PAUSED) {
             mServiceCallback.onNotificationRequired();
         }
     }
 
-    private void setCustomAction(PlaybackStateCompat.Builder stateBuilder) {
-        MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
+    private void setCustomAction(PlaybackState.Builder stateBuilder) {
+        MediaSession.QueueItem currentMusic = mQueueManager.getCurrentMusic();
         if (currentMusic == null) {
             return;
         }
@@ -166,38 +166,38 @@ public class PlaybackManager implements Playback.Callback {
                 musicId, " current favorite=", isFavorite);
         Bundle customActionExtras = new Bundle();
 	    customActionExtras.putBoolean(IS_FAVORITE, isFavorite);
-        stateBuilder.addCustomAction(new PlaybackStateCompat.CustomAction.Builder(
+        stateBuilder.addCustomAction(new PlaybackState.CustomAction.Builder(
                 CUSTOM_ACTION_THUMBS_UP, IS_FAVORITE, favoriteIcon)
                 .setExtras(customActionExtras)
                 .build());
     }
     public static int detectPlaybackStateCompact(boolean playWhenReady, int playbackState){
 	    if(playWhenReady && playbackState== ExoPlayer.STATE_IDLE) {
-		    return PlaybackStateCompat.STATE_BUFFERING;
+		    return PlaybackState.STATE_BUFFERING;
 	    }else if(playWhenReady && playbackState==ExoPlayer.STATE_BUFFERING) {
-		    return PlaybackStateCompat.STATE_BUFFERING;
+		    return PlaybackState.STATE_BUFFERING;
 	    }else if(playWhenReady && playbackState==ExoPlayer.STATE_READY) {
-		    return PlaybackStateCompat.STATE_PLAYING;
+		    return PlaybackState.STATE_PLAYING;
 	    }else if(!playWhenReady && playbackState==ExoPlayer.STATE_READY) {
-		    return PlaybackStateCompat.STATE_PAUSED;
+		    return PlaybackState.STATE_PAUSED;
 	    }else if(playWhenReady && playbackState==ExoPlayer.STATE_ENDED) {
-		    return PlaybackStateCompat.STATE_STOPPED;
+		    return PlaybackState.STATE_STOPPED;
 	    }
-	    return PlaybackStateCompat.STATE_ERROR;
+	    return PlaybackState.STATE_ERROR;
     }
 
 	public static int getPlayPauseIcon(int state){
 		switch (state){
-			case PlaybackStateCompat.STATE_SKIPPING_TO_NEXT:
-			case PlaybackStateCompat.STATE_BUFFERING:
+			case PlaybackState.STATE_SKIPPING_TO_NEXT:
+			case PlaybackState.STATE_BUFFERING:
 				return R.drawable.ic_buffering;
-			case PlaybackStateCompat.STATE_PLAYING:
+			case PlaybackState.STATE_PLAYING:
 				return android.R.drawable.ic_media_pause;
-			case PlaybackStateCompat.STATE_ERROR:
+			case PlaybackState.STATE_ERROR:
 				return R.drawable.ic_error;
-			case PlaybackStateCompat.STATE_PAUSED:
-			case PlaybackStateCompat.STATE_STOPPED:
-			case PlaybackStateCompat.STATE_NONE:
+			case PlaybackState.STATE_PAUSED:
+			case PlaybackState.STATE_STOPPED:
+			case PlaybackState.STATE_NONE:
 				return android.R.drawable.ic_media_play;
 		}
 		return R.drawable.ic_error;
@@ -205,13 +205,13 @@ public class PlaybackManager implements Playback.Callback {
 
     private long getAvailableActions() {
         long actions =
-                PlaybackStateCompat.ACTION_PLAY |
-                PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID |
-                PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH |
-                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-                PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+                PlaybackState.ACTION_PLAY |
+                PlaybackState.ACTION_PLAY_FROM_MEDIA_ID |
+                PlaybackState.ACTION_PLAY_FROM_SEARCH |
+                PlaybackState.ACTION_SKIP_TO_PREVIOUS |
+                PlaybackState.ACTION_SKIP_TO_NEXT;
         if (mPlayback.isPlaying()) {
-            actions |= PlaybackStateCompat.ACTION_PAUSE;
+            actions |= PlaybackState.ACTION_PAUSE;
         }
         return actions;
     }
@@ -246,7 +246,7 @@ public class PlaybackManager implements Playback.Callback {
 
 
 
-    private class MediaSessionCallback extends MediaSessionCompat.Callback {
+    private class MediaSessionCallback extends MediaSession.Callback {
         @Override
         public void onPlay() {
             LogHelper.d(TAG, "play");
@@ -324,7 +324,7 @@ public class PlaybackManager implements Playback.Callback {
             if (CUSTOM_ACTION_THUMBS_UP.equals(action)) {
                 LogHelper.i(TAG, "onCustomAction: favorite for current track");
 	            boolean isFav=extras.containsKey(IS_FAVORITE) && extras.getBoolean(IS_FAVORITE);
-                MediaSessionCompat.QueueItem currentMusic = mQueueManager.getCurrentMusic();
+                MediaSession.QueueItem currentMusic = mQueueManager.getCurrentMusic();
                 if (currentMusic != null) {
                     String mediaId = currentMusic.getDescription().getMediaId();
                     if (mediaId != null) {
@@ -345,7 +345,7 @@ public class PlaybackManager implements Playback.Callback {
         public void onPlayFromSearch(final String query, final Bundle extras) {
             LogHelper.d(TAG, "playFromSearch  query=", query, " extras=", extras);
 
-            mPlayback.setState(PlaybackStateCompat.STATE_CONNECTING);
+            mPlayback.setState(PlaybackState.STATE_CONNECTING);
             boolean successSearch = mQueueManager.setQueueFromSearch(query, extras);
             if (successSearch) {
                 handlePlayRequest();
@@ -364,7 +364,7 @@ public class PlaybackManager implements Playback.Callback {
 
         void onPlaybackStop();
 
-        void onPlaybackStateUpdated(PlaybackStateCompat newState);
+        void onPlaybackStateUpdated(PlaybackState newState);
         void onError(ExoPlaybackException e);
     }
 }

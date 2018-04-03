@@ -18,10 +18,9 @@ package com.stc.radio.player.ui;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Intent;
+import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.transition.ChangeBounds;
@@ -92,7 +91,7 @@ public class MusicPlayerActivity extends BaseActivity
         super.onSaveInstanceState(outState);
     }
 
-    private void logStationSelected(MediaBrowserCompat.MediaItem item){
+    private void logStationSelected(MediaBrowser.MediaItem item){
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.ITEM_ID, item.getDescription().getMediaId());
         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, item.getDescription().getTitle().toString());
@@ -100,12 +99,12 @@ public class MusicPlayerActivity extends BaseActivity
     }
 
     @Override
-    public void onMediaItemSelected(MediaBrowserCompat.MediaItem item) {
+    public void onMediaItemSelected(MediaBrowser.MediaItem item) {
 	    KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
 	    LogHelper.d(TAG, "onMediaItemSelected, mediaId=" + item.getMediaId());
         if (item.isPlayable()) {
             logStationSelected(item);
-            getSupportMediaController().getTransportControls()
+            getMediaController().getTransportControls()
                     .playFromMediaId(item.getMediaId(), null);
         } else if (item.isBrowsable()) {
             navigateToBrowser(item.getMediaId());
@@ -144,7 +143,7 @@ public class MusicPlayerActivity extends BaseActivity
             LogHelper.d(TAG, "Starting from voice search query=",
                 mVoiceSearchParams.getString(SearchManager.QUERY));
 	        String query=mVoiceSearchParams.getString(SearchManager.QUERY);
-			getSupportMediaController().getTransportControls().playFromSearch(query,new Bundle());
+			getMediaController().getTransportControls().playFromSearch(query,new Bundle());
         } else if (savedInstanceState != null) {
                 mediaId = savedInstanceState.getString(SAVED_MEDIA_ID);
         }else {
@@ -169,7 +168,7 @@ public class MusicPlayerActivity extends BaseActivity
 				extras.putString(SearchManager.QUERY,query);
 				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
 				getBrowseFragment().onScrollToItem(query);
-				getSupportMediaController().getTransportControls()
+				getMediaController().getTransportControls()
 						.playFromSearch(query, null);
 				return true;
 			}
@@ -178,7 +177,7 @@ public class MusicPlayerActivity extends BaseActivity
 				Log.d(TAG, "onQueryTextChange: "+s);
 				if( s==null || s.length()==0){
 					KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-					MenuItemCompat.collapseActionView(menu.findItem(R.id.search));
+                    menu.findItem(R.id.search).collapseActionView();
 					return true;
 				}else if(s.length()>2){
 					getBrowseFragment().onScrollToItem(s);
@@ -191,7 +190,7 @@ public class MusicPlayerActivity extends BaseActivity
 		searchView.setOnCloseListener(() -> {
             Log.d(TAG, "onClose: ");
             KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-            MenuItemCompat.collapseActionView(menu.findItem(R.id.search));
+            menu.findItem(R.id.search).collapseActionView();
             return false;
         });
 		return true;
@@ -241,7 +240,7 @@ public class MusicPlayerActivity extends BaseActivity
     protected void onMediaControllerConnected() {
         if (mVoiceSearchParams != null) {
             String query = mVoiceSearchParams.getString(SearchManager.QUERY);
-            getSupportMediaController().getTransportControls()
+            getMediaController().getTransportControls()
                     .playFromSearch(query, mVoiceSearchParams);
             mVoiceSearchParams = null;
         }

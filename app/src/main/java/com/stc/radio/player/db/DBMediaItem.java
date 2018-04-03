@@ -1,6 +1,7 @@
 package com.stc.radio.player.db;
 
-import android.support.v4.media.MediaMetadataCompat;
+
+import android.media.MediaMetadata;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -68,11 +69,11 @@ public class DBMediaItem extends Model {
 		this.favorite = favorite;
 	}
 
-	public DBMediaItem(MediaMetadataCompat metadata) {
-		this.mediaId = metadata.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID);
+	public DBMediaItem(MediaMetadata metadata) {
+		this.mediaId = metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID);
 		this.source = metadata.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE);
-		this.title = metadata.getString(MediaMetadataCompat.METADATA_KEY_TITLE);
-		this.iconUri = metadata.getString(MediaMetadataCompat.METADATA_KEY_ART_URI);
+		this.title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
+		this.iconUri = metadata.getString(MediaMetadata.METADATA_KEY_ART_URI);
 
 		playedTimes=0;
 

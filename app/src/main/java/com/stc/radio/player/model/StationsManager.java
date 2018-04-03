@@ -1,6 +1,7 @@
 package com.stc.radio.player.model;
 
-import android.support.v4.media.MediaMetadataCompat;
+
+import android.media.MediaMetadata;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.From;
@@ -52,7 +53,7 @@ public abstract class StationsManager  implements MusicProviderSource {
 	}
 
 	@Override
-	public Iterator<MediaMetadataCompat> iterator() {
+	public Iterator<MediaMetadata> iterator() {
 		return null;
 	}
 

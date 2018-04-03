@@ -15,8 +15,9 @@
  */
 package com.stc.radio.player.utils;
 
-import android.support.compat.BuildConfig;
 import android.util.Log;
+
+import com.stc.radio.player.BuildConfig;
 
 
 public class LogHelper {

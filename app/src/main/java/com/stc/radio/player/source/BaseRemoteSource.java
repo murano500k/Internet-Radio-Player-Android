@@ -1,7 +1,8 @@
 package com.stc.radio.player.source;
 
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.RatingCompat;
+
+import android.media.MediaMetadata;
+import android.media.Rating;
 
 import com.activeandroid.ActiveAndroid;
 import com.activeandroid.query.From;
@@ -30,9 +31,9 @@ public abstract class BaseRemoteSource {
         this.name = name;
     }
 
-    public ArrayList<MediaMetadataCompat> getStations() {
-        ArrayList<MediaMetadataCompat> list = checkDB();
-        //ArrayList<MediaMetadataCompat> list = null;
+    public ArrayList<MediaMetadata> getStations() {
+        ArrayList<MediaMetadata> list = checkDB();
+        //ArrayList<MediaMetadata> list = null;
         if (list == null || list.isEmpty()) {
             list = loadStations();
             if (list == null || list.isEmpty())return null;
@@ -40,7 +41,7 @@ public abstract class BaseRemoteSource {
 
                 try {
                 ActiveAndroid.beginTransaction();
-                    for (MediaMetadataCompat metadata : list) {
+                    for (MediaMetadata metadata : list) {
                     DBMediaItem dbMediaItem = new DBMediaItem(metadata);
                     dbMediaItem.save();
                 }
@@ -56,12 +57,12 @@ public abstract class BaseRemoteSource {
     }
 
 
-    protected ArrayList<MediaMetadataCompat> checkDB() {
+    protected ArrayList<MediaMetadata> checkDB() {
 
 
 	    boolean exists=false;
 
-        ArrayList<MediaMetadataCompat> tracks = new ArrayList<>();
+        ArrayList<MediaMetadata> tracks = new ArrayList<>();
         From from = new Select().from(DBMediaItem.class).orderBy("PlayedTimes").orderBy("Favorite");
         if (from.exists()) {
             List<DBMediaItem> listDBAll = from.execute();
@@ -69,11 +70,11 @@ public abstract class BaseRemoteSource {
                 //listDBAll=RatingHelper.sortByPlayedTimes(listDBAll);
                 for (DBMediaItem dbMediaItem : listDBAll) {
                     //if(dbMediaItem.isFavorite())Log.w("DBITEM",dbMediaItem.getTitle()+" "+dbMediaItem.isFavorite());
-                    MediaMetadataCompat metadata = createMetadata(dbMediaItem);
+                    MediaMetadata metadata = createMetadata(dbMediaItem);
                     if (metadata == null) {
                         Timber.e("ERROR metadata  is null");
                     } else if (metadata
-                            .getString(MediaMetadataCompat.METADATA_KEY_TITLE)
+                            .getString(MediaMetadata.METADATA_KEY_TITLE)
                             .contains(this.getName())) {
                         tracks.add(metadata);
                         exists=true;
@@ -90,38 +91,38 @@ public abstract class BaseRemoteSource {
         return null;
     }
 
-    protected abstract ArrayList<MediaMetadataCompat> loadStations();
+    protected abstract ArrayList<MediaMetadata> loadStations();
 
-    public static MediaMetadataCompat createMetadata(
-            String id, String source, String title, String iconUrl, RatingCompat rating){
+    public static MediaMetadata createMetadata(
+            String id, String source, String title, String iconUrl, Rating rating){
         //Timber.w("Parsed: title=%s url=%s",title,source);
         assertNotNull(id);
         assertNotNull(source);
         assertNotNull(title);
         assertNotNull(rating);
-        return new MediaMetadataCompat.Builder()
-                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING, rating)
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, id)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, -1)
+        return new MediaMetadata.Builder()
+                .putRating(MediaMetadata.METADATA_KEY_USER_RATING, rating)
+                .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, id)
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, -1)
                 .putString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE, source)
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title)
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, title)
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, iconUrl)
-                .putString(MediaMetadataCompat.METADATA_KEY_ART_URI, iconUrl)
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON_URI, iconUrl)
+                .putString(MediaMetadata.METADATA_KEY_TITLE, title)
+                .putString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, title)
+                .putString(MediaMetadata.METADATA_KEY_ALBUM_ART_URI, iconUrl)
+                .putString(MediaMetadata.METADATA_KEY_ART_URI, iconUrl)
+                .putString(MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI, iconUrl)
                 .build();
     }
 
 
 
 
-    public static MediaMetadataCompat createMetadata(String source, String title, String iconUrl){
+    public static MediaMetadata createMetadata(String source, String title, String iconUrl){
         Integer idNum = source.hashCode();
         String id=idNum.toString();
-        RatingCompat ratingCompat= RatingCompat.newHeartRating(false);
-        return createMetadata(id, source, title, iconUrl, ratingCompat);
+        Rating rating= Rating.newHeartRating(false);
+        return createMetadata(id, source, title, iconUrl, rating);
     }
-    public static MediaMetadataCompat createMetadata(DBMediaItem item) {
+    public static MediaMetadata createMetadata(DBMediaItem item) {
         String iconUrl=item.getIconUri();
         String title=item.getTitle();
         String id=item.getMediaId();
@@ -130,9 +131,9 @@ public abstract class BaseRemoteSource {
         boolean isFav=item.isFavorite();
 
         //float userRatingPercentage = RatingHelper.getUserRatingPercentageForItem(isFav, playedTimes);
-        RatingCompat ratingCompat=RatingCompat.newHeartRating(isFav);
+        Rating rating=Rating.newHeartRating(isFav);
         //Timber.w("item:%s,fav: %b, played:%d", item.getTitle(), isFav, playedTimes);
-        return createMetadata(id, source, title, iconUrl, ratingCompat);
+        return createMetadata(id, source, title, iconUrl, rating);
     }
 
 }

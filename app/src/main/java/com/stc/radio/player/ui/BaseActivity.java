@@ -18,22 +18,22 @@ package com.stc.radio.player.ui;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadata;
+import android.media.browse.MediaBrowser;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
-import android.support.v4.media.MediaBrowserCompat;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.transition.ChangeBounds;
 import android.transition.Slide;
 import android.view.Gravity;
 
+import com.stc.radio.player.R;
 import com.stc.radio.player.model.MediaBrowserProvider;
 import com.stc.radio.player.service.MusicService;
-import com.stc.radio.player.R;
 import com.stc.radio.player.utils.LogHelper;
 import com.stc.radio.player.utils.ResourceHelper;
 
@@ -44,7 +44,7 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
 
     private static final String TAG = LogHelper.makeLogTag(BaseActivity.class);
 
-    protected MediaBrowserCompat mMediaBrowser;
+    protected MediaBrowser mMediaBrowser;
     public PlaybackControlsFragment mControlsFragment;
 
     @Override
@@ -67,7 +67,7 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
 
         // Connect a media browser just to get the media session token. There are other ways
         // this can be done, for example by sharing the session token directly.
-        mMediaBrowser = new MediaBrowserCompat(this,
+        mMediaBrowser = new MediaBrowser(this,
             new ComponentName(this, MusicService.class), mConnectionCallback, null);
 
 	    //MusicService service=(MusicService) mMediaBrowser.getServiceComponent();
@@ -98,19 +98,19 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
     protected void onStop() {
         super.onStop();
         LogHelper.d(TAG, "Activity onStop");
-        if (getSupportMediaController() != null) {
-            getSupportMediaController().unregisterCallback(mMediaControllerCallback);
+        if (getMediaController() != null) {
+            getMediaController().unregisterCallback(mMediaControllerCallback);
         }
         mMediaBrowser.disconnect();
     }
 
     @Override
-    public MediaBrowserCompat getMediaBrowser() {
+    public MediaBrowser getMediaBrowser() {
         return mMediaBrowser;
     }
 
     protected void onMediaControllerConnected() {
-	    MediaControllerCompat controller = getSupportMediaController();
+	    MediaController controller = getMediaController();
 	    if(controller!=null){
 		    if(!shouldShowControls(controller.getPlaybackState())){
 			    hidePlaybackControls();
@@ -141,21 +141,21 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
      *
      * @return true if the MediaSession's state requires playback controls to be visible.
      */
-    protected boolean shouldShowControls(PlaybackStateCompat state) {
+    protected boolean shouldShowControls(PlaybackState state) {
         switch (state.getState()) {
-            case PlaybackStateCompat.STATE_ERROR:
-            case PlaybackStateCompat.STATE_NONE:
-            case PlaybackStateCompat.STATE_STOPPED:
+            case PlaybackState.STATE_ERROR:
+            case PlaybackState.STATE_NONE:
+            case PlaybackState.STATE_STOPPED:
                 return false;
             default:
                 return true;
         }
     }
 
-    private void connectToSession(MediaSessionCompat.Token token) throws RemoteException {
-        MediaControllerCompat mediaController = new MediaControllerCompat(this, token);
+    private void connectToSession(MediaSession.Token token) throws RemoteException {
+        MediaController mediaController = new MediaController(this, token);
 
-	    setSupportMediaController(mediaController);
+	    setMediaController(mediaController);
         mediaController.registerCallback(mMediaControllerCallback);
 
         if (shouldShowControls(mediaController.getPlaybackState())) {
@@ -174,10 +174,10 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
     }
 
     // Callback that ensures that we are showing the controls
-    private final MediaControllerCompat.Callback mMediaControllerCallback =
-        new MediaControllerCompat.Callback() {
+    private final MediaController.Callback mMediaControllerCallback =
+        new MediaController.Callback() {
             @Override
-            public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
+            public void onPlaybackStateChanged(@NonNull PlaybackState state) {
                 if (shouldShowControls(state)) {
                     showPlaybackControls();
                 } else {
@@ -188,8 +188,8 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
             }
 
             @Override
-            public void onMetadataChanged(MediaMetadataCompat metadata) {
-                /*if (shouldShowControls(getSupportMediaController().getPlaybackState())) {
+            public void onMetadataChanged(MediaMetadata metadata) {
+                /*if (shouldShowControls(getMediaController().getPlaybackState())) {
                     showPlaybackControls();
                 } else {
                     LogHelper.d(TAG, "mediaControllerCallback.onMetadataChanged: " +
@@ -199,8 +199,8 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
             }
         };
 
-    private final MediaBrowserCompat.ConnectionCallback mConnectionCallback =
-        new MediaBrowserCompat.ConnectionCallback() {
+    private final MediaBrowser.ConnectionCallback mConnectionCallback =
+        new MediaBrowser.ConnectionCallback() {
             @Override
             public void onConnected() {
                 LogHelper.d(TAG, "onConnected");

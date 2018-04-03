@@ -16,12 +16,14 @@
 
 package com.stc.radio.player.source;
 
-import android.support.v4.media.MediaMetadataCompat;
+
+import android.media.MediaMetadata;
 
 import java.util.Iterator;
+
 
 public interface MusicProviderSource {
     String CUSTOM_METADATA_TRACK_SOURCE = "__SOURCE__";
 	String CUSTOM_METADATA_FAVORITE = "__FAVORITE__";
-    Iterator<MediaMetadataCompat> iterator();
+    Iterator<MediaMetadata> iterator();
 }

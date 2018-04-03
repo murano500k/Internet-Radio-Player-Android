@@ -15,8 +15,8 @@
  */
 package com.stc.radio.player.model;
 
-import android.support.v4.media.MediaBrowserCompat;
+import android.media.browse.MediaBrowser;
 
 public interface MediaBrowserProvider {
-    MediaBrowserCompat getMediaBrowser();
+    MediaBrowser getMediaBrowser();
 }
