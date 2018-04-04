@@ -1,6 +1,7 @@
 <resources xmlns:xliff="http://schemas.android.com/tools">
     <string name="app_name">Online Radio</string>
 
+    <string name="app_id">B30E2720</string>
 
     <string name="search_title">Search</string>
 
@@ -26,6 +27,7 @@
     <string name="label_previous">Prev</string>
     <string name="label_next">Next</string>
     <string name="art_transition">ART</string>
+    <string name="media_route_menu_title">Cast</string>
 
 
 </resources>

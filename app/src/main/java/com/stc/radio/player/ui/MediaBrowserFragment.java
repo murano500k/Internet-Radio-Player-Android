@@ -5,13 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaMetadata;
 import android.media.browse.MediaBrowser;
 import android.media.session.MediaController;
 import android.media.session.PlaybackState;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentActivity;
@@ -26,11 +27,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.common.images.WebImage;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.FastItemAdapter;
 import com.stc.radio.player.R;
 import com.stc.radio.player.model.MediaBrowserProvider;
+import com.stc.radio.player.source.MusicProviderSource;
 import com.stc.radio.player.ui.customviews.AutoFitGridRecyclerView;
 import com.stc.radio.player.utils.ListColumnsCounter;
 import com.stc.radio.player.utils.LogHelper;
@@ -85,10 +91,27 @@ public class MediaBrowserFragment extends Fragment{
 		}
 	};
 
+	private void updateCastData(android.media.MediaMetadata selectedMedia) {
+		com.google.android.gms.cast.MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
+
+		movieMetadata.putString(MediaMetadata.KEY_TITLE, selectedMedia.getString(android.media.MediaMetadata.METADATA_KEY_TITLE));
+		movieMetadata.addImage(new WebImage(Uri.parse(selectedMedia.getString(android.media.MediaMetadata.METADATA_KEY_ART_URI))));
+		MediaInfo mediaInfo = new MediaInfo.Builder(selectedMedia.getString(MusicProviderSource.CUSTOM_METADATA_TRACK_SOURCE))
+				.setStreamType(MediaInfo.STREAM_TYPE_LIVE)
+				.setContentType("audio/*")
+				.setMetadata(movieMetadata)
+				.setStreamDuration(-1)
+				.build();
+
+		RemoteMediaClient remoteMediaClient = ((MusicPlayerActivity) getActivity())
+				.getSessionManager().getCurrentCastSession().getRemoteMediaClient();
+		remoteMediaClient.load(mediaInfo);
+	}
+
 	private final MediaController.Callback mMediaControllerCallback =
 			new MediaController.Callback() {
 				@Override
-				public void onMetadataChanged(MediaMetadata metadata) {
+				public void onMetadataChanged(android.media.MediaMetadata metadata) {
 					super.onMetadataChanged(metadata);
 					if (metadata == null) {
 						return;
@@ -96,7 +119,8 @@ public class MediaBrowserFragment extends Fragment{
 					LogHelper.d(TAG, "Received metadata change to media ",
 							metadata.getDescription().getMediaId());
 					fastItemAdapter.notifyDataSetChanged();
-					onScrollToItem((String) metadata.getText(MediaMetadata.METADATA_KEY_TITLE));
+					onScrollToItem((String) metadata.getText(android.media.MediaMetadata.METADATA_KEY_TITLE));
+
 				}
 
 				@Override
@@ -323,7 +347,6 @@ public class MediaBrowserFragment extends Fragment{
 				" isOnline=", NetworkHelper.isOnline(getActivity()));
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.M)
 	private void updateTitle() {
 		if (MediaIDHelper.MEDIA_ID_ROOT.equals(mMediaId)) {
 			mListener.setToolbarTitle(null);
@@ -331,13 +354,15 @@ public class MediaBrowserFragment extends Fragment{
 		}
 
 		MediaBrowser mediaBrowser = mListener.getMediaBrowser();
-		mediaBrowser.getItem(mMediaId, new MediaBrowser.ItemCallback() {
-			@Override
-			public void onItemLoaded(MediaBrowser.MediaItem item) {
-				mListener.setToolbarTitle(
-						item.getDescription().getTitle());
-			}
-		});
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			mediaBrowser.getItem(mMediaId, new MediaBrowser.ItemCallback() {
+                @Override
+                public void onItemLoaded(MediaBrowser.MediaItem item) {
+                    mListener.setToolbarTitle(
+                            item.getDescription().getTitle());
+                }
+            });
+		}
 	}
 
 	public interface MediaFragmentListener extends MediaBrowserProvider {

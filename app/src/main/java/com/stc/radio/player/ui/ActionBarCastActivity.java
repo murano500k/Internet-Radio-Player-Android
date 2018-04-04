@@ -223,7 +223,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
             throw new IllegalStateException("Layout is required to include a Toolbar with id " +
                 "'toolbar'");
         }
-        mToolbar.inflateMenu(R.menu.search);
+        mToolbar.inflateMenu(R.menu.menu);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {
             navigationView = (NavigationView) findViewById(R.id.nav_view);

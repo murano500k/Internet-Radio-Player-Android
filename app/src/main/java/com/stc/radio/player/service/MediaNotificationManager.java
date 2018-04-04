@@ -17,6 +17,7 @@
 package com.stc.radio.player.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -31,8 +32,10 @@ import android.media.MediaMetadata;
 import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
+import android.os.Build;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 
 import com.stc.radio.player.R;
 import com.stc.radio.player.playback.PlaybackManager;
@@ -80,6 +83,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
     private final int mNotificationColor;
 
     private boolean mStarted = false;
+    private NotificationChannel mNotificationChannel;
 
     public MediaNotificationManager(MusicService service) throws RemoteException {
         mService = service;
@@ -266,7 +270,12 @@ public class MediaNotificationManager extends BroadcastReceiver {
             return null;
         }
 
-        Notification.Builder notificationBuilder = new Notification.Builder(mService);
+        Notification.Builder notificationBuilder = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            if (mNotificationChannel==null)createNotificationChannel();
+            notificationBuilder = new Notification.Builder(mService, mNotificationChannel.getId());
+        }else notificationBuilder = new Notification.Builder(mService);
+
         int playPauseButtonPosition = 0;
 
         // If skip to previous action is enabled
@@ -415,5 +424,16 @@ public class MediaNotificationManager extends BroadcastReceiver {
                 }
             }
         });
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannel(){
+        String channelId = "radioNotification";
+        String channelName = "Internet radio service";
+        mNotificationChannel = new NotificationChannel(channelId,
+                channelName, NotificationManager.IMPORTANCE_NONE);
+        mNotificationChannel.setLightColor(Color.BLUE);
+        mNotificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        mNotificationManager.createNotificationChannel(mNotificationChannel);
+        return channelId;
     }
 }

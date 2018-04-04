@@ -31,6 +31,12 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.Session;
+import com.google.android.gms.cast.framework.SessionManager;
+import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mikepenz.materialize.util.KeyboardUtil;
 import com.stc.radio.player.R;
@@ -59,10 +65,66 @@ public class MusicPlayerActivity extends BaseActivity
 	  private SearchView searchView;
     private ProgressBar progress;
     private FirebaseAnalytics mFirebaseAnalytics;
+    private CastSession mCastSession;
+    private SessionManager mSessionManager;
+    private final SessionManagerListener mSessionManagerListener =
+            new SessionManagerListenerImpl();
+    private class SessionManagerListenerImpl implements SessionManagerListener {
+        @Override
+        public void onSessionStarting(Session session) {
+
+        }
+
+        @Override
+        public void onSessionStarted(Session session, String sessionId) {
+            invalidateOptionsMenu();
+        }
+
+        @Override
+        public void onSessionStartFailed(Session session, int i) {
+
+        }
+
+        @Override
+        public void onSessionEnding(Session session) {
+
+        }
+
+        @Override
+        public void onSessionResumed(Session session, boolean wasSuspended) {
+            invalidateOptionsMenu();
+        }
+
+        @Override
+        public void onSessionResumeFailed(Session session, int i) {
+
+        }
+
+        @Override
+        public void onSessionSuspended(Session session, int i) {
+
+        }
+
+        @Override
+        public void onSessionEnded(Session session, int error) {
+            finish();
+        }
+
+        @Override
+        public void onSessionResuming(Session session, String s) {
+
+        }
+    }
+
+    public SessionManager getSessionManager() {
+        return mSessionManager;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        mSessionManager = CastContext.getSharedInstance(this).getSessionManager();
         super.onCreate(savedInstanceState);
+        CastContext castContext = CastContext.getSharedInstance(this);
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         setContentView(R.layout.activity_player);
         LogHelper.d(TAG, "Activity onCreate");
@@ -71,6 +133,18 @@ public class MusicPlayerActivity extends BaseActivity
         progress.setVisibility(View.GONE);
         initializeFromParams(savedInstanceState, getIntent());
 	      initializeToolbar();
+    }
+    @Override
+    public void onResume() {
+        mCastSession = mSessionManager.getCurrentCastSession();
+        mSessionManager.addSessionManagerListener(mSessionManagerListener);
+        super.onResume();
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        mSessionManager.removeSessionManagerListener(mSessionManagerListener);
+        mCastSession = null;
     }
     @Override
     public void onStart() {
@@ -114,6 +188,7 @@ public class MusicPlayerActivity extends BaseActivity
         }
     }
 
+
     @Override
     public void setToolbarTitle(CharSequence title) {
         LogHelper.d(TAG, "Setting toolbar title to ", title);
@@ -153,49 +228,57 @@ public class MusicPlayerActivity extends BaseActivity
     }
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.search, menu);
-		menu.findItem(R.id.search).setIcon(getDrawable(android.R.drawable.ic_menu_search));
-		searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-		searchView.setOnCloseListener(() -> {
+		getMenuInflater().inflate(R.menu.menu, menu);
+		setupSearchMenu(menu);
+        CastButtonFactory.setUpMediaRouteButton(getApplicationContext(),
+                menu,
+                R.id.media_route_menu_item);
+		return true;
+
+	}
+
+    private void setupSearchMenu(Menu menu) {
+        menu.findItem(R.id.search).setIcon(getDrawable(android.R.drawable.ic_menu_search));
+        searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setOnCloseListener(() -> {
             Timber.w("");
             return false;
         });
-		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-			@Override
-			public boolean onQueryTextSubmit(String query) {
-				Log.d(TAG, "onQueryTextSubmit: ");
-				Bundle extras=new Bundle();
-				extras.putString(SearchManager.QUERY,query);
-				KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
-				getBrowseFragment().onScrollToItem(query);
-				getMediaController().getTransportControls()
-						.playFromSearch(query, null);
-				return true;
-			}
-			@Override
-			public boolean onQueryTextChange(String s) {
-				Log.d(TAG, "onQueryTextChange: "+s);
-				if( s==null || s.length()==0){
-					KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.d(TAG, "onQueryTextSubmit: ");
+                Bundle extras=new Bundle();
+                extras.putString(SearchManager.QUERY,query);
+                KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
+                getBrowseFragment().onScrollToItem(query);
+                getMediaController().getTransportControls()
+                        .playFromSearch(query, null);
+                return true;
+            }
+            @Override
+            public boolean onQueryTextChange(String s) {
+                Log.d(TAG, "onQueryTextChange: "+s);
+                if( s==null || s.length()==0){
+                    KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
                     menu.findItem(R.id.search).collapseActionView();
-					return true;
-				}else if(s.length()>2){
-					getBrowseFragment().onScrollToItem(s);
-					return true;
-				}else {
-					return true;
-				}
-			}
-		});
-		searchView.setOnCloseListener(() -> {
+                    return true;
+                }else if(s.length()>2){
+                    getBrowseFragment().onScrollToItem(s);
+                    return true;
+                }else {
+                    return true;
+                }
+            }
+        });
+        searchView.setOnCloseListener(() -> {
             Log.d(TAG, "onClose: ");
             KeyboardUtil.hideKeyboard(MusicPlayerActivity.this);
             menu.findItem(R.id.search).collapseActionView();
             return false;
         });
-		return true;
+    }
 
-	}
     public void navigateToBrowser(String mediaId) {
         LogHelper.d(TAG, "navigateToBrowser, mediaId=" + mediaId);
 	    if(mediaId.equals(MEDIA_ID_ROOT)) isRoot=true;

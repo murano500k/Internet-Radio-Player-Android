@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.stc.radio.player">
+    package="com.stc.radio.player"
+    tools:ignore="MissingLeanbackLauncher">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -38,7 +39,12 @@
         <meta-data
             android:name="AA_MODELS"
             android:value="com.stc.radio.player.db.DBMediaItem, com.stc.radio.player.db.DBUserPrefsItem" />
-
+        <provider
+            android:name=".db.DatabaseContentProvider"
+            android:authorities="com.stc.radio.player"
+            android:enabled="true"
+            android:exported="false">
+        </provider>
 
         <!-- Main activity for music browsing on phone -->
         <activity
@@ -58,68 +64,19 @@
             </intent-filter>
         </activity>
 
-        <!-- Placeholder activity for phone UI -->
 
-        <!--
-        Proxy activity that opens either the NowPlaying TV or the mobile UI, depending on
-        the current environment
-        -->
-
-        <!-- Main activity for Android TV user interface -->
-        <activity
-            android:name=".ui.tv.TvBrowseActivity"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.UAmp.TVLeanback">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".ui.tv.TvVerticalGridActivity"
-            android:parentActivityName=".ui.tv.TvBrowseActivity"
-            android:theme="@style/Theme.UAmp.TVLeanback" />
-
-        <!-- Android TV UI when playing a song -->
-        <activity
-            android:name=".ui.tv.TvPlaybackActivity"
-            android:parentActivityName=".ui.tv.TvBrowseActivity"
-            android:theme="@style/Theme.UAmp.TVLeanback" />
-
-        <!--
-             (OPTIONAL) use this meta data to indicate which icon should be
-             used in Android Auto media notifications (for example, when the
-             music changes and the user is looking at another app)
-        -->
         <meta-data
             android:name="com.google.android.gms.car.notification.SmallIcon"
             android:resource="@drawable/ic_notification" />
 
-        <!--
-             (OPTIONAL) use this meta data to override the theme from which Android Auto will
-             look for colors. If you don't set this, Android Auto will look
-             for color attributes in your application theme.
-        -->
+
         <meta-data
             android:name="com.google.android.gms.car.application.theme"
             android:resource="@style/CarTheme" />
-
-        <!--
-             (OPTIONAL) use this meta data to override the theme from which Android Wear will
-             look for colors. Currently, only background color of the media cards can be set, via
-             colorPrimaryDark. If you don't set this custom theme, Android Wear will look
-             for colorPrimaryDark attribute in your application theme.
-        -->
-        <meta-data
+  <meta-data
             android:name="com.google.android.wearable.media.theme"
             android:resource="@style/WearTheme" />
 
-        <!--
-         Main music service, provides media browsing and media playback services to
-         consumers through MediaBrowserService and MediaSession. Consumers connect to it through
-         MediaBrowser (for browsing) and MediaController (for play session control)
-        -->
         <service
             android:name=".service.MusicService"
             android:enabled="true"
